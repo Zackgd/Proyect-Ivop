@@ -1,5 +1,6 @@
 ﻿using System;
-namespace Proyect-InvOperativa.Controllers{
+namespace Proyect_InvOperativa.Controllers
+{
 public class OrdenCompraEstadoController
 {
 
