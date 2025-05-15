@@ -1,6 +1,6 @@
 ﻿namespace Proyect_InvOperativa.Models
 {
-    public class DetallaOrdenCompra
+    public class DetalleOrdenCompra
     {
     }
 }
