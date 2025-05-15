@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kvAf+YfMM0o=",
+  "dgSpecHash": "yCyDOa3cPfo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\USUARIO\\Source\\Repos\\Proyect-InvOperativa\\Proyect-InvOperativa.csproj",
+  "projectFilePath": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Proyect-InvOperativa.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USUARIO\\.nuget\\packages\\antlr3.runtime\\3.5.1\\antlr3.runtime.3.5.1.nupkg.sha512",
     "C:\\Users\\USUARIO\\.nuget\\packages\\iesi.collections\\4.0.4\\iesi.collections.4.0.4.nupkg.sha512",
