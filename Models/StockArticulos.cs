@@ -6,5 +6,8 @@
         public int stockActual {  get; set; }
         public DateTime fechaStockInicio { get; set; }
         public DateTime fechaStockFin { get; set; }
+        public Articulo? articulo { get; set; }
+
+        public StockArticulos() { }
     }
 }

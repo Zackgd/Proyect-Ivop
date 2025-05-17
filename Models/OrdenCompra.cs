@@ -2,7 +2,10 @@
 {
     public class OrdenCompra
     {
-        public long id {  get; set; }
-        public string? descripcionOrden { get; set; } = "";
+        public int nOrdenCompra {  get; set; }
+        public string? detalleOrdenCompra {  set; get; }
+        public long totalPagar { get; set; }
+        public OrdenCompraEstado? ordenEstado { get; set; }
+        
     }
 }
