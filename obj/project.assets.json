@@ -18,6 +18,22 @@
           }
         }
       },
+      "FluentNHibernate/3.4.1": {
+        "type": "package",
+        "dependencies": {
+          "NHibernate": "5.4.9"
+        },
+        "compile": {
+          "lib/netcoreapp2.0/FluentNHibernate.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/FluentNHibernate.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Iesi.Collections/4.0.4": {
         "type": "package",
         "dependencies": {
@@ -1614,6 +1630,29 @@
         "lib/netstandard1.1/Antlr3.Runtime.xml",
         "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/Antlr3.Runtime.dll",
         "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/Antlr3.Runtime.xml"
+      ]
+    },
+    "FluentNHibernate/3.4.1": {
+      "sha512": "uPjamAeZEpgD9ITPa40qNIA9GQbdEqCq9OwpNcHAUSSDu6TULDIKYK9BylBgr47mQsR/bInCsMOwbNWn5XKpWA==",
+      "type": "package",
+      "path": "fluentnhibernate/3.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "fluentnhibernate.3.4.1.nupkg.sha512",
+        "fluentnhibernate.nuspec",
+        "lib/net461/FluentNHibernate.dll",
+        "lib/net461/FluentNHibernate.pdb",
+        "lib/net461/FluentNHibernate.xml",
+        "lib/netcoreapp2.0/FluentNHibernate.dll",
+        "lib/netcoreapp2.0/FluentNHibernate.pdb",
+        "lib/netcoreapp2.0/FluentNHibernate.xml",
+        "lib/netstandard2.0/FluentNHibernate.dll",
+        "lib/netstandard2.0/FluentNHibernate.pdb",
+        "lib/netstandard2.0/FluentNHibernate.xml",
+        "logo-nuget.png"
       ]
     },
     "Iesi.Collections/4.0.4": {
@@ -5360,6 +5399,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "FluentNHibernate >= 3.4.1",
       "NHibernate >= 5.5.2"
     ]
   },
@@ -5413,6 +5453,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "FluentNHibernate": {
+            "target": "Package",
+            "version": "[3.4.1, )"
+          },
           "NHibernate": {
             "target": "Package",
             "version": "[5.5.2, )"
