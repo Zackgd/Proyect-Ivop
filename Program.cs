@@ -13,30 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-
-
-builder.Services.AddSingleton(provider =>
+var connectionString = builder.Configuration.GetConnectionString("MySQLConnection");
+builder.Services.AddSingleton<ISessionFactory>(provider =>
 {
     return Fluently.Configure()
         .Database(
             MySQLConfiguration.Standard
-                .ConnectionString("Server=localhost;Database=nombre_db;User=root;Password=tu_password;")
+                .ConnectionString(connectionString) // Usar la cadena de conexión de appsettings.json
                 .ShowSql()
         )
         .Mappings(m => m.FluentMappings.AddFromAssemblyOf<ArticuloMapping>())
         .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
         .BuildSessionFactory();
 });
-var sessionFactory = Fluently.Configure()
-    .Database(MsSqlConfiguration.MsSql2012
-        .ConnectionString(builder.Configuration.GetConnectionString("DefaultConnection"))
-        .ShowSql()
-    )
-    .Mappings(m => m.FluentMappings.AddFromAssembly(typeof(Program).Assembly))
-    .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
-    .BuildSessionFactory();
 
-builder.Services.AddSingleton<ISessionFactory>(sessionFactory);
 builder.Services.AddScoped<NHibernate.ISession>(provider =>
     provider.GetRequiredService<ISessionFactory>().OpenSession());
 

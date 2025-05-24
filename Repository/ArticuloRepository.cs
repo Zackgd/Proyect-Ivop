@@ -7,9 +7,7 @@ namespace Proyect_InvOperativa.Repository
 {
     public class ArticuloRepository : BaseRepository<Articulo>
     {
-        public ArticuloRepository(ISessionFactory sessionFactory): base(sessionFactory) 
-        {
-        }
+        public ArticuloRepository(ISessionFactory sessionFactory): base(sessionFactory) {}
 
     }
 }

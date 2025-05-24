@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\maestroarticulosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\maestroarticulosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\articulorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\articulorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -14,19 +30,71 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
+              "Title": "MaestroArticulosRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\MaestroArticulosRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\MaestroArticulosRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\MaestroArticulosRepository.cs",
+              "RelativeToolTip": "Repository\\MaestroArticulosRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-24T02:37:33.632Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "ArticuloRepository.cs",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ArticuloRepository.cs",
               "RelativeDocumentMoniker": "Repository\\ArticuloRepository.cs",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ArticuloRepository.cs",
               "RelativeToolTip": "Repository\\ArticuloRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA3AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-23T01:28:35.971Z",
+              "WhenOpened": "2025-05-24T02:36:10.873Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAAACYAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-24T00:52:14.627Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\IRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\IRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\IRepository.cs",
+              "RelativeToolTip": "Repository\\IRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-23T23:17:44.716Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\BaseRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\BaseRepository.cs",
+              "RelativeToolTip": "Repository\\BaseRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-23T23:51:34.123Z",
               "EditorCaption": ""
             }
           ]
