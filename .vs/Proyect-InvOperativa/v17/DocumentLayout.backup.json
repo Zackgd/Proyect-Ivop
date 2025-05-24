@@ -1,12 +1,105 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\maestroarticulosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\maestroarticulosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\articulorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\articulorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MaestroArticulosRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\MaestroArticulosRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\MaestroArticulosRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\MaestroArticulosRepository.cs",
+              "RelativeToolTip": "Repository\\MaestroArticulosRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-24T02:37:33.632Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ArticuloRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ArticuloRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\ArticuloRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ArticuloRepository.cs",
+              "RelativeToolTip": "Repository\\ArticuloRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-24T02:36:10.873Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAiwCYAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-24T00:52:14.627Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\IRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\IRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\IRepository.cs",
+              "RelativeToolTip": "Repository\\IRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-23T23:17:44.716Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\BaseRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\BaseRepository.cs",
+              "RelativeToolTip": "Repository\\BaseRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-23T23:51:34.123Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
