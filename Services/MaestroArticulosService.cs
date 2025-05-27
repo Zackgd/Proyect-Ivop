@@ -1,21 +1,46 @@
-﻿namespace Proyect_InvOperativa.Services
+﻿using Proyect_InvOperativa.Models;
+using Proyect_InvOperativa.Repository;
+
+namespace Proyect_InvOperativa.Services
 {
     public class MaestroArticulosService
     {
-        public MaestroArticulosService() { }
-
-        public async Task CalculoLoteFijo()
+        public readonly ArticuloRepository _articuloRepository;
+        public readonly ProveedoresRepository _proveedorRepository;
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository)
+        {
+            _articuloRepository = articuloRepository;
+            _proveedorRepository = proveedorRepository;
+        }
+        public async Task CreateArticulo(long id, string descripcion)
         {
 
-        }
-        public async Task CalculoIntervaloFijo()
-        {
 
-        }
-        public async Task CalculoCGI()
-        {
+            var articulo = new Articulo
+            {
+                idArticulo = id,
+                descripcion = descripcion,
+                stockArticulos = null,
+                listaArticulos = null,
+                masterArticulo = null
 
+            };
+            await _articuloRepository.AddAsync(articulo);
         }
-        
+        public async Task CreateProveedor(string nombreP,long idP)
+        {
+            var proveedor = new Proveedor
+            {
+                nombreProveedor = nombreP,
+                idProveedor = idP,
+                listaProveedores = null,
+                masterArticulo = null
+            };
+            await _proveedorRepository.AddAsync(proveedor);
+        }
+        //Metodos para el calculo de Modelo de Inventario
+        public void CalculoLoteFijo(){} 
+        public void CalculoIntervaloFijo(){}
+        public void CalculoCGI(){}
     }
 }
