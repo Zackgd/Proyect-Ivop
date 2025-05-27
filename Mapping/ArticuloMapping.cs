@@ -9,14 +9,19 @@ namespace Proyect_InvOperativa.Mapping
         {
             Table("Articulos");
             Id(x => x.idArticulo).GeneratedBy.Identity();
-            Map(x => x.stockArticulos);
-            Map(x => x.listaArticulos);
+            Map(x => x.descripcion);
+            References(x => x.listaArticulos)
+                .Column("listaDeArticulos")
+                .Cascade.None();
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
 
-            HasOne(x => x.stockArticulos)
-                .Cascade.All();
+            HasMany(x => x.stockArticulos)
+    .KeyColumn("idArticulo") // FK en la tabla StockArticulos que apunta a Articulo
+    .Cascade.All()
+    .Inverse(); // Opcional pero recomendado si la relación se maneja desde el lado hijo
+
         }
     }
 }

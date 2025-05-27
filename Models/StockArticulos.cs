@@ -2,12 +2,11 @@
 {
     public class StockArticulos
     {
-        public int stockSeguridad {  get; set; }
-        public int stockActual {  get; set; }
-        public DateTime fechaStockInicio { get; set; }
-        public DateTime fechaStockFin { get; set; }
-        public Articulo? articulo { get; set; }
-
-        public StockArticulos() { }
+        public virtual long nStock { get; set; }
+        public virtual int stockSeguridad {  get; set; }
+        public virtual int stockActual {  get; set; }
+        public virtual DateTime fechaStockInicio { get; set; }
+        public virtual DateTime fechaStockFin { get; set; }
+        public virtual Articulo? articulo { get; set; }
     }
 }

@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.ArticuloController",
+    "Method": "Create",
+    "RelativePath": "Articulo/Create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
