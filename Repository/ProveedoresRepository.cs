@@ -1,6 +1,10 @@
-﻿namespace Proyect_InvOperativa.Repository
+﻿using NHibernate;
+using Proyect_InvOperativa.Models;
+
+namespace Proyect_InvOperativa.Repository
 {
-    public class ProveedoresRepository
+    public class ProveedoresRepository:BaseRepository<Proveedor>
     {
+        public ProveedoresRepository(ISessionFactory sessionFactory) : base(sessionFactory) { }
     }
 }
