@@ -7,7 +7,7 @@ namespace Proyect_InvOperativa.Mapping
     {
         public VentasDetalleMapping()
         {
-            Table("Detalle-Venta");
+            Table("DetalleVenta");
             Id(x => x.nDetalleVenta).GeneratedBy.Identity();
             Map(x => x.subTotalVenta);
             Map(x => x.cantidad);

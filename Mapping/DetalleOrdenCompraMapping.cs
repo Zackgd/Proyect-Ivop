@@ -7,8 +7,8 @@ namespace Proyect_InvOperativa.Mapping
     {
         public DetalleOrdenCompraMapping()
         {
-            Table("Detalle-Compra");
-            Id(x => x.nDetalleOrdenCompra).GeneratedBy.Identity();
+            Table("DetalleCompra");
+            Id(x => x.nDetalleOrdenCompra);
             Map(x => x.cantidadArticulos);
             Map(x => x.precioSubTotal);
             References(x => x.ordenCompra)
