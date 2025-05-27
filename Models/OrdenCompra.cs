@@ -2,10 +2,10 @@
 {
     public class OrdenCompra
     {
-        public int nOrdenCompra {  get; set; }
-        public string? detalleOrdenCompra {  set; get; }
-        public long totalPagar { get; set; }
-        public OrdenCompraEstado? ordenEstado { get; set; }
+        public virtual int nOrdenCompra {  get; set; }
+        public virtual string? detalleOrdenCompra {  set; get; }
+        public virtual long totalPagar { get; set; }
+        public virtual OrdenCompraEstado? ordenEstado { get; set; }
         
     }
 }

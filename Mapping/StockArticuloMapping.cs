@@ -8,17 +8,19 @@ namespace Proyect_InvOperativa.Mapping
         public StockArticuloMapping()
         {
             Table("StockArticulo");
-            Id(x => x.articulo)
-                .Column("idArticulo")
-                .GeneratedBy.Foreign("articulo");
+            Id(x => x.nStock)
+                .Column("nStock")
+                .GeneratedBy.Identity();
             Map(x => x.stockActual);
             Map(x => x.stockSeguridad);
             Map(x => x.fechaStockInicio);
             Map(x => x.fechaStockFin);
 
-            HasOne(x => x.articulo)
-                .Constrained(); //relacion uno a uno con clave compartida
-          
+            References(x => x.articulo)
+          .Column("idArticulo")
+          .Not.Nullable(); // o Nullable si es opcional
+
+
 
         }
     }

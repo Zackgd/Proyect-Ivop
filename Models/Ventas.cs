@@ -2,12 +2,9 @@
 {
     public class Ventas
     {
-        public string? descripcionVenta { get; set; }
-        public long nVenta { get; set; }
-        public long  totalVenta {get;set;}
-        public Ventas()
-        {
-
-        }
+        public virtual string? descripcionVenta { get; set; }
+        public virtual long nVenta { get; set; }
+        public virtual long totalVenta {get;set;}
+       
     }
 }

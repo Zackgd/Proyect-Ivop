@@ -8,6 +8,7 @@ using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Mapping;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Proyect_InvOperativa.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +35,10 @@ builder.Services.AddScoped<NHibernate.ISession>(provider =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ArticuloRepository>();
 
-builder.Services.AddScoped<ArticuloRepository>();
-
+//Registro de Servicios
+builder.Services.AddScoped<ArticuloService>();
+var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
+builder.Services.AddControllers(); //necesario
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,8 +56,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
-
-app.MapRazorPages();
-
+//app.UseAuthorization();
+app.MapGroup(apiBaseRoute!).MapControllers();
 app.Run();

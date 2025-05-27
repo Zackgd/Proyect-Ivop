@@ -8,6 +8,7 @@ namespace Proyect_InvOperativa.Mapping
         public EstadoProveedoresMapping()
         {
             Table("EstadoProveedores");
+            Id(x => x.nEstado);
             Map(x => x.fechaIEstadoProveedor);
             Map(x => x.fechaFEstadoProveedor);
             References(x => x.proveedorEstado)

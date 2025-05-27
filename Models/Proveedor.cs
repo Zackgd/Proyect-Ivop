@@ -2,10 +2,10 @@
 {
     public class Proveedor
     {
-        public string nombreProveedor { get; set; } = "";
-        public long idProveedor { get; set; }
-        public ListaProveedores? listaProveedores { get; set; }
-        public MaestroArticulo? masterArticulo { get; set; }
+        public virtual string nombreProveedor { get; set; } = "";
+        public virtual long idProveedor { get; set; }
+        public virtual ListaProveedores? listaProveedores { get; set; }
+        public virtual MaestroArticulo? masterArticulo { get; set; }
 
 
     }

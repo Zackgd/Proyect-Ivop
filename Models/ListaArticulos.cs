@@ -2,10 +2,10 @@
 {
     public class ListaArticulos
     {
-        public long idListaArticulos {  get; set; }
-        public DateTime fechaInicioLista { get; set; }
-        public DateTime fechaFinLista { get; set; }
-        public Proveedor? proveedor { get; set; }
+        public virtual long idListaArticulos {  get; set; }
+        public virtual DateTime fechaInicioLista { get; set; }
+        public virtual DateTime fechaFinLista { get; set; }
+        public virtual Proveedor? proveedor { get; set; }
 
     }
 }
