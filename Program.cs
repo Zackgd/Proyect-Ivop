@@ -24,7 +24,7 @@ builder.Services.AddSingleton<ISessionFactory>(provider =>
                 .ShowSql()
         )
         .Mappings(m => m.FluentMappings.AddFromAssemblyOf<ArticuloMapping>())
-        .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
+        .ExposeConfiguration(cfg => new SchemaExport(cfg).Create(false, true))
         .BuildSessionFactory();
 });
 
