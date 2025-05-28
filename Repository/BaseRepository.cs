@@ -11,7 +11,7 @@ namespace Proyect_InvOperativa.Repository
         {
             _sessionFactory = sessionFactory;
         }
-        public async Task<T> GetByIdAsync(string id)
+        public async Task<T> GetByIdAsync(long id)
         {
             using var session = _sessionFactory.OpenSession();
             return await session.GetAsync<T>(id);
@@ -52,7 +52,7 @@ namespace Proyect_InvOperativa.Repository
                 throw;
             }
         }
-        public async Task DeleteIdAsync(string id)
+        public async Task DeleteIdAsync(long id)
         {
             var entity = await GetByIdAsync(id);
             if (entity != null)
