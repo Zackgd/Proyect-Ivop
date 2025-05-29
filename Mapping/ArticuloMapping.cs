@@ -8,7 +8,7 @@ namespace Proyect_InvOperativa.Mapping
         public ArticuloMapping() 
         {
             Table("Articulos");
-            Id(x => x.idArticulo).GeneratedBy.Identity();
+            Id(x => x.idArticulo).GeneratedBy.Assigned();
             Map(x => x.nombreArticulo);
             Map(x => x.descripcion);
             References(x => x.listaArticulos)

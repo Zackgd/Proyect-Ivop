@@ -1,13 +1,9 @@
 using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Cfg;
 using NHibernate;
-using System;
 using NHibernate.Tool.hbm2ddl;
-using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Mapping;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Proyect_InvOperativa.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,9 +30,15 @@ builder.Services.AddScoped<NHibernate.ISession>(provider =>
 // Registro de repositorios
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ArticuloRepository>();
+builder.Services.AddScoped<MaestroArticulosRepository>();
+builder.Services.AddScoped<ProveedoresRepository>();
 
 //Registro de Servicios
 builder.Services.AddScoped<ArticuloService>();
+builder.Services.AddScoped<MaestroArticulosService>();
+builder.Services.AddScoped<OrdenCompraService>();
+builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<VentasService>();
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 builder.Services.AddControllers(); //necesario
 var app = builder.Build();

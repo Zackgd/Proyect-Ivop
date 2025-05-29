@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\ordencompraservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\ordencompraservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\maestroarticulosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\maestroarticulosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\ventasservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\ventasservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\proveedorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\proveedorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\controllers\\maestroarticulocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:controllers\\maestroarticulocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,40 +23,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "OrdenCompraService.cs",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\OrdenCompraService.cs",
-              "RelativeDocumentMoniker": "Services\\OrdenCompraService.cs",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\OrdenCompraService.cs",
-              "RelativeToolTip": "Services\\OrdenCompraService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAyAAAAAAAAAA==",
+              "Title": "MaestroArticulosService.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\MaestroArticulosService.cs",
+              "RelativeDocumentMoniker": "Services\\MaestroArticulosService.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\MaestroArticulosService.cs",
+              "RelativeToolTip": "Services\\MaestroArticulosService.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAgwEMAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T21:22:12.599Z",
+              "WhenOpened": "2025-05-29T02:43:02.451Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "VentasService.cs",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\VentasService.cs",
-              "RelativeDocumentMoniker": "Services\\VentasService.cs",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\VentasService.cs",
-              "RelativeToolTip": "Services\\VentasService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAUAAAAAAAAAA==",
+              "Title": "MaestroArticuloController.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Controllers\\MaestroArticuloController.cs",
+              "RelativeDocumentMoniker": "Controllers\\MaestroArticuloController.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Controllers\\MaestroArticuloController.cs",
+              "RelativeToolTip": "Controllers\\MaestroArticuloController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAwAAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T21:13:04.751Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ProveedorService.cs",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\ProveedorService.cs",
-              "RelativeDocumentMoniker": "Services\\ProveedorService.cs",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\ProveedorService.cs",
-              "RelativeToolTip": "Services\\ProveedorService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T21:12:24.841Z",
+              "WhenOpened": "2025-05-29T00:30:58.074Z",
               "EditorCaption": ""
             }
           ]

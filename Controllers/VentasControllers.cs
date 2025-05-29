@@ -11,14 +11,5 @@ namespace Proyect_InvOperativa.Controllers
         {
             _ventasService = ventitasServices;
         }
-        [HttpGet, Route("TestFunction")]
-        public async Task<string> funcionPrueba ()
-        {
-            string mensajePrueba = "HOLA MUNDO";
-
-            var mensajePruebagrande = await _ventasService.getMensajePrueba(mensajePrueba);
-
-            return mensajePruebagrande;
-        }
     }
 }
