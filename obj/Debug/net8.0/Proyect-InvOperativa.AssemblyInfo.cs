@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Proyect-InvOperativa")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2594589297c76dda4d959e38ae344eba98867cd8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eb90d8d6b8d98dbbb3f1fcc399d5ceb6dc6b709")]
 [assembly: System.Reflection.AssemblyProductAttribute("Proyect-InvOperativa")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Proyect-InvOperativa")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

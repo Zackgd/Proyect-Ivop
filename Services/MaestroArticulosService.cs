@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 
@@ -61,9 +62,18 @@ namespace Proyect_InvOperativa.Services
             }
             await _articuloRepository.UpdateAsync(articuloModificado);
         }
-        public async Task DeleteArticulo(long idArticulo)
+        public async Task<long> DeleteArticulo(long idArticulo)
         {
             await _articuloRepository.DeleteIdAsync(idArticulo);
+            var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
+            if (artEliminar != null)
+            {
+                throw new Exception("Algo salio mal y no se elimino el articulo");
+            }
+            else
+            {
+                return 0;
+            }
         }
 
 

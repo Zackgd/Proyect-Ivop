@@ -1,8 +1,18 @@
 [
   {
-    "ContainingType": "Proyect_InvOperativa.Controllers.ArticuloController",
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
     "Method": "Create",
-    "RelativePath": "Articulo/Create",
+    "RelativePath": "MaestroArticulo/Create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "Delete",
+    "RelativePath": "MaestroArticulo/Delete",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
