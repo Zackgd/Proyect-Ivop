@@ -21,14 +21,16 @@ namespace Proyect_InvOperativa.Repository
             using var session = _sessionFactory.OpenSession();
             return await session.Query<T>().ToListAsync();
         }
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             using var session = _sessionFactory.OpenSession();
             using var transaction = session.BeginTransaction();
             try
             {
-                await session.SaveAsync(entity);
+                var entityId = await session.SaveAsync(entity);
                 await transaction.CommitAsync();
+                var newEntity = await session.GetAsync<T>(entityId);
+                return newEntity;
             }
             catch
             {
