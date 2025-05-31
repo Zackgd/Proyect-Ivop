@@ -1,5 +1,7 @@
 ﻿using System.Xml.Linq;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Proyect_InvOperativa.Dtos.Articulo;
+using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 
@@ -20,62 +22,73 @@ namespace Proyect_InvOperativa.Services
     #endregion
     public class MaestroArticulosService
     {
-        public readonly ArticuloRepository _articuloRepository;
-        public readonly ProveedoresRepository _proveedorRepository;
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository)
+        private readonly ArticuloRepository _articuloRepository;
+        private readonly ProveedoresRepository _proveedorRepository;
+        private readonly MaestroArticulosRepository _maestroArticuloRepository;
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
+            _maestroArticuloRepository = maestroArticulosRepository;
         }
 
         #region "Descripcion Articulo"
         //Creacion Articulo, modificacion y Eliminacion.
         //Falta agregar las relaciones al articulo a medida que se creen las demas entidades
         #endregion
-        public async Task CreateArticulo(long id, string descripcion)
+        public async Task<Articulo> CreateArticulo(CreateArticuloDto createArticuloDto)
         {
-
-
-            var articulo = new Articulo
+            var articulo = new Articulo()
             {
-                idArticulo = id,
-                descripcion = descripcion,
-                stockArticulos = null,
-                listaArticulos = null,
-                masterArticulo = null
-
+                nombreArticulo = createArticuloDto.nombreArticulo,
+                descripcion = createArticuloDto.descripcion,
             };
-            await _articuloRepository.AddAsync(articulo);
+            
+            var newArticulo = await _articuloRepository.AddAsync(articulo);
+
+            return newArticulo;
         }
-        public async Task ModificarArticulo(long idArticulo,string nombreArticuloM, string descripcionM)
+
+        public async Task UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
         {
             var articuloModificado = await _articuloRepository.GetByIdAsync(idArticulo);
-            if(articuloModificado != null)
+            if (articuloModificado is null)
             {
-                articuloModificado.descripcion = descripcionM;
-                articuloModificado.nombreArticulo = nombreArticuloM;
-                
+                throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
             }
-            else
-            {
-                throw new Exception("Articulo no Encontrado");
-            }
+
+            articuloModificado.nombreArticulo = updateArticuloDto.nombreArticulo;
+            articuloModificado.descripcion = updateArticuloDto.descripcion;
+
             await _articuloRepository.UpdateAsync(articuloModificado);
+
         }
-        public async Task<long> DeleteArticulo(long idArticulo)
+        public async Task DeleteArticulo(long idArticulo)
         {
-            await _articuloRepository.DeleteIdAsync(idArticulo);
             var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
-            if (artEliminar != null)
+
+            if (artEliminar is null)
             {
-                throw new Exception("Algo salio mal y no se elimino el articulo");
+                throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
             }
-            else
-            {
-                return 0;
-            }
+
+            await _articuloRepository.DeleteIdAsync(idArticulo);
+
         }
 
+        public async Task<IEnumerable<Articulo>> GetAllArticulos()
+        {
+            var articulos = await _articuloRepository.GetAllAsync();
+
+            return articulos;
+        }
+
+        public async Task<Articulo> GetArticuloById(long idArticulo)
+        {
+            var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
+
+            return articulo;
+        }
 
         //Proveedor
         public async Task CreateProveedor(string nombreP,long idP)
@@ -87,12 +100,40 @@ namespace Proyect_InvOperativa.Services
                 listaProveedores = null,
                 masterArticulo = null
             };
+
             await _proveedorRepository.AddAsync(proveedor);
+
         }
 
         public async Task DeleteProveedor(long idProveedor)
         {
            await _proveedorRepository.DeleteIdAsync(idProveedor);
+        }
+
+        // Maestro Articulo
+        public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
+        {
+            var maestro = new MaestroArticulo()
+            {
+                nombreMaestro = createMaestroArticuloDto.nombreMaestroArticulo,
+            };
+
+            var newMaestro = await _maestroArticuloRepository.AddAsync(maestro);
+
+            return newMaestro;
+
+        }
+
+        public async Task DeleteMaestroArticulo(long idMaestroArticulo)
+        {
+            var maestroArticulo = await _articuloRepository.GetByIdAsync(idMaestroArticulo);
+
+            if (maestroArticulo is null)
+            {
+                throw new Exception($"Artículo con id: {idMaestroArticulo} no encontrado. ");
+            }
+
+            await _articuloRepository.DeleteIdAsync(idMaestroArticulo);
         }
 
         //Metodos para el calculo de Modelo de Inventario
