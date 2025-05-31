@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Proyect_InvOperativa.Dtos.Articulo;
+using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Services;
 
 namespace Proyect_InvOperativa.Controllers
@@ -10,31 +12,76 @@ namespace Proyect_InvOperativa.Controllers
     {
         public readonly MaestroArticulosService _masterArt;
 
-       public MaestroArticuloController(MaestroArticulosService masterArt)
+        public MaestroArticuloController(MaestroArticulosService masterArt)
         {
             _masterArt = masterArt;
         }
 
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create()
+        // Articulo
+        [HttpPost("articulo/CreateArticulo")]
+        public async Task<IActionResult> CreateArticulo(CreateArticuloDto createArticuloDto)
         {
-            long id = 56487;
-            string descripcion = "Notebook Vaio";
-            await _masterArt.CreateArticulo(id, descripcion);
-            return Ok("todo bien");
+            var newArticulo = await _masterArt.CreateArticulo(createArticuloDto);
+
+            return Ok(newArticulo);
+
         }
-        [HttpPost("Delete")]
-        public async Task<IActionResult> Delete()
+
+        [HttpDelete("articulo/DeleteArticulo")]
+        public async Task<IActionResult> DeleteArticulo(long idArticulo)
         {
-            long id = 56487;
-            long r = await _masterArt.DeleteArticulo(id);
-            if(r == 0) { 
-            return Ok("Eliminado Correctamente");
-            }
-            else
-            {
-                throw new Exception("to mal");
-            }
+            await _masterArt.DeleteArticulo(idArticulo);
+
+            return Ok("Artículo eliminado. ");
+
         }
+
+        [HttpPut("articulo/UpdateArticulo")]
+        public async Task<IActionResult> UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
+        {
+            await _masterArt.UpdateArticulo(idArticulo, updateArticuloDto);
+
+            return Ok("Artículo modificado. ");
+
+        }
+
+        [HttpGet("articulo/GetAllArticulos")]
+        public async Task<IActionResult> GetAllArticulos()
+        {
+            var articulos = await _masterArt.GetAllArticulos();
+
+            return Ok(articulos);
+        }
+
+        [HttpGet("articulo/GetArticuloById")]
+        public async Task<IActionResult> GetArticuloById(long idArticulo)
+        {
+            var articulo = await _masterArt.GetArticuloById(idArticulo);
+
+            return Ok(articulo);
+        }
+        
+        // MaestroArticulo 
+
+        [HttpPost("CreateMaestroArticulo")]
+        public async Task<IActionResult> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
+        {
+            var maestro = await _masterArt.CreateMaestroArticulo(createMaestroArticuloDto);
+
+            return Ok(maestro);
+
+        }
+
+        [HttpDelete("DeleteMaestroArticulo")]
+        public async Task<IActionResult> DeleteMaestroArticulo(long idMaestroArticulo)
+        {
+            await _masterArt.DeleteMaestroArticulo(idMaestroArticulo);
+
+            return Ok("Maestro Artículo dado de baja. ");
+        }
+
+
+
+
     }
 }

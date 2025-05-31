@@ -1,22 +1,36 @@
+﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
-using FluentNHibernate.Cfg;
+using Microsoft.OpenApi.Models;
+using MySqlConnector;
 using NHibernate;
+using NHibernate.Dialect;
+using NHibernate.Driver;
 using NHibernate.Tool.hbm2ddl;
-using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Mapping;
+using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// SWAGGER - OPEN API
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// BASE DE DATOS
 var connectionString = builder.Configuration.GetConnectionString("MySQLConnection");
 builder.Services.AddSingleton<ISessionFactory>(provider =>
 {
+    Console.WriteLine("Conectando a bd");
     return Fluently.Configure()
         .Database(
-            MySQLConfiguration.Standard
-                .ConnectionString(connectionString) // Usar la cadena de conexi�n de appsettings.json
+            
+                MySQLConfiguration.Standard
+                .ConnectionString(connectionString)
+                .Dialect<MySQL8Dialect>()
                 .ShowSql()
         )
         .Mappings(m => m.FluentMappings.AddFromAssemblyOf<ArticuloMapping>())
@@ -34,26 +48,49 @@ builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
 
 //Registro de Servicios
-builder.Services.AddScoped<ArticuloService>();
 builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
-builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<VentasService>();
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
+
+
 builder.Services.AddControllers(); //necesario
+
+
 var app = builder.Build();
+
+
+// Comprobación conexión a BD
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
+        var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
+        Console.WriteLine("✅ Conexión a MySQL exitosa");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Error de conexión: " + ex.Message);
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-app.UseRouting();
+app.UseAuthorization();
 
-app.MapGroup(apiBaseRoute!).MapControllers();
+app.MapControllers();
+
 app.Run();
