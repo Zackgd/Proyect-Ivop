@@ -17,7 +17,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 114,
+          "DockedWidth": 144,
           "SelectedChildIndex": 0,
           "Children": [
             {
@@ -28,7 +28,7 @@
               "RelativeDocumentMoniker": "Services\\MaestroArticulosService.cs",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\MaestroArticulosService.cs",
               "RelativeToolTip": "Services\\MaestroArticulosService.cs",
-              "ViewState": "AgIAADgAAAAAAAAAAAAgwEMAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAACIAAAAAAAAAAAAmwEMAAABLAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-29T02:43:02.451Z",
               "EditorCaption": ""
@@ -41,7 +41,7 @@
               "RelativeDocumentMoniker": "Controllers\\MaestroArticuloController.cs",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Controllers\\MaestroArticuloController.cs",
               "RelativeToolTip": "Controllers\\MaestroArticuloController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAQwAwAAABKAAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwBgAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-29T00:30:58.074Z",
               "EditorCaption": ""

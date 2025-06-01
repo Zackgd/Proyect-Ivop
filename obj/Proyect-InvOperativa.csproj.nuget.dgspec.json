@@ -58,9 +58,21 @@
               "target": "Package",
               "version": "[9.3.0, )"
             },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
             "NHibernate": {
               "target": "Package",
               "version": "[5.5.2, )"
+            },
+            "NHibernate.Linq": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[8.1.2, )"
             }
           },
           "imports": [
