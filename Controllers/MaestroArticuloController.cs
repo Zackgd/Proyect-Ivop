@@ -17,16 +17,16 @@ namespace Proyect_InvOperativa.Controllers
             _masterArt = masterArt;
         }
 
-        // Articulo
+        #region Articulo
+        #endregion
         [HttpPost("articulo/CreateArticulo")]
-        public async Task<IActionResult> CreateArticulo(CreateArticuloDto createArticuloDto)
+        public async Task<IActionResult> CreateArticulo(ArticuloDto createArticuloDto)
         {
             var newArticulo = await _masterArt.CreateArticulo(createArticuloDto);
 
             return Ok(newArticulo);
 
         }
-
         [HttpDelete("articulo/DeleteArticulo")]
         public async Task<IActionResult> DeleteArticulo(long idArticulo)
         {
@@ -35,7 +35,6 @@ namespace Proyect_InvOperativa.Controllers
             return Ok("Artículo eliminado. ");
 
         }
-
         [HttpPut("articulo/UpdateArticulo")]
         public async Task<IActionResult> UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
         {
@@ -44,7 +43,6 @@ namespace Proyect_InvOperativa.Controllers
             return Ok("Artículo modificado. ");
 
         }
-
         [HttpGet("articulo/GetAllArticulos")]
         public async Task<IActionResult> GetAllArticulos()
         {
@@ -52,7 +50,6 @@ namespace Proyect_InvOperativa.Controllers
 
             return Ok(articulos);
         }
-
         [HttpGet("articulo/GetArticuloById")]
         public async Task<IActionResult> GetArticuloById(long idArticulo)
         {
@@ -60,9 +57,9 @@ namespace Proyect_InvOperativa.Controllers
 
             return Ok(articulo);
         }
-        
-        // MaestroArticulo 
 
+        #region MaestroArticulo 
+        #endregion
         [HttpPost("CreateMaestroArticulo")]
         public async Task<IActionResult> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
         {
@@ -71,7 +68,6 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(maestro);
 
         }
-
         [HttpDelete("DeleteMaestroArticulo")]
         public async Task<IActionResult> DeleteMaestroArticulo(long idMaestroArticulo)
         {

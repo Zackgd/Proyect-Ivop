@@ -25,23 +25,57 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository)
+        private readonly ListaArticuloRepository _listaArticulo;
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository,ListaArticuloRepository listaArticulo)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
+            _listaArticulo = listaArticulo;
+        }
+        #region AB Maestro Articulo
+        public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
+        {
+            var maestro = new MaestroArticulo()
+            {
+                idMaestroArticulo = 1,
+                nombreMaestro = createMaestroArticuloDto.nombreMaestroArticulo,
+            };
+
+            var newMaestro = await _maestroArticuloRepository.AddAsync(maestro);
+
+            return newMaestro;
+
         }
 
-        #region "Descripcion Articulo"
+        public async Task DeleteMaestroArticulo(long idMaestroArticulo)
+        {
+            var maestroArticulo = await _articuloRepository.GetByIdAsync(idMaestroArticulo);
+
+            if (maestroArticulo is null)
+            {
+                throw new Exception($"Artículo con id: {idMaestroArticulo} no encontrado. ");
+            }
+
+            await _articuloRepository.DeleteIdAsync(idMaestroArticulo);
+        }
+        #endregion
+
+        #region ABM Articulo
         //Creacion Articulo, modificacion y Eliminacion.
         //Falta agregar las relaciones al articulo a medida que se creen las demas entidades
-        #endregion
-        public async Task<Articulo> CreateArticulo(CreateArticuloDto createArticuloDto)
+
+        public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto)
         {
+            var maestro = await _maestroArticuloRepository.GetByIdAsync(1); //debe haber otra forma, es para que funcione, despues lo arreglo 
+            var listaArt = await _listaArticulo.GetByIdAsync(ArticuloDto.idArticulo);
             var articulo = new Articulo()
             {
-                nombreArticulo = createArticuloDto.nombreArticulo,
-                descripcion = createArticuloDto.descripcion,
+                idArticulo = ArticuloDto.idArticulo,
+                nombreArticulo = ArticuloDto.nombreArticulo,
+                descripcion = ArticuloDto.descripcion,
+                listaArticulos = listaArt,
+                masterArticulo = maestro
             };
             
             var newArticulo = await _articuloRepository.AddAsync(articulo);
@@ -89,8 +123,9 @@ namespace Proyect_InvOperativa.Services
 
             return articulo;
         }
+        #endregion
 
-        //Proveedor
+        #region ABM Proveedor
         public async Task CreateProveedor(string nombreP,long idP)
         {
             var proveedor = new Proveedor
@@ -100,42 +135,16 @@ namespace Proyect_InvOperativa.Services
                 listaProveedores = null,
                 masterArticulo = null
             };
-
             await _proveedorRepository.AddAsync(proveedor);
-
         }
 
         public async Task DeleteProveedor(long idProveedor)
         {
            await _proveedorRepository.DeleteIdAsync(idProveedor);
         }
+        #endregion
 
-        // Maestro Articulo
-        public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
-        {
-            var maestro = new MaestroArticulo()
-            {
-                nombreMaestro = createMaestroArticuloDto.nombreMaestroArticulo,
-            };
-
-            var newMaestro = await _maestroArticuloRepository.AddAsync(maestro);
-
-            return newMaestro;
-
-        }
-
-        public async Task DeleteMaestroArticulo(long idMaestroArticulo)
-        {
-            var maestroArticulo = await _articuloRepository.GetByIdAsync(idMaestroArticulo);
-
-            if (maestroArticulo is null)
-            {
-                throw new Exception($"Artículo con id: {idMaestroArticulo} no encontrado. ");
-            }
-
-            await _articuloRepository.DeleteIdAsync(idMaestroArticulo);
-        }
-
+        
         //Metodos para el calculo de Modelo de Inventario
         public void CalculoLoteFijo(){} 
         public void CalculoIntervaloFijo(){}
