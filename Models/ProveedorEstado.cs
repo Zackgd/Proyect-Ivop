@@ -5,7 +5,7 @@ namespace Proyect_InvOperativa.Models
     {
         public virtual string nombreEstadoProveedor { get; set; } = "";
         public virtual long idEstadoProveedor { get; set; }
-        public virtual DateTime fechaBajaProveedorEstado { get; set; }
+        public virtual DateTime? fechaBajaProveedorEstado { get; set; }
         
       
     }

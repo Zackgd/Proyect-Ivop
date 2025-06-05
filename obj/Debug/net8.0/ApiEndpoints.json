@@ -1,9 +1,41 @@
 [
   {
     "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
-    "Method": "Create",
-    "RelativePath": "MaestroArticulo/Create",
+    "Method": "CreateArticulo",
+    "RelativePath": "MaestroArticulo/articulo/CreateArticulo",
     "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createArticuloDto",
+        "Type": "Proyect_InvOperativa.Dtos.Articulo.ArticuloDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "DeleteArticulo",
+    "RelativePath": "MaestroArticulo/articulo/DeleteArticulo",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idArticulo",
+        "Type": "System.Int64",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "GetAllArticulos",
+    "RelativePath": "MaestroArticulo/articulo/GetAllArticulos",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
@@ -11,9 +43,94 @@
   },
   {
     "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
-    "Method": "Delete",
-    "RelativePath": "MaestroArticulo/Delete",
+    "Method": "GetArticuloById",
+    "RelativePath": "MaestroArticulo/articulo/GetArticuloById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idArticulo",
+        "Type": "System.Int64",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "UpdateArticulo",
+    "RelativePath": "MaestroArticulo/articulo/UpdateArticulo",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idArticulo",
+        "Type": "System.Int64",
+        "IsRequired": false
+      },
+      {
+        "Name": "updateArticuloDto",
+        "Type": "Proyect_InvOperativa.Dtos.Articulo.UpdateArticuloDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "CreateMaestroArticulo",
+    "RelativePath": "MaestroArticulo/CreateMaestroArticulo",
     "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createMaestroArticuloDto",
+        "Type": "Proyect_InvOperativa.Dtos.MaestroArticulo.CreateMaestroArticuloDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.MaestroArticuloController",
+    "Method": "DeleteMaestroArticulo",
+    "RelativePath": "MaestroArticulo/DeleteMaestroArticulo",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idMaestroArticulo",
+        "Type": "System.Int64",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.OrdenCompraEstadoController",
+    "Method": "CreateOrdenCompraEstados",
+    "RelativePath": "OrdenCompraEstado",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createOrdenCompraEstados",
+        "Type": "Proyect_InvOperativa.Dtos.OrdenCompra.CreateOrdenCompraEstados",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Proyect_InvOperativa.Controllers.OrdenCompraEstadoController",
+    "Method": "GetAllOrdenCompraEstados",
+    "RelativePath": "OrdenCompraEstado",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],

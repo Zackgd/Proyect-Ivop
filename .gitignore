@@ -41,6 +41,9 @@ ScaffoldingReadMe.txt
 *~
 CodeCoverage/
 .vs/
+appsettings.json
+launchSettings.json
+
 
 # MSBuild Binary and Structured Log
 *.binlog

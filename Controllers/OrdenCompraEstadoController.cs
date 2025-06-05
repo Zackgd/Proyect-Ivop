@@ -6,7 +6,7 @@ namespace Proyect_InvOperativa.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class OrdenCompraEstadoController
+    public class OrdenCompraEstadoController: ControllerBase
     {
 
 
@@ -14,14 +14,14 @@ namespace Proyect_InvOperativa.Controllers
         public async Task<IActionResult> CreateOrdenCompraEstados(CreateOrdenCompraEstados createOrdenCompraEstados)
         {
 
-            return NoContent();
+            return Ok("retorno de prueba");
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllOrdenCompraEstados()
         {
 
-            return NoContent();
+            return Ok("retorno de prueba");
         }
 
     } 

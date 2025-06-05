@@ -50,14 +50,14 @@ namespace Proyect_InvOperativa.Services
 
         public async Task DeleteMaestroArticulo(long idMaestroArticulo)
         {
-            var maestroArticulo = await _articuloRepository.GetByIdAsync(idMaestroArticulo);
+            var maestroArticulo = await _maestroArticuloRepository.GetByIdAsync(idMaestroArticulo);
 
             if (maestroArticulo is null)
             {
                 throw new Exception($"Artículo con id: {idMaestroArticulo} no encontrado. ");
             }
 
-            await _articuloRepository.DeleteIdAsync(idMaestroArticulo);
+            await _maestroArticuloRepository.DeleteIdAsync(idMaestroArticulo);
         }
         #endregion
 
@@ -94,11 +94,13 @@ namespace Proyect_InvOperativa.Services
             articuloModificado.nombreArticulo = updateArticuloDto.nombreArticulo;
             articuloModificado.descripcion = updateArticuloDto.descripcion;
 
+
             await _articuloRepository.UpdateAsync(articuloModificado);
 
         }
         public async Task DeleteArticulo(long idArticulo)
         {
+            string estado = "ELIMINAR";
             var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
 
             if (artEliminar is null)
