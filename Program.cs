@@ -15,10 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-// SWAGGER - OPEN API
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // BASE DE DATOS
 var connectionString = builder.Configuration.GetConnectionString("MySQLConnection");
@@ -46,6 +42,11 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ArticuloRepository>();
 builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
+builder.Services.AddScoped<ListaArticuloRepository>();
+builder.Services.AddScoped<ProveedoresRepository>();
+builder.Services.AddScoped<VentasRepository>();
+builder.Services.AddScoped<OrdenCompraRepository>();
+
 
 //Registro de Servicios
 builder.Services.AddScoped<MaestroArticulosService>();

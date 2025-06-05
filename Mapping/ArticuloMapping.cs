@@ -18,10 +18,7 @@ namespace Proyect_InvOperativa.Mapping
                 .Column("idMaestroArticulo")
                 .Cascade.None();
 
-            HasMany(x => x.stockArticulos)
-    .KeyColumn("idArticulo") // FK en la tabla StockArticulos que apunta a Articulo
-    .Cascade.All()
-    .Inverse(); 
+           
 
         }
     }
