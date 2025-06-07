@@ -1,7 +1,8 @@
 using System;
+using Microsoft.AspNetCore.Mvc;
 namespace Proyect_InvOperativa.Controllers
 {
-    public class VentaDetalleController
+    public class VentaDetalleController: ControllerBase
     {
 
     }
