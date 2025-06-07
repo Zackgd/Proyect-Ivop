@@ -1,6 +1,8 @@
-﻿namespace Proyect_InvOperativa.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Proyect_InvOperativa.Controllers
 {
-    public class DetalleOrdenCompraController
+    public class DetalleOrdenCompraController: ControllerBase
     {
     }
 }

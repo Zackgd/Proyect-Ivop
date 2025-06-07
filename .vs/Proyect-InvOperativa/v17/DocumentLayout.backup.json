@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\proveedorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\proveedorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\repository\\proveedorestadorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:repository\\proveedorestadorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\services\\maestroarticulosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:services\\maestroarticulosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\mapping\\proveedormapping.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:mapping\\proveedormapping.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|c:\\users\\usuario\\desktop\\proyect-invoperativa\\controllers\\proveedorestadocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9CE465BE-8368-4D52-9182-0E17A178C30C}|Proyect-InvOperativa.csproj|solutionrelative:controllers\\proveedorestadocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,59 +30,69 @@
       "DocumentGroups": [
         {
           "DockedWidth": 144,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "MaestroArticulosService.cs",
               "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\MaestroArticulosService.cs",
               "RelativeDocumentMoniker": "Services\\MaestroArticulosService.cs",
               "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\MaestroArticulosService.cs",
               "RelativeToolTip": "Services\\MaestroArticulosService.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAAowGYAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAADgAAAAAAAAAAAAgwEAAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-03T00:18:20.462Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-02T23:56:48.423Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Properties\\launchSettings.json",
-              "RelativeToolTip": "Properties\\launchSettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-06-02T23:50:21.486Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-05T21:28:05.746Z",
+              "IsPinned": true
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABgAAAASAAAAAAAAAA==",
+              "Title": "ProveedorEstadoRepository.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ProveedorEstadoRepository.cs",
+              "RelativeDocumentMoniker": "Repository\\ProveedorEstadoRepository.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Repository\\ProveedorEstadoRepository.cs",
+              "RelativeToolTip": "Repository\\ProveedorEstadoRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-01T21:45:31.43Z",
+              "WhenOpened": "2025-06-05T22:42:01.398Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProveedorService.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\ProveedorService.cs",
+              "RelativeDocumentMoniker": "Services\\ProveedorService.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Services\\ProveedorService.cs",
+              "RelativeToolTip": "Services\\ProveedorService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-05T22:32:57.886Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProveedorEstadoController.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Controllers\\ProveedorEstadoController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProveedorEstadoController.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Controllers\\ProveedorEstadoController.cs",
+              "RelativeToolTip": "Controllers\\ProveedorEstadoController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-05T22:31:22.503Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProveedorMapping.cs",
+              "DocumentMoniker": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Mapping\\ProveedorMapping.cs",
+              "RelativeDocumentMoniker": "Mapping\\ProveedorMapping.cs",
+              "ToolTip": "C:\\Users\\USUARIO\\Desktop\\Proyect-InvOperativa\\Mapping\\ProveedorMapping.cs",
+              "RelativeToolTip": "Mapping\\ProveedorMapping.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-05T22:31:13.476Z"
             }
           ]
         }

@@ -62,10 +62,9 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region ABM Articulo
-        //Creacion Articulo, modificacion y Eliminacion.
-        //Falta agregar las relaciones al articulo a medida que se creen las demas entidades
+        
 
-        public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto)
+        public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto,StockArticuloDto stockDto)
         {
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1); //debe haber otra forma, es para que funcione, despues lo arreglo 
             var listaArt = await _listaArticulo.GetByIdAsync(ArticuloDto.idArticulo);
@@ -76,6 +75,13 @@ namespace Proyect_InvOperativa.Services
                 descripcion = ArticuloDto.descripcion,
                 listaArticulos = listaArt,
                 masterArticulo = maestro
+            };
+            var stockArticulo = new StockArticulos()
+            {
+                stockActual = stockDto.stockActual,
+                stockSeguridad = stockDto.stockSeguridad,
+                fechaStockInicio = DateTime.Now,
+                fechaStockFin = null
             };
             
             var newArticulo = await _articuloRepository.AddAsync(articulo);
@@ -100,7 +106,7 @@ namespace Proyect_InvOperativa.Services
         }
         public async Task DeleteArticulo(long idArticulo)
         {
-            string estado = "ELIMINAR";
+            
             var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
 
             if (artEliminar is null)
