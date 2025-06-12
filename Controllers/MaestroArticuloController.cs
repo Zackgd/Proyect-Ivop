@@ -17,17 +17,18 @@ namespace Proyect_InvOperativa.Controllers
             _masterArt = masterArt;
         }
 
-        // Articulo
-        [HttpPost("articulo/CreateArticulo")]
-        public async Task<IActionResult> CreateArticulo(CreateArticuloDto createArticuloDto)
+        #region Artículo
+        [HttpPost("articulo")]
+        public async Task<IActionResult> CreateArticulo([FromBody] CreateArticuloDto createArticuloDto)
         {
-            var newArticulo = await _masterArt.CreateArticulo(createArticuloDto);
+            
+            var newArticulo = await _masterArt.CreateArticulo(createArticuloDto.articuloDto, createArticuloDto.stockArticulosDto);
 
             return Ok(newArticulo);
 
         }
 
-        [HttpDelete("articulo/DeleteArticulo")]
+        [HttpDelete("articulo/{id}")]
         public async Task<IActionResult> DeleteArticulo(long idArticulo)
         {
             await _masterArt.DeleteArticulo(idArticulo);
@@ -36,8 +37,8 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpPut("articulo/UpdateArticulo")]
-        public async Task<IActionResult> UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
+        [HttpPut("articulo/{id}")]
+        public async Task<IActionResult> UpdateArticulo(long idArticulo, [FromBody] ArticuloDto updateArticuloDto)
         {
             await _masterArt.UpdateArticulo(idArticulo, updateArticuloDto);
 
@@ -45,7 +46,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpGet("articulo/GetAllArticulos")]
+        [HttpGet("articulo")]
         public async Task<IActionResult> GetAllArticulos()
         {
             var articulos = await _masterArt.GetAllArticulos();
@@ -53,35 +54,54 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(articulos);
         }
 
-        [HttpGet("articulo/GetArticuloById")]
+        [HttpGet("articulo/{id}")]
         public async Task<IActionResult> GetArticuloById(long idArticulo)
         {
             var articulo = await _masterArt.GetArticuloById(idArticulo);
 
             return Ok(articulo);
         }
-        
-        // MaestroArticulo 
+        #endregion
 
-        [HttpPost("CreateMaestroArticulo")]
-        public async Task<IActionResult> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
+        # region StockArticulo
+
+        [HttpPut("articulo/stock/{id}")]
+        public async Task<IActionResult> UpdateStockArticulos(long idStockArticulos, [FromBody] StockArticulosDto stock)
+        {
+            await _masterArt.UpdateStockArticulosAsync(idStockArticulos, stock);
+            return NoContent();
+        }
+
+        [HttpGet("articulo/stock/{id}")]
+        public async Task<IActionResult> GetStockByArticuloId(long idArticulo)
+        {
+            var stock = await _masterArt.GetStockArticulosByArticuloId(idArticulo);
+
+            return Ok(stock);
+        }
+
+        # endregion
+
+        #region MaestroArticulo 
+
+        [HttpPost()]
+        public async Task<IActionResult> CreateMaestroArticulo([FromBody] CreateMaestroArticuloDto createMaestroArticuloDto)
         {
             var maestro = await _masterArt.CreateMaestroArticulo(createMaestroArticuloDto);
 
             return Ok(maestro);
 
         }
-
-        [HttpDelete("DeleteMaestroArticulo")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMaestroArticulo(long idMaestroArticulo)
         {
             await _masterArt.DeleteMaestroArticulo(idMaestroArticulo);
 
             return Ok("Maestro Artículo dado de baja. ");
         }
+        #endregion
 
-
-
+        
 
     }
 }

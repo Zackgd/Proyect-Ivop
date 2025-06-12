@@ -23,38 +23,79 @@ namespace Proyect_InvOperativa.Services
     public class MaestroArticulosService
     {
         private readonly ArticuloRepository _articuloRepository;
-        private readonly ProveedoresRepository _proveedorRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository)
+        private readonly ListaArticuloRepository _listaArticuloRepository;
+        private readonly BaseRepository<StockArticulos> _stockArticulosRepository;
+
+        public MaestroArticulosService(ArticuloRepository articuloRepository, MaestroArticulosRepository maestroArticulosRepository, ListaArticuloRepository listaArticulo, BaseRepository<StockArticulos> stockArticulosRepository)
         {
             _articuloRepository = articuloRepository;
-            _proveedorRepository = proveedorRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
+            _listaArticuloRepository = listaArticulo;
+            _stockArticulosRepository = stockArticulosRepository;
+        }
+        #region AB Maestro Articulo
+        public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
+        {
+            var maestro = new MaestroArticulo()
+            {
+                nombreMaestro = createMaestroArticuloDto.nombreMaestroArticulo,
+            };
+
+            var newMaestro = await _maestroArticuloRepository.AddAsync(maestro);
+
+            return newMaestro;
+
         }
 
-        #region "Descripcion Articulo"
-        //Creacion Articulo, modificacion y Eliminacion.
-        //Falta agregar las relaciones al articulo a medida que se creen las demas entidades
+        public async Task DeleteMaestroArticulo(long idMaestroArticulo)
+        {
+            var maestroArticulo = await _maestroArticuloRepository.GetByIdAsync(idMaestroArticulo);
+
+            if (maestroArticulo is null)
+            {
+                throw new KeyNotFoundException($"Artículo con id: {idMaestroArticulo} no encontrado. ");
+            }
+
+            await _maestroArticuloRepository.DeleteIdAsync(idMaestroArticulo);
+        }
         #endregion
-        public async Task<Articulo> CreateArticulo(CreateArticuloDto createArticuloDto)
+
+        #region ABM Articulo
+        
+
+        public async Task<Articulo> CreateArticulo(ArticuloDto articuloDto, StockArticulosDto stockArticulosDto)
         {
             var articulo = new Articulo()
             {
-                nombreArticulo = createArticuloDto.nombreArticulo,
-                descripcion = createArticuloDto.descripcion,
+                nombreArticulo = articuloDto.nombreArticulo,
+                descripcion = articuloDto.descripcion,
+                idMaestroArticulo = articuloDto.idMaestroArticulo,
+                idListaArticulos = articuloDto.idListaArticulo
             };
-            
+
             var newArticulo = await _articuloRepository.AddAsync(articulo);
+
+            var stockArticulos = new StockArticulos()
+            {
+                stockSeguridad = stockArticulosDto.stockSeguridad,
+                stockActual = stockArticulosDto.stockActual,
+                fechaStockInicio = stockArticulosDto.fechaStockInicio,
+                fechaStockFin = stockArticulosDto.fechaStockFin,
+                articulo = articulo
+            };
+
+            var newStockArticulos = await _stockArticulosRepository.AddAsync(stockArticulos);
 
             return newArticulo;
         }
 
-        public async Task UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
+        public async Task UpdateArticulo(long idArticulo, ArticuloDto updateArticuloDto)
         {
             var articuloModificado = await _articuloRepository.GetByIdAsync(idArticulo);
             if (articuloModificado is null)
             {
-                throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
+                throw new KeyNotFoundException($"Artículo con id: {idArticulo} no encontrado. ");
             }
 
             articuloModificado.nombreArticulo = updateArticuloDto.nombreArticulo;
@@ -63,13 +104,14 @@ namespace Proyect_InvOperativa.Services
             await _articuloRepository.UpdateAsync(articuloModificado);
 
         }
+
         public async Task DeleteArticulo(long idArticulo)
-        {
+        {   
             var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
 
             if (artEliminar is null)
             {
-                throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
+                throw new KeyNotFoundException($"Artículo con id: {idArticulo} no encontrado. ");
             }
 
             await _articuloRepository.DeleteIdAsync(idArticulo);
@@ -90,51 +132,52 @@ namespace Proyect_InvOperativa.Services
             return articulo;
         }
 
-        //Proveedor
-        public async Task CreateProveedor(string nombreP,long idP)
+        #endregion
+
+        #region Métodos Stock Artículo
+
+        public async Task UpdateStockArticulosAsync(long idStockArticulo, StockArticulosDto stockDto)
         {
-            var proveedor = new Proveedor
+            if (!stockDto.idArticulo.HasValue || stockDto.idArticulo.Value <= 0)
             {
-                nombreProveedor = nombreP,
-                idProveedor = idP,
-                listaProveedores = null,
-                masterArticulo = null
-            };
-
-            await _proveedorRepository.AddAsync(proveedor);
-
-        }
-
-        public async Task DeleteProveedor(long idProveedor)
-        {
-           await _proveedorRepository.DeleteIdAsync(idProveedor);
-        }
-
-        // Maestro Articulo
-        public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
-        {
-            var maestro = new MaestroArticulo()
-            {
-                nombreMaestro = createMaestroArticuloDto.nombreMaestroArticulo,
-            };
-
-            var newMaestro = await _maestroArticuloRepository.AddAsync(maestro);
-
-            return newMaestro;
-
-        }
-
-        public async Task DeleteMaestroArticulo(long idMaestroArticulo)
-        {
-            var maestroArticulo = await _articuloRepository.GetByIdAsync(idMaestroArticulo);
-
-            if (maestroArticulo is null)
-            {
-                throw new Exception($"Artículo con id: {idMaestroArticulo} no encontrado. ");
+                throw new ArgumentException("El Stock de artículos debe tener un ID de artículo válido.");
             }
 
-            await _articuloRepository.DeleteIdAsync(idMaestroArticulo);
+            var articulo = await _articuloRepository.GetByIdAsync(stockDto.idArticulo.Value);
+
+            if (articulo is null)
+            {
+                throw new KeyNotFoundException($"No se encontró el artículo con ID {stockDto.idArticulo.Value}");
+            }
+
+            var existingStock = await _stockArticulosRepository.GetByIdAsync(idStockArticulo);
+
+            existingStock.stockSeguridad = stockDto.stockSeguridad;
+            existingStock.stockActual = stockDto.stockActual;
+            existingStock.fechaStockInicio = stockDto.fechaStockInicio;
+            existingStock.fechaStockFin = stockDto.fechaStockFin;
+            existingStock.articulo = articulo;
+
+            await _stockArticulosRepository.UpdateAsync(existingStock);
         }
+
+        public async Task<StockArticulos> GetStockArticulosByArticuloId(long idArticulo)
+        {
+
+            var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
+            if (articulo is null)
+            {
+                throw new KeyNotFoundException($"No se encontró el artículo con ID {idArticulo}. ");
+            }
+            if (articulo.StockArticulos is null)
+            {
+                throw new Exception($"El artículo ID {idArticulo} no tiene stock disponible. ");
+            }
+
+            return articulo.StockArticulos;
+        }
+
+        #endregion
 
         //Metodos para el calculo de Modelo de Inventario
         public void CalculoLoteFijo(){} 

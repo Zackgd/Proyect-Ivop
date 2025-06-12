@@ -6,7 +6,9 @@
         public virtual int stockSeguridad {  get; set; }
         public virtual int stockActual {  get; set; }
         public virtual DateTime fechaStockInicio { get; set; }
-        public virtual DateTime fechaStockFin { get; set; }
+        public virtual DateTime? fechaStockFin { get; set; }
+
+        public virtual long idArticulo { get; set; }
         public virtual Articulo? articulo { get; set; }
     }
 }

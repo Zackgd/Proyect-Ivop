@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Proyect_InvOperativa.Controllers
 {
-	public class ListaArticulosController
+	public class ListaArticulosController: ControllerBase
 	{
 	}
 }

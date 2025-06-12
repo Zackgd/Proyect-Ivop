@@ -2,7 +2,9 @@
 {
     public class CreateArticuloDto
     {
-        public virtual string? nombreArticulo { get; set; }
-        public virtual string descripcion { get; set; } = "";
+        public required virtual ArticuloDto articuloDto { get; set; }
+
+        public required virtual StockArticulosDto stockArticulosDto { get; set; }
+
     }
 }

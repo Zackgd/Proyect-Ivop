@@ -9,7 +9,5 @@
 
         public virtual Articulo? articulo { get; set; }
 
-
-
     }
 }

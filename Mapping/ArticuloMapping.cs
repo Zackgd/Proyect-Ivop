@@ -14,14 +14,11 @@ namespace Proyect_InvOperativa.Mapping
             References(x => x.listaArticulos)
                 .Column("listaDeArticulos")
                 .Cascade.None();
-            References(x => x.masterArticulo)
+            References(x => x.maestroArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
 
-            HasMany(x => x.stockArticulos)
-    .KeyColumn("idArticulo") // FK en la tabla StockArticulos que apunta a Articulo
-    .Cascade.All()
-    .Inverse(); 
+           
 
         }
     }

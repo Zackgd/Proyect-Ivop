@@ -7,6 +7,7 @@ using NHibernate.Dialect;
 using NHibernate.Driver;
 using NHibernate.Tool.hbm2ddl;
 using Proyect_InvOperativa.Mapping;
+using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Services;
 
@@ -46,11 +47,18 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ArticuloRepository>();
 builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
+builder.Services.AddScoped<ListaArticuloRepository>();
+builder.Services.AddScoped<ProveedoresRepository>();
+builder.Services.AddScoped<VentasRepository>();
+builder.Services.AddScoped<OrdenCompraRepository>();
+builder.Services.AddScoped<BaseRepository<StockArticulos>>();
+builder.Services.AddScoped<BaseRepository<OrdenCompraEstado>>();
 
 //Registro de Servicios
 builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
 builder.Services.AddScoped<VentasService>();
+builder.Services.AddScoped<OrdenCompraService>();
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 
 
