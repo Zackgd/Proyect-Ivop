@@ -19,7 +19,7 @@ namespace Proyect_InvOperativa.Services
             var ordeEstadoNueva = new OrdenCompraEstado()
             {
                 nombreEstadoOrden = dtoOrdenEstado.nombreEstadoOrden,
-                idEstadoOrdenCompra = dtoOrdenEstado.idEstadoOrdenCompra,
+                idOrdenCompraEstado = dtoOrdenEstado.idOrdenCompraEstado,
                 fechaFinEstadoDisponible = null,
             };
             await _OCrepository.AddAsync(ordeEstadoNueva);
@@ -27,7 +27,7 @@ namespace Proyect_InvOperativa.Services
 
         public async Task DeleteOrdenCompraEstado(OrdenCompraEstadosDto ocEdto)
         {
-            var ordenCEstado = await _OCrepository.GetByIdAsync(ocEdto.idEstadoOrdenCompra);
+            var ordenCEstado = await _OCrepository.GetByIdAsync(ocEdto.idOrdenCompraEstado);
 
             ordenCEstado.fechaFinEstadoDisponible = DateTime.UtcNow;
 

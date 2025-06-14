@@ -1,10 +1,9 @@
 ﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
-using Microsoft.OpenApi.Models;
-using MySqlConnector;
+
 using NHibernate;
 using NHibernate.Dialect;
-using NHibernate.Driver;
+
 using NHibernate.Tool.hbm2ddl;
 using Proyect_InvOperativa.Mapping;
 using Proyect_InvOperativa.Repository;
@@ -30,7 +29,7 @@ builder.Services.AddSingleton<ISessionFactory>(provider =>
                 .ShowSql()
         )
         .Mappings(m => m.FluentMappings.AddFromAssemblyOf<ArticuloMapping>())
-        .ExposeConfiguration(cfg => new SchemaExport(cfg).Create(false, true))
+        .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
         .BuildSessionFactory();
 });
 
@@ -44,12 +43,11 @@ builder.Services.AddScoped<EstadoProveedoresRepository>();
 builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorArticuloRepository>();
-builder.Services.AddScoped<ListaProveedoresRepository>();
 builder.Services.AddScoped<OrdenCompraEstadoRepository>();
-builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
+builder.Services.AddScoped<StockArticuloRepository>();
 
 
 //Registro de Servicios
@@ -57,7 +55,6 @@ builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
 builder.Services.AddScoped<VentasService>();
 builder.Services.AddScoped<ProveedorArticuloService>();
-builder.Services.AddScoped<ListaProveedoresService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();

@@ -19,7 +19,7 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.categoriaArt).CustomType<CategoriaArt>();
 
             References(x => x.proveedorArticulo)
-                .Column("listaDeArticulos")
+                .Column("ProveedorArticulo")
                 .Cascade.None();
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")

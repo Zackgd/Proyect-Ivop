@@ -14,6 +14,9 @@ namespace Proyect_InvOperativa.Mapping
             References(x => x.ordenCompra)
                 .Column("OrdenCompra")
                 .Cascade.None();
+            References(x => x.articulo)
+                .Column("NombreArticulo")
+                .Cascade.None();
         }
     }
 }

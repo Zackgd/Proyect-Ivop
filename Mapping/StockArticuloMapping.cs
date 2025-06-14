@@ -18,7 +18,7 @@ namespace Proyect_InvOperativa.Mapping
 
             References(x => x.articulo)
           .Column("idArticulo")
-          .Not.Nullable(); // o Nullable si es opcional
+          .Not.Nullable(); 
 
 
 

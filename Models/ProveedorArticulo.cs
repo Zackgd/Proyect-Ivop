@@ -2,6 +2,7 @@
 {
     public class ProveedorArticulo
     {
+        public virtual long idProveedorArticulo { get; set; }
         public virtual double precioUnitario { get; set; }
         public virtual double costoPedido { get; set; }
         public virtual long tiempoEntregaDias { get; set; }

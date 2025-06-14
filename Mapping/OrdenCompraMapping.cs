@@ -12,7 +12,7 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.detalleOrdenCompra);
             Map(x => x.totalPagar);
             References(x => x.ordenEstado)
-                .Column("EstadoOrden")
+                .Column("OrdenEstado")
                 .Cascade.None();
         }
     }

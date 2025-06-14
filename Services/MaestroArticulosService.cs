@@ -75,6 +75,11 @@ namespace Proyect_InvOperativa.Services
                 idArticulo = ArticuloDto.idArticulo,
                 nombreArticulo = ArticuloDto.nombreArticulo,
                 descripcion = ArticuloDto.descripcion,
+                demandaDiaria = ArticuloDto.demandaDiaria,
+                costoAlmacen = ArticuloDto.costoAlmacen,
+                tiempoRevision = ArticuloDto.tiemporevision,
+                modeloInv = ArticuloDto.modeloInv,
+                categoriaArt = ArticuloDto.categoriaArt,
                 masterArticulo = maestro
             };
             var articuloStock = new StockArticulos()
@@ -167,9 +172,9 @@ namespace Proyect_InvOperativa.Services
 
             foreach (var articulo in articulos)
             {
-                // Verificar si corresponde modelo Lote Fijo Q
-                //if (articulo.modeloInv != ModeloInv.LoteFijo_Q)  //ESTO ESTA COMENTADO PQ ME SALE ERROR NO SE PUEDE COMPARAR CON EL ENUM
-                //    continue;
+                 //verificar si corresponde modelo lote fijo q
+                if (articulo.modeloInv!= ModeloInv.LoteFijo_Q)  //esto esta comentado pq me sale error no se puede comparar con el enum
+                    continue;
 
                 // Asignar sigma según categoría
                 double valSigma = articulo.categoriaArt switch
