@@ -2,11 +2,20 @@
 {
     public class ArticuloDto
     {
-        public virtual long idArticulo { get; set; } 
-        public virtual string? nombreArticulo { get; set; }
-        public virtual string descripcion { get; set; } = "";
-        public virtual long idListaArticulo { get; set; }
-        public virtual long idMaster { get; set; }
+        public long idArticulo { get; set; } 
+        public string? nombreArticulo { get; set; }
+        public string descripcion { get; set; } = "";
+        public long modeloInv { get; set; }
+        public long demandaDiaria { get; set; }
+        public double costoAlmacen { get; set; }
+        public long categoriaArt { get; set; }
+        public long tiemporevision {get; set;}
+        public long idListaArticulo { get; set; }
+        public long idMaster { get; set; }
+        public long nStock { get; set; }
+        public long stockSeguridad { get; set; }
+        public long stockActual { get; set; }
+
 
     }
 }

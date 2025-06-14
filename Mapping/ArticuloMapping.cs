@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography.Xml;
 using FluentNHibernate.Mapping;
 using Proyect_InvOperativa.Models;
+using Proyect_InvOperativa.Models.Enums;
 namespace Proyect_InvOperativa.Mapping
 {
     public class ArticuloMapping : ClassMap<Articulo>
@@ -11,7 +12,13 @@ namespace Proyect_InvOperativa.Mapping
             Id(x => x.idArticulo).GeneratedBy.Assigned();
             Map(x => x.nombreArticulo);
             Map(x => x.descripcion);
-            References(x => x.listaArticulos)
+            Map(x => x.demandaDiaria);
+            Map(x => x.costoAlmacen);
+            Map(x => x.tiempoRevision);
+            Map(x => x.modeloInv).CustomType<ModeloInv>(); 
+            Map(x => x.categoriaArt).CustomType<CategoriaArt>();
+
+            References(x => x.proveedorArticulo)
                 .Column("listaDeArticulos")
                 .Cascade.None();
             References(x => x.masterArticulo)

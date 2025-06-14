@@ -36,7 +36,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
         [HttpPut("articulo/UpdateArticulo")]
-        public async Task<IActionResult> UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
+        public async Task<IActionResult> UpdateArticulo(long idArticulo, ArticuloDto updateArticuloDto)
         {
             await _masterArt.UpdateArticulo(idArticulo, updateArticuloDto);
 

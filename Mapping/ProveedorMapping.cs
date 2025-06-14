@@ -10,12 +10,14 @@ namespace Proyect_InvOperativa.Mapping
             Table("Proveedor");
             Id(x => x.idProveedor).GeneratedBy.Identity();
             Map(x => x.nombreProveedor);
+            Map(x => x.direccion);
+            Map(x => x.telefono);
+            Map(x => x.mail);
+
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
-            References(x => x.listaProveedores)
-               .Column("idListaProveedores")
-               .Cascade.None();
+            
         }
     }
 }

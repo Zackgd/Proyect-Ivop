@@ -1,8 +1,7 @@
-﻿using System.Xml.Linq;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Proyect_InvOperativa.Dtos.Articulo;
+﻿using Proyect_InvOperativa.Dtos.Articulo;
 using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Models;
+using Proyect_InvOperativa.Models.Enums;
 using Proyect_InvOperativa.Repository;
 
 namespace Proyect_InvOperativa.Services
@@ -25,13 +24,16 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
-        private readonly ListaArticuloRepository _listaArticulo;
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository,ListaArticuloRepository listaArticulo)
+        private readonly StockArticuloRepository _stockArticuloRepository;
+        private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
+      
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
-            _listaArticulo = listaArticulo;
+            _stockArticuloRepository=stockRepo;
+            _proveedorArticuloRepository = PARepository;
         }
         #region AB Maestro Articulo
         public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
@@ -64,44 +66,51 @@ namespace Proyect_InvOperativa.Services
         #region ABM Articulo
         
 
-        public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto,StockArticuloDto stockDto)
+        public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto)
         {
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1); //debe haber otra forma, es para que funcione, despues lo arreglo 
-            var listaArt = await _listaArticulo.GetByIdAsync(ArticuloDto.idArticulo);
+            
             var articulo = new Articulo()
             {
                 idArticulo = ArticuloDto.idArticulo,
                 nombreArticulo = ArticuloDto.nombreArticulo,
                 descripcion = ArticuloDto.descripcion,
-                listaArticulos = listaArt,
                 masterArticulo = maestro
             };
-            var stockArticulo = new StockArticulos()
+            var articuloStock = new StockArticulos()
             {
-                stockActual = stockDto.stockActual,
-                stockSeguridad = stockDto.stockSeguridad,
-                fechaStockInicio = DateTime.Now,
-                fechaStockFin = null
+                nStock = ArticuloDto.nStock,
+                stockSeguridad = ArticuloDto.stockSeguridad,
+                stockActual = ArticuloDto.stockActual,
+                fechaStockInicio = DateTime.UtcNow,
+                fechaStockFin = null,
+                articulo = articulo
             };
-            
+
             var newArticulo = await _articuloRepository.AddAsync(articulo);
 
             return newArticulo;
         }
+     
 
-        public async Task UpdateArticulo(long idArticulo, UpdateArticuloDto updateArticuloDto)
+        public async Task UpdateArticulo(ArticuloDto ArticuloDto)
         {
-            var articuloModificado = await _articuloRepository.GetByIdAsync(idArticulo);
-            if (articuloModificado is null)
+            var articuloModificado = await _articuloRepository.GetByIdAsync(ArticuloDto.idArticulo);
+            var stockAsociadoArticulo = _stockArticuloRepository.getstockActualbyIdArticulo(ArticuloDto.idArticulo); //falta testear
+
+            if (articuloModificado is null )
             {
-                throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
+                throw new Exception($"Artículo con id: {ArticuloDto.idArticulo} no encontrado. ");
             }
-
-            articuloModificado.nombreArticulo = updateArticuloDto.nombreArticulo;
-            articuloModificado.descripcion = updateArticuloDto.descripcion;
-
-
+            // MODIFICAR LOS DATOS PROPIOS DE ARTICULO
+            articuloModificado.descripcion = ArticuloDto.descripcion;
+            articuloModificado.demandaDiaria= ArticuloDto.demandaDiaria;
+            articuloModificado.costoAlmacen= ArticuloDto.costoAlmacen;
+            articuloModificado.tiempoRevision= ArticuloDto.tiemporevision;
+            // MODIFICAR LOS DATOS PROPIOS DE STOCK ASOCIADO A ARTICULO, si es que se pueden 
+            
             await _articuloRepository.UpdateAsync(articuloModificado);
+            await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
 
         }
         public async Task DeleteArticulo(long idArticulo)
@@ -113,8 +122,6 @@ namespace Proyect_InvOperativa.Services
             {
                 throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
             }
-
-            await _articuloRepository.DeleteIdAsync(idArticulo);
 
         }
 
@@ -140,7 +147,6 @@ namespace Proyect_InvOperativa.Services
             {
                 nombreProveedor = nombreP,
                 idProveedor = idP,
-                listaProveedores = null,
                 masterArticulo = null
             };
             await _proveedorRepository.AddAsync(proveedor);
@@ -152,9 +158,67 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
-        
+
         //Metodos para el calculo de Modelo de Inventario
-        public void CalculoLoteFijo(){} 
+        public async Task CalculoLoteFijoAsync()
+        {
+            
+            var articulos = await _articuloRepository.GetAllAsync();
+
+            foreach (var articulo in articulos)
+            {
+                // Verificar si corresponde modelo Lote Fijo Q
+                //if (articulo.modeloInv != ModeloInv.LoteFijo_Q)  //ESTO ESTA COMENTADO PQ ME SALE ERROR NO SE PUEDE COMPARAR CON EL ENUM
+                //    continue;
+
+                // Asignar sigma según categoría
+                double valSigma = articulo.categoriaArt switch
+                {
+                    CategoriaArt.Categoria_A => (6.0 + 2.0) / 2.0,
+                    CategoriaArt.Categoria_B => (4.0 + 1.0) / 2.0,
+                    CategoriaArt.Categoria_C => (0.2 + 1.0) / 2.0,
+                    CategoriaArt.Categoria_D => (0.1 + 1.0) / 2.0,
+                    _ => throw new ArgumentException("Categoría no válida")
+                };
+
+                // obtener proveedor del articulo
+                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                if (!proveedoresArticulo.Any())
+                    continue;
+
+                // selecciona el proveedor con menor costo unitario
+                var proveedorArt = proveedoresArticulo.OrderBy(pMin => pMin.precioUnitario).First();
+
+                // parametros para calculo
+                double Z = 1.64485363; // nivel de servicio esperado 0,95
+                double demanda = articulo.demandaDiaria;
+                double demandaAnual = demanda * 365;
+                double tiempoEntrega = proveedorArt.tiempoEntregaDias;
+                double costoPedido = proveedorArt.costoPedido;
+                double costoAlmacen = articulo.costoAlmacen;
+
+
+                // calculo EOQ
+                double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
+                long qOptEnt = (long)Math.Ceiling(qOpt);
+
+                // calc. stock de Seguridad
+                double stockSeguridad = Z * valSigma * Math.Sqrt(tiempoEntrega);
+                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+                // obtener StockArticulos 
+                //var stock = articulo.StockArticulos;
+                //if (stock == null)
+                //    continue;
+
+                //stock.stockSeguridad = stockSeguridadEnt;
+                //await _stockArticulosRepository.UpdateAsync(stock);
+            }
+        }
+
+
+        #region Calculo PeriodoFijo_P
+       
+        #endregion
         public void CalculoIntervaloFijo(){}
         public void CalculoCGI(){}
     }

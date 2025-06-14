@@ -5,7 +5,7 @@ namespace Proyect_InvOperativa.Repository
 {
     public class BaseRepository<T> : IRepository<T> where T : class
     {
-        private readonly ISessionFactory _sessionFactory;
+        protected readonly ISessionFactory _sessionFactory;
 
         public BaseRepository(ISessionFactory sessionFactory)
         {
