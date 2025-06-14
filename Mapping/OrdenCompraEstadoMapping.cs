@@ -8,7 +8,7 @@ namespace Proyect_InvOperativa.Mapping
         public OrdenCompraEstadoMapping()
         {
             Table("OrdenCompraEstado");
-            Id(x => x.idEstadoOrdenCompra).GeneratedBy.Identity();
+            Id(x => x.idOrdenCompraEstado).GeneratedBy.Identity();
             Map(x => x.nombreEstadoOrden);
             Map(x => x.fechaFinEstadoDisponible);
         }

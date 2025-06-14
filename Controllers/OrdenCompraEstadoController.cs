@@ -11,7 +11,7 @@ namespace Proyect_InvOperativa.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrdenCompraEstados(CreateOrdenCompraEstados createOrdenCompraEstados)
+        public async Task<IActionResult> CreateOrdenCompraEstados(OrdenCompraEstadosDto createOrdenCompraEstados)
         {
 
             return Ok("retorno de prueba");

@@ -2,8 +2,8 @@
 {
     public class DetalleOrdenCompra
     {
-        public virtual int nDetalleOrdenCompra { get; set; }
-        public virtual int cantidadArticulos { get; set; }
+        public virtual long nDetalleOrdenCompra { get; set; }
+        public virtual long cantidadArticulos { get; set; }
         public virtual long precioSubTotal { get; set; }
         public virtual OrdenCompra? ordenCompra { get; set; }
 

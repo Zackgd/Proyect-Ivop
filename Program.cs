@@ -40,10 +40,14 @@ builder.Services.AddScoped<NHibernate.ISession>(provider =>
 // Registro de repositorios
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ArticuloRepository>();
+builder.Services.AddScoped<EstadoProveedoresRepository>();
 builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
-builder.Services.AddScoped<ListaArticuloRepository>();
+builder.Services.AddScoped<ProveedorArticuloRepository>();
+builder.Services.AddScoped<ListaProveedoresRepository>();
+builder.Services.AddScoped<OrdenCompraEstadoRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
+builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
 
@@ -52,10 +56,17 @@ builder.Services.AddScoped<OrdenCompraRepository>();
 builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
 builder.Services.AddScoped<VentasService>();
+builder.Services.AddScoped<ProveedorArticuloService>();
+builder.Services.AddScoped<ListaProveedoresService>();
+builder.Services.AddScoped<OrdenCompraEstadoService>();
+builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<ProveedorEstadoService>();
+
+
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 
 
-builder.Services.AddControllers(); //necesario
+builder.Services.AddControllers(); 
 
 
 var app = builder.Build();
@@ -80,11 +91,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-}
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+
 }
 
 
