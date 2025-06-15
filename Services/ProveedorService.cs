@@ -7,17 +7,16 @@ namespace Proyect_InvOperativa.Services
     public class ProveedorService
     {
         private readonly ProveedoresRepository _proveedoresRepository;
-        private readonly ListaProveedoresRepository _listaProveedores;
+        //private readonly ListaProveedoresRepository _listaProveedores;
         private readonly ArticuloRepository _articuloRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly ProveedorEstadoRepository _proveedorEstadoRepository;
 
-        public ProveedorService(ProveedorEstadoRepository proveedorEstadoRepository, ArticuloRepository articuloRepository, ProveedoresRepository proveedoresRepository, ListaProveedoresRepository listaProveedores, MaestroArticulosRepository maestroArticulosRepository)
+        public ProveedorService(ProveedorEstadoRepository proveedorEstadoRepository, ArticuloRepository articuloRepository, ProveedoresRepository proveedoresRepository, MaestroArticulosRepository maestroArticulosRepository)
         {
             _proveedorEstadoRepository = proveedorEstadoRepository;
             _articuloRepository = articuloRepository;
             _proveedoresRepository = proveedoresRepository;
-            _listaProveedores = listaProveedores;
             _maestroArticuloRepository = maestroArticulosRepository;
         }
 
@@ -28,13 +27,11 @@ namespace Proyect_InvOperativa.Services
         public async Task<Proveedor> CreateProveedor(ProveedorDto ProveedorDto)
         {
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1);
-            var listaProv = await _listaProveedores.GetByIdAsync(ProveedorDto.idProveedor);
             var EstProv = await _proveedorEstadoRepository.GetByIdAsync(1);
             var proveedor_n = new Proveedor()
             {
                 nombreProveedor = ProveedorDto.nombreProveedor,
                 idProveedor = ProveedorDto.idProveedor,
-                listaProveedores = listaProv,
                 masterArticulo = maestro,
             };
             var estadoProveedor = new EstadoProveedores()

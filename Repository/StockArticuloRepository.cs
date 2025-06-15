@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using NHibernate.Linq;
 using Proyect_InvOperativa.Models;
 
 namespace Proyect_InvOperativa.Repository
@@ -10,13 +11,13 @@ namespace Proyect_InvOperativa.Repository
         {
             //_sessionFactory = sessionFactory;
         }
-        public StockArticulos? getstockActualbyIdArticulo(long idArticulo)
+        public async Task<StockArticulos?> getstockActualbyIdArticulo(long idArticulo)
         {
-            using (var session = _sessionFactory.OpenSession())
-            {
-                return session.Query<StockArticulos>()
-            .FirstOrDefault(s => s.articulo!.idArticulo == idArticulo && s.fechaStockFin == null);
-            }
+            using var session = _sessionFactory.OpenSession();
+            return await session.Query<StockArticulos>()
+                .FirstOrDefaultAsync(s => s.articulo!.idArticulo == idArticulo && s.fechaStockFin == null);
         }
+
+        
     }
 }

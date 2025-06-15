@@ -9,11 +9,19 @@ namespace Proyect_InvOperativa.Mapping
         {
             Table("OrdenCompra");
             Id(x => x.nOrdenCompra).GeneratedBy.Identity();
-            Map(x => x.detalleOrdenCompra);
+            Map(x => x.detalleOrden);
             Map(x => x.totalPagar);
             References(x => x.ordenEstado)
                 .Column("EstadoOrden")
                 .Cascade.None();
+
+            References(x => x.proveedor)
+                .Column("idProveedor");
+            
+            HasMany(x => x.detalleOrdenCompra)
+            .KeyColumn("nOrdenCompra")
+            .Cascade.All()
+            .Inverse();
         }
     }
 }

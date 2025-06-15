@@ -17,6 +17,11 @@ namespace Proyect_InvOperativa.Mapping
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
+
+            HasMany(x => x.proveedorArticulos)
+            .KeyColumn("idProveedor")
+            .Inverse()
+            .Cascade.All();
             
         }
     }

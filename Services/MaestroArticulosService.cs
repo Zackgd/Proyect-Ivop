@@ -23,14 +23,16 @@ namespace Proyect_InvOperativa.Services
     {
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
+        private readonly OrdenCompraRepository _ordenCompraRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
       
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
+            _ordenCompraRepository = ordenCompraRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
             _stockArticuloRepository=stockRepo;
             _proveedorArticuloRepository = PARepository;
@@ -72,11 +74,14 @@ namespace Proyect_InvOperativa.Services
             
             var articulo = new Articulo()
             {
-                idArticulo = ArticuloDto.idArticulo,
-                nombreArticulo = ArticuloDto.nombreArticulo,
-                descripcion = ArticuloDto.descripcion,
-                masterArticulo = maestro
+               idArticulo = ArticuloDto.idArticulo,
+               nombreArticulo = ArticuloDto.nombreArticulo,
+               descripcion = ArticuloDto.descripcion,
+               masterArticulo = maestro
             };
+
+            var newArticulo = await _articuloRepository.AddAsync(articulo);
+
             var articuloStock = new StockArticulos()
             {
                 nStock = ArticuloDto.nStock,
@@ -84,10 +89,10 @@ namespace Proyect_InvOperativa.Services
                 stockActual = ArticuloDto.stockActual,
                 fechaStockInicio = DateTime.UtcNow,
                 fechaStockFin = null,
-                articulo = articulo
+                articulo = newArticulo // importante: referencia al artículo persistido
             };
 
-            var newArticulo = await _articuloRepository.AddAsync(articulo);
+            var newArticuloStock = await _stockArticuloRepository.AddAsync(articuloStock);
 
             return newArticulo;
         }
@@ -96,9 +101,9 @@ namespace Proyect_InvOperativa.Services
         public async Task UpdateArticulo(ArticuloDto ArticuloDto)
         {
             var articuloModificado = await _articuloRepository.GetByIdAsync(ArticuloDto.idArticulo);
-            var stockAsociadoArticulo = _stockArticuloRepository.getstockActualbyIdArticulo(ArticuloDto.idArticulo); //falta testear
+            var stockAsociadoArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(ArticuloDto.idArticulo); //falta testear
 
-            if (articuloModificado is null )
+            if (articuloModificado is null)
             {
                 throw new Exception($"Artículo con id: {ArticuloDto.idArticulo} no encontrado. ");
             }
@@ -113,6 +118,7 @@ namespace Proyect_InvOperativa.Services
             await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
 
         }
+
         public async Task DeleteArticulo(long idArticulo)
         {
             
@@ -123,6 +129,22 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
             }
 
+            var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(idArticulo,new[] { "Pendiente", "Enviada" });
+
+            if (ordenesVigentesArt.Any())
+                throw new Exception($"No se puede eliminar el artículo con id: {idArticulo} porque tiene órdenes de compra pendientes o enviadas.");
+
+                    var stockAsociado = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+                    if (stockAsociado is null)
+                    {
+                       throw new Exception($"No se encuenctra stock asociado al IDArticulo: {idArticulo}.");
+                    }
+
+                        if (stockAsociado.stockActual > 0)
+                        throw new Exception($"No se puede eliminar el artículo con id: {idArticulo} porque aún tiene unidades en stock.");
+
+                stockAsociado.fechaStockFin = DateTime.UtcNow;
+                await _stockArticuloRepository.UpdateAsync(stockAsociado);
         }
 
         public async Task<IEnumerable<Articulo>> GetAllArticulos()
@@ -140,86 +162,190 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
-        #region ABM Proveedor
-        public async Task CreateProveedor(string nombreP,long idP)
-        {
-            var proveedor = new Proveedor
-            {
-                nombreProveedor = nombreP,
-                idProveedor = idP,
-                masterArticulo = null
-            };
-            await _proveedorRepository.AddAsync(proveedor);
-        }
-
-        public async Task DeleteProveedor(long idProveedor)
-        {
-           await _proveedorRepository.DeleteIdAsync(idProveedor);
-        }
-        #endregion
-
-
         //Metodos para el calculo de Modelo de Inventario
-        public async Task CalculoLoteFijoAsync()
+        #region Calculo LoteFijo_Q
+        public async Task CalculoLoteFijoQ()
         {
-            
             var articulos = await _articuloRepository.GetAllAsync();
 
             foreach (var articulo in articulos)
             {
-                // Verificar si corresponde modelo Lote Fijo Q
-                //if (articulo.modeloInv != ModeloInv.LoteFijo_Q)  //ESTO ESTA COMENTADO PQ ME SALE ERROR NO SE PUEDE COMPARAR CON EL ENUM
-                //    continue;
+                // verificar si corresponde modelo 
+                if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
 
-                // Asignar sigma según categoría
-                double valSigma = articulo.categoriaArt switch
-                {
-                    CategoriaArt.Categoria_A => (6.0 + 2.0) / 2.0,
-                    CategoriaArt.Categoria_B => (4.0 + 1.0) / 2.0,
-                    CategoriaArt.Categoria_C => (0.2 + 1.0) / 2.0,
-                    CategoriaArt.Categoria_D => (0.1 + 1.0) / 2.0,
-                    _ => throw new ArgumentException("Categoría no válida")
-                };
-
-                // obtener proveedor del articulo
+                // proveedores del articulo
                 var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
-                if (!proveedoresArticulo.Any())
-                    continue;
+                if (!proveedoresArticulo.Any()) continue;
 
-                // selecciona el proveedor con menor costo unitario
+                // proveedor con menor costo unitario
                 var proveedorArt = proveedoresArticulo.OrderBy(pMin => pMin.precioUnitario).First();
 
                 // parametros para calculo
-                double Z = 1.64485363; // nivel de servicio esperado 0,95
                 double demanda = articulo.demandaDiaria;
-                double demandaAnual = demanda * 365;
+                double demandaAnual = demanda*365;
                 double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;
                 double costoAlmacen = articulo.costoAlmacen;
-
+                var (Z,valSigma) = ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
 
                 // calculo EOQ
-                double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
+                double qOpt = Math.Sqrt((2*demandaAnual*costoPedido)/costoAlmacen);
                 long qOptEnt = (long)Math.Ceiling(qOpt);
 
                 // calc. stock de Seguridad
-                double stockSeguridad = Z * valSigma * Math.Sqrt(tiempoEntrega);
+                double stockSeguridad = Z*valSigma*Math.Sqrt(tiempoEntrega);
                 long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
                 // obtener StockArticulos 
-                //var stock = articulo.StockArticulos;
-                //if (stock == null)
-                //    continue;
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null) continue;
 
-                //stock.stockSeguridad = stockSeguridadEnt;
-                //await _stockArticulosRepository.UpdateAsync(stock);
+                stock.stockSeguridad = stockSeguridadEnt;
+                await _stockArticuloRepository.UpdateAsync(stock);
+                double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
+                articulo.cgi = cgi;
+                await _articuloRepository.UpdateAsync(articulo);
             }
-        }
 
+        }
+        #endregion
 
         #region Calculo PeriodoFijo_P
-       
+            public async Task CalculoPeriodoFijoP()
+            {
+                var articulos = await _articuloRepository.GetAllAsync();
+
+                foreach (var articulo in articulos)
+                {
+                    if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
+
+                    double dProm = articulo.demandaDiaria; // demanda diaria promedio
+
+                    // proveedores del artículo
+                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                    if (!proveedoresArticulo.Any()) continue;
+
+                    // proveedor con menor precio unitario
+                    var proveedorArt = proveedoresArticulo.OrderBy(p => p.precioUnitario).First();
+
+                    double T = articulo.tiempoRevision;               
+                    double L = proveedorArt.tiempoEntregaDias;        
+                    double periodoVulnerable= T+L;
+                    var (Z, sigma) = ObtenerZySigma(articulo.categoriaArt, periodoVulnerable);
+
+                    // stock actual
+                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stock == null) continue;
+
+                    // inv. de seguridad
+                    double stockSeguridad = Z * sigma;
+                    long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+
+                    // cantidad a pedir
+                    double q = dProm*periodoVulnerable + stockSeguridad - stock.stockActual;
+                    long qEnt = (long)Math.Ceiling(q);
+                    if (qEnt < 0) qEnt = 0;
+
+                    double demandaAnual = dProm*365;
+                    double costoUnidad = proveedorArt.precioUnitario;
+                    double costoPedido = proveedorArt.costoPedido;
+                    double costoAlmacen = articulo.costoAlmacen;
+
+                    // actualizar stock de seguridad
+                    stock.stockSeguridad = stockSeguridadEnt;
+                    await _stockArticuloRepository.UpdateAsync(stock);
+                    double cgi = CalcularCGI(demandaAnual, costoUnidad, qEnt, costoPedido, costoAlmacen);
+                    articulo.cgi = cgi;
+                    await _articuloRepository.UpdateAsync(articulo);
+                }
+            }
         #endregion
-        public void CalculoIntervaloFijo(){}
-        public void CalculoCGI(){}
-    }
+
+        #region Calculo CostoGlobalInv
+            private double CalcularCGI(double demandaAnual, double costoUnidad, double cantidadPedido, double costoPedido, double costoAlmacen)
+            {
+                if (cantidadPedido <= 0) return 0; 
+
+                double cgi = (demandaAnual * costoUnidad) +
+                 ((demandaAnual / cantidadPedido) * costoPedido) +
+                 ((cantidadPedido / 2.0) * costoAlmacen);
+                return cgi;
+            }
+        #endregion
+
+        #region val. Z y sigma
+            private (double Z, double sigma) ObtenerZySigma(CategoriaArt? categoria, double tiempo_p)
+            {
+                double Z = 1.64485363; // nivel de servicio esperado (z) para 0,95
+
+                if (categoria == null) throw new ArgumentException("Categoria no encontrada");
+                double val_Sigma = categoria switch
+                {
+                    CategoriaArt.Categoria_A => (6.0+2.0)/2.0,
+                    CategoriaArt.Categoria_B => (4.0+1.0)/2.0,
+                    CategoriaArt.Categoria_C => (0.2+1.0)/2.0,
+                    CategoriaArt.Categoria_D => (0.1+1.0)/2.0,
+                    _ => throw new ArgumentException("Categoría no válida")
+                };
+
+                double sigma = val_Sigma * Math.Sqrt(tiempo_p);
+                return (Z, sigma);
+            }
+        #endregion
+
+        #region RegistrarEntradaArticulos
+            public async Task RegistrarEntradaPedido(long nOrdenCompra)
+            {
+                // obtener orden de compra y detalles
+                var ordenC = await _ordenCompraRepository.GetOrdenCompraYDetalles(nOrdenCompra);
+                if (ordenC == null) throw new Exception($"Orden de compra con número {nOrdenCompra} no encontrada.");
+
+                // validar estado actual
+                if (ordenC.ordenEstado == null || !ordenC.ordenEstado.nombreEstadoOrden!.Equals("En proceso", StringComparison.OrdinalIgnoreCase))
+                {
+                throw new Exception("Solo se puede registrar ingreso de órdenes en estado 'En proceso' ");
+                }
+
+                // actualiza stock de articulos en la ordenCompra
+                foreach (var detalleC in ordenC.detalleOrdenCompra)
+                {
+                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(detalleC.articulo.idArticulo);
+                    if (stock == null)
+                    throw new Exception($"No se encontró stock para el artículo ID {detalleC.articulo.idArticulo}.");
+                    stock.stockActual += detalleC.cantidadArticulos;
+                    await _stockArticuloRepository.UpdateAsync(stock);
+                }
+
+                // obtener estado `archivada`
+                var estArchivada = await _ordenCompraRepository.GetEstadoOrdenCompra("Archivada");
+                if (estArchivada == null || estArchivada.fechaFinEstadoDisponible != null) throw new Exception("No se encontró el estado 'Archivada' ");
+
+                //cambiar estado de la orden
+                ordenC.ordenEstado = estArchivada;
+                await _ordenCompraRepository.UpdateAsync(ordenC);
+            }
+        #endregion
+
+        #region Cancelar orden de compra
+            public async Task CancelarOrdenCompra(long nOrdenCompra)
+            {
+                var ordenC = await _ordenCompraRepository.GetOrdenCompraYDetalles(nOrdenCompra);
+                if (ordenC == null) throw new Exception($"Orden de compra con número {nOrdenCompra} no encontrada ");
+
+                // verificar estado actual
+                var estActual = ordenC.ordenEstado?.nombreEstadoOrden;
+                if (estActual == null || estActual.Equals("Archivada", StringComparison.OrdinalIgnoreCase) || estActual.Equals("Cancelada", StringComparison.OrdinalIgnoreCase))
+                {
+                throw new Exception("No se puede cancelar una orden archivada o previamente cancelada ");
+                }
+
+                // obtener estado `cancelada`
+                var estCancelada = await _ordenCompraRepository.GetEstadoOrdenCompra("Cancelada");
+                if (estCancelada == null || estCancelada.fechaFinEstadoDisponible != null) throw new Exception("No se encontró el estado 'Cancelada' ");
+
+                //asignar nuevo estado
+                 ordenC.ordenEstado = estCancelada;
+                 await _ordenCompraRepository.UpdateAsync(ordenC);
+            }
+        #endregion
+}   
 }

@@ -44,7 +44,7 @@ builder.Services.AddScoped<EstadoProveedoresRepository>();
 builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorArticuloRepository>();
-builder.Services.AddScoped<ListaProveedoresRepository>();
+//builder.Services.AddScoped<ListaProveedoresRepository>();
 builder.Services.AddScoped<OrdenCompraEstadoRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorEstadoRepository>();
@@ -57,7 +57,7 @@ builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
 builder.Services.AddScoped<VentasService>();
 builder.Services.AddScoped<ProveedorArticuloService>();
-builder.Services.AddScoped<ListaProveedoresService>();
+//builder.Services.AddScoped<ListaProveedoresService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();
@@ -75,16 +75,22 @@ var app = builder.Build();
 // Comprobación conexión a BD
 using (var scope = app.Services.CreateScope())
 {
-    try
+try
+{
+    var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
+    var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
+    Console.WriteLine("✅ Conexión a MySQL exitosa");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("❌ Error de conexión: " + ex.Message);
+    Exception inner = ex.InnerException;
+    while (inner != null)
     {
-        var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
-        var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
-        Console.WriteLine("✅ Conexión a MySQL exitosa");
+        Console.WriteLine("Inner Exception: " + inner.Message);
+        inner = inner.InnerException;
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine("❌ Error de conexión: " + ex.Message);
-    }
+}
 }
 
 if (!app.Environment.IsDevelopment())

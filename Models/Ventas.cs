@@ -4,7 +4,7 @@
     {
         public virtual string? descripcionVenta { get; set; }
         public virtual long nVenta { get; set; }
-        public virtual long totalVenta {get;set;}
+        public virtual double totalVenta {get;set;}
        
     }
 }
