@@ -42,7 +42,7 @@ namespace Proyect_InvOperativa.Repository
             using var session = _sessionFactory.OpenSession();
             var ordP = await session.Query<OrdenCompra>()
                 .Where(ordActual => estadosOrden.Contains(ordActual.ordenEstado!.nombreEstadoOrden!)
-            && ordActual.detalleOrdenCompra.Any(det => det.articulo!.idArticulo == idArticulo))
+            && ordActual.detalleOrdenCompra.Any(detOC => detOC.articulo!.idArticulo == idArticulo))
                 .AnyAsync();
             return ordP;
             }           
