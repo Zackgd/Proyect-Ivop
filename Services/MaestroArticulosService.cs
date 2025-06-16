@@ -79,6 +79,11 @@ namespace Proyect_InvOperativa.Services
                idArticulo = ArticuloDto.idArticulo,
                nombreArticulo = ArticuloDto.nombreArticulo,
                descripcion = ArticuloDto.descripcion,
+               demandaDiaria = ArticuloDto.demandaDiaria,
+               costoAlmacen = ArticuloDto.costoAlmacen,
+               tiempoRevision = ArticuloDto.tiempoRevision,
+               categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
+               modeloInv = (ModeloInv)ArticuloDto.modeloInv,
                masterArticulo = maestro
             };
 
@@ -87,8 +92,8 @@ namespace Proyect_InvOperativa.Services
             var articuloStock = new StockArticulos()
             {
                 nStock = ArticuloDto.nStock,
-                stockSeguridad = ArticuloDto.stockSeguridad,
-                stockActual = ArticuloDto.stockActual,
+                stockSeguridad = 0,
+                stockActual = 0,
                 fechaStockInicio = DateTime.UtcNow,
                 fechaStockFin = null,
                 articulo = newArticulo // importante: referencia al artículo persistido
@@ -103,21 +108,24 @@ namespace Proyect_InvOperativa.Services
         public async Task UpdateArticulo(ArticuloDto ArticuloDto)
         {
             var articuloModificado = await _articuloRepository.GetByIdAsync(ArticuloDto.idArticulo);
-            var stockAsociadoArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(ArticuloDto.idArticulo); //falta testear
+            //var stockAsociadoArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(ArticuloDto.idArticulo); //falta testear
 
             if (articuloModificado is null)
             {
                 throw new Exception($"Artículo con id: {ArticuloDto.idArticulo} no encontrado. ");
             }
             // MODIFICAR LOS DATOS PROPIOS DE ARTICULO
+            articuloModificado.nombreArticulo=ArticuloDto.nombreArticulo;
             articuloModificado.descripcion = ArticuloDto.descripcion;
             articuloModificado.demandaDiaria= ArticuloDto.demandaDiaria;
             articuloModificado.costoAlmacen= ArticuloDto.costoAlmacen;
-            articuloModificado.tiempoRevision= ArticuloDto.tiemporevision;
+            articuloModificado.tiempoRevision= ArticuloDto.tiempoRevision;
+            articuloModificado.modeloInv= (ModeloInv)ArticuloDto.modeloInv;
+            articuloModificado.categoriaArt=(CategoriaArt)ArticuloDto.categoriaArt;
             // MODIFICAR LOS DATOS PROPIOS DE STOCK ASOCIADO A ARTICULO, si es que se pueden 
             
             await _articuloRepository.UpdateAsync(articuloModificado);
-            await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
+            //await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
 
         }
 
