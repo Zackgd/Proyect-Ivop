@@ -11,7 +11,7 @@
         public long categoriaArt { get; set; }
         public long tiempoRevision {get; set;}
         //public long idListaArticulo { get; set; }
-        public long idMaster { get; set; }
+        //public long idMaster { get; set; }
         public long nStock { get; set; }
         //public long stockSeguridad { get; set; }
         //public long stockActual { get; set; }

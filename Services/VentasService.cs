@@ -19,35 +19,34 @@ namespace Proyect_InvOperativa.Services
         }
 
         #region Actualizar stock (ventas)
-            public async Task<bool> ValidarStockDisponible(long idArticulo, long cantidadSolicitada)
-            {
-                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
-                if (stockArticulo == null) return false; 
-
-                return stockArticulo.stockActual >= cantidadSolicitada;
-            }
-
-            public async Task ActualizarStockVenta(long idArticulo, long cantidadVendida)
+            public async Task<string?> ActualizarStockVenta(long idArticulo, long cantidadVendida)
             {
                 var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
-                if (articulo == null) throw new Exception($"articulo con Id {idArticulo} no encontrado ");
+                if (articulo == null) throw new Exception($"articulo con ID {idArticulo} no encontrado ");
 
-                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
-                if (stockArticulo == null) throw new Exception($"no se encuentra stock actual para el artículo con Id {idArticulo} ");
+                 var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+                 if (stockArticulo == null) throw new Exception($"no se encuentra stock actual para el artículo con Id {idArticulo} ");
 
-                // actualiza el stock
+                // Actualiza el stock restando la cantidad vendida
                 stockArticulo.stockActual -= cantidadVendida;
 
-                // si el modelo es Lote Fijo se controla el stock
-                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                // Actualiza control si el stock cae por debajo del stock de seguridad
+                if (stockArticulo.stockActual <= stockArticulo.stockSeguridad)
                 {
-                    if (stockArticulo.stockActual <= stockArticulo.stockSeguridad)
-                    {
-                        stockArticulo.control = true;
-                    }
+                    stockArticulo.control = true;
                 }
 
+                // Mensaje de advertencia si es modelo Q y se alcanza el punto de pedido
+                string? aviso_pp = null;
+                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                {
+                    if (stockArticulo.stockActual <= stockArticulo.puntoPedido)
+                    {
+                        aviso_pp = $"el articulo '{articulo.nombreArticulo}' alcanzo o esta por debajo del punto de pedido ";
+                    }
+                }
                 await _stockArticuloRepository.UpdateAsync(stockArticulo);
+                return aviso_pp;
             }
         #endregion
     }

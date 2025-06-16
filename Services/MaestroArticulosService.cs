@@ -206,13 +206,15 @@ namespace Proyect_InvOperativa.Services
 
                 // calc. stock de Seguridad
                 double stockSeguridad = Z*valSigma*Math.Sqrt(tiempoEntrega);
+                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
                 double puntoPedido = stockSeguridad+(dProm*L);
                 long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
                 // obtener StockArticulos 
                 var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                 if (stock == null) continue;
 
-                stock.stockSeguridad = puntoPedidoEnt;
+                stock.stockSeguridad = stockSeguridadEnt;
+                stock.puntoPedido = puntoPedidoEnt;
                 await _stockArticuloRepository.UpdateAsync(stock);
                 double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
                 articulo.cgi = cgi;
@@ -279,32 +281,66 @@ namespace Proyect_InvOperativa.Services
             public async Task ControlStockPeriodico(CancellationToken cancellationToken)
             {
                 var articulos = await _articuloRepository.GetAllAsync();
-
                 foreach (var articulo in articulos)
                 {
                     if (cancellationToken.IsCancellationRequested) break;
-
                     if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
                     var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                     if (stockArticulo == null) continue;
 
-                    // revisar si corresponde control
+                    // revisar si corresponde control por fecha
                     if (articulo.fechaRevisionP.HasValue)
                     {
-                        TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision); 
+                        TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision);
                         DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
                         if (DateTime.Now < proximaRevision) continue;
                     }
 
-                    // activa control si stock actual es <= al de seguridad
-                    stockArticulo.control = stockArticulo.stockActual <= stockArticulo.stockSeguridad;
+                    // verificar si hay orden vigente
+                    var estadosVigentes = new[] { "Pendiente", "Enviada" };
+                    bool ordenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo, estadosVigentes);
 
-                    // registrar nueva fecha de revision
+                    if (!ordenVigente)
+                    {
+                        var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
+                        if (estadoPendiente == null) throw new Exception("No se encontró el estado 'Pendiente' para Orden de Compra.");
+
+                        if (articulo.proveedorArticulo == null) throw new Exception($"El artículo {articulo.idArticulo} no tiene un proveedor asignado.");
+
+                        var proveedorArt = articulo.proveedorArticulo;
+
+                        // calcular cantidad a pedir
+                        long cantidad = await CalcCantidadAPedirP(articulo, proveedorArt);
+
+                        if (cantidad > 0)
+                        {
+                            var precioUnitario = proveedorArt.precioUnitario;
+                            var subtotal = cantidad * precioUnitario;
+
+                            var orden = new OrdenCompra
+                            {
+                                fechaOrden = DateTime.Now,
+                                detalleOrden = "orden generada automáticamente",
+                                ordenEstado = estadoPendiente,
+                                totalPagar = subtotal,
+                                detalleOrdenCompra = new List<DetalleOrdenCompra>
+                                {
+                                    new DetalleOrdenCompra
+                                    {
+                                        articulo = articulo,
+                                        cantidadArticulos = cantidad,
+                                        precioSubTotal = precioUnitario
+                                    }
+                                }
+                            };
+
+                            await _ordenCompraRepository.AddAsync(orden);
+                        }
+                    }
+                    // actualizar fecha de revisión
                     articulo.fechaRevisionP = DateTime.Now;
-
-                    await _stockArticuloRepository.UpdateAsync(stockArticulo);
-                    await _articuloRepository.UpdateAsync(articulo); 
+                    await _articuloRepository.UpdateAsync(articulo);
                 }
             }
         #endregion
@@ -341,39 +377,6 @@ namespace Proyect_InvOperativa.Services
             }
         #endregion
 
-        #region RegistrarEntradaArticulos
-            public async Task RegistrarEntradaPedido(long nOrdenCompra)
-            {
-                // obtener orden de compra y detalles
-                var ordenC = await _ordenCompraRepository.GetOrdenCompraYDetalles(nOrdenCompra);
-                if (ordenC == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
-
-                // validar estado actual
-                if (ordenC.ordenEstado == null || !ordenC.ordenEstado.nombreEstadoOrden!.Equals("En proceso", StringComparison.OrdinalIgnoreCase))
-                {
-                throw new Exception("solo se puede registrar ingreso de ordenes en estado 'En proceso' ");
-                }
-
-                // actualiza stock de articulos en la ordenCompra
-                foreach (var detalleC in ordenC.detalleOrdenCompra)
-                {
-                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(detalleC.articulo.idArticulo);
-                    if (stock == null)
-                    throw new Exception($"no se encontro stock para el artículo ID {detalleC.articulo.idArticulo} ");
-                    stock.stockActual += detalleC.cantidadArticulos;
-                    await _stockArticuloRepository.UpdateAsync(stock);
-                }
-
-                // obtener estado `archivada`
-                var estArchivada = await _ordenCompraRepository.GetEstadoOrdenCompra("Archivada");
-                if (estArchivada == null || estArchivada.fechaFinEstadoDisponible != null) throw new Exception("No se encontró el estado 'Archivada' ");
-
-                //cambiar estado de la orden
-                ordenC.ordenEstado = estArchivada;
-                await _ordenCompraRepository.UpdateAsync(ordenC);
-            }
-        #endregion
-
         #region Proveedor Predeterminado
             public async Task<string> EstablecerProveedorPredeterminadoAsync(long idProveedor)
             {
@@ -399,5 +402,43 @@ namespace Proyect_InvOperativa.Services
             return $"proveedor con ID {idProveedor} ahora es el predeterminado del sistema ";
         }
         #endregion
+
+        #region Lista productos a reponer
+
+            public async Task<List<ArticuloStockReposicionDto>> ListarArticulosAReponer()
+            {
+                var articulos = await _articuloRepository.GetAllAsync();
+                var listaArticulosReposicion = new List<ArticuloStockReposicionDto>();
+
+                foreach (var articulo in articulos)
+                {
+                    if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
+
+                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stock == null) continue;
+
+                    // verifica si el stock actual está por debajo del punto de pedido
+                    if (stock.stockActual > stock.puntoPedido) continue;
+
+                    // verificar si no existe una orden vigente
+                    var estados = new[] { "Pendiente", "Enviada" };
+                    bool ordenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo, estados);
+
+                    if (!ordenVigente)
+                    {
+                        listaArticulosReposicion.Add(new ArticuloStockReposicionDto
+                        {
+                            IdArticulo = articulo.idArticulo,
+                            NombreArticulo = articulo.nombreArticulo ?? "",
+                            StockActual = stock.stockActual,
+                            StockSeguridad = stock.stockSeguridad
+                        });
+                    }
+                }
+                return listaArticulosReposicion;
+            }
+        #endregion
+
+        
 }   
 }

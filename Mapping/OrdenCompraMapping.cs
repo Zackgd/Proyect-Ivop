@@ -11,6 +11,7 @@ namespace Proyect_InvOperativa.Mapping
             Id(x => x.nOrdenCompra).GeneratedBy.Identity();
             Map(x => x.detalleOrden);
             Map(x => x.totalPagar);
+            Map(x => x.fechaOrden);
             References(x => x.ordenEstado)
                 .Column("EstadoOrden")
                 .Cascade.None();
