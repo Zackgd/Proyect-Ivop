@@ -270,50 +270,33 @@ namespace Proyect_InvOperativa.Services
 
             public async Task ControlStockPeriodico(CancellationToken cancellationToken)
             {
-               var articulos = await _articuloRepository.GetAllAsync();
+                var articulos = await _articuloRepository.GetAllAsync();
 
                 foreach (var articulo in articulos)
                 {
-                    if (cancellationToken.IsCancellationRequested)  break;
+                    if (cancellationToken.IsCancellationRequested) break;
 
                     if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
-                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
-                    if (!proveedoresArticulo.Any()) continue;
+                    var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stockArticulo == null) continue;
 
-                    // proveedor con menor precio unitario
-                    var proveedorArt = proveedoresArticulo.OrderBy(pUnitario => pUnitario.precioUnitario).First();
-
-                    // calcular cantidad a pedir
-                    long cantidadAPedir = await CalcCantidadAPedirP(articulo, proveedorArt);
-                    if (cantidadAPedir == 0) continue;
-
-                    // verificar existencia de orden vigente
-                    bool existeOrdenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo,new[] { "Pendiente", "Enviada" });
-
-                    if (existeOrdenVigente)  continue;
-
-                    var estadoPendiente = await _ordenCompraEstadoRepository.GetEstado("Pendiente");
-                    if (estadoPendiente == null) throw new Exception("Estado 'Pendiente' no encontrado.");
-
-                    var ordenGenerada = new OrdenCompra
+                    // revisar si corresponde control
+                    if (articulo.fechaRevisionP.HasValue)
                     {
-                        detalleOrden = $"Orden generada automaticamente para el articulo {articulo.nombreArticulo}",
-                        proveedor = proveedorArt.proveedor,
-                        ordenEstado = estadoPendiente,
-                        totalPagar = cantidadAPedir * proveedorArt.precioUnitario,
-                        detalleOrdenCompra = new List<DetalleOrdenCompra>
-                        {
-                            new DetalleOrdenCompra
-                            {
-                                articulo = articulo,
-                                cantidadArticulos = cantidadAPedir,
-                                precioSubTotal = proveedorArt.precioUnitario
-                            }
-                        }
-                    };
+                        TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision); 
+                        DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
+                        if (DateTime.Now < proximaRevision) continue;
+                    }
 
-                    await _ordenCompraRepository.AddAsync(ordenGenerada);
+                    // activa control si stock actual es <= al de seguridad
+                    stockArticulo.control = stockArticulo.stockActual <= stockArticulo.stockSeguridad;
+
+                    // registrar nueva fecha de revision
+                    articulo.fechaRevisionP = DateTime.Now;
+
+                    await _stockArticuloRepository.UpdateAsync(stockArticulo);
+                    await _articuloRepository.UpdateAsync(articulo); 
                 }
             }
         #endregion
