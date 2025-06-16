@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Linq;
 using Proyect_InvOperativa.Models;
 
@@ -21,3 +21,4 @@ namespace Proyect_InvOperativa.Repository
         
     }
 }
+
