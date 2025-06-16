@@ -366,67 +366,6 @@ namespace Proyect_InvOperativa.Services
             }
         #endregion
 
-        #region Cancelar orden de compra
-            public async Task CancelarOrdenCompra(long nOrdenCompra)
-            {
-                var ordenC = await _ordenCompraRepository.GetOrdenCompraYDetalles(nOrdenCompra);
-                if (ordenC == null) throw new Exception($"Orden de compra con número {nOrdenCompra} no encontrada ");
-
-                // verificar estado actual
-                var estActual = ordenC.ordenEstado?.nombreEstadoOrden;
-                if (estActual == null || 
-                estActual.Equals("Archivada", StringComparison.OrdinalIgnoreCase) || 
-                estActual.Equals("Cancelada", StringComparison.OrdinalIgnoreCase) ||
-                estActual.Equals("En proceso", StringComparison.OrdinalIgnoreCase) ||
-                estActual.Equals("Enviada", StringComparison.OrdinalIgnoreCase)
-                )
-                {
-                throw new Exception("No se puede cancelar la orden de compra ");
-                }
-
-                // obtener estado `cancelada`
-                var estCancelada = await _ordenCompraRepository.GetEstadoOrdenCompra("Cancelada");
-                if (estCancelada == null || estCancelada.fechaFinEstadoDisponible != null) throw new Exception("No se encontró el estado 'Cancelada' ");
-
-                //asignar nuevo estado
-                 ordenC.ordenEstado = estCancelada;
-                 await _ordenCompraRepository.UpdateAsync(ordenC);
-            }
-        #endregion
-
-        #region Actualizar stock (ventas)
-            public async Task<bool> ValidarStockDisponible(long idArticulo, long cantidadSolicitada)
-            {
-                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
-                if (stockArticulo == null) return false; 
-
-                return stockArticulo.stockActual >= cantidadSolicitada;
-            }
-
-            public async Task ActualizarStockVenta(long idArticulo, long cantidadVendida)
-            {
-                var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
-                if (articulo == null) throw new Exception($"articulo con Id {idArticulo} no encontrado ");
-
-                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
-                if (stockArticulo == null) throw new Exception($"no se encuentra stock actual para el artículo con Id {idArticulo} ");
-
-                // actualiza el stock
-                stockArticulo.stockActual -= cantidadVendida;
-
-                // si el modelo es Lote Fijo se controla el stock
-                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
-                {
-                    if (stockArticulo.stockActual <= stockArticulo.stockSeguridad)
-                    {
-                        stockArticulo.control = true;
-                    }
-                }
-
-                await _stockArticuloRepository.UpdateAsync(stockArticulo);
-            }
-        #endregion
-
         #region Proveedor Predeterminado
             public async Task<string> EstablecerProveedorPredeterminadoAsync(long idProveedor)
             {
