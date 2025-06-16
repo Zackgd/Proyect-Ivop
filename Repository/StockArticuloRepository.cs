@@ -15,11 +15,7 @@ namespace Proyect_InvOperativa.Repository
         {
             using var session = _sessionFactory.OpenSession();
             return await session.Query<StockArticulos>()
-<<<<<<< HEAD
-                .FirstOrDefaultAsync(s => s.articulo!.idArticulo == idArticulo && s.fechaStockFin == null);
-=======
                 .FirstOrDefaultAsync(sArt => sArt.articulo!.idArticulo == idArticulo && sArt.fechaStockFin == null);
->>>>>>> 2b87e89 (ajustes en modelos de stock)
         }
 
         
