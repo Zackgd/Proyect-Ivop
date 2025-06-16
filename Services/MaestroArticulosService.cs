@@ -338,12 +338,12 @@ namespace Proyect_InvOperativa.Services
             {
                 // obtener orden de compra y detalles
                 var ordenC = await _ordenCompraRepository.GetOrdenCompraYDetalles(nOrdenCompra);
-                if (ordenC == null) throw new Exception($"Orden de compra con número {nOrdenCompra} no encontrada.");
+                if (ordenC == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
 
                 // validar estado actual
                 if (ordenC.ordenEstado == null || !ordenC.ordenEstado.nombreEstadoOrden!.Equals("En proceso", StringComparison.OrdinalIgnoreCase))
                 {
-                throw new Exception("Solo se puede registrar ingreso de órdenes en estado 'En proceso' ");
+                throw new Exception("solo se puede registrar ingreso de ordenes en estado 'En proceso' ");
                 }
 
                 // actualiza stock de articulos en la ordenCompra
@@ -351,7 +351,7 @@ namespace Proyect_InvOperativa.Services
                 {
                     var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(detalleC.articulo.idArticulo);
                     if (stock == null)
-                    throw new Exception($"No se encontró stock para el artículo ID {detalleC.articulo.idArticulo}.");
+                    throw new Exception($"no se encontro stock para el artículo ID {detalleC.articulo.idArticulo} ");
                     stock.stockActual += detalleC.cantidadArticulos;
                     await _stockArticuloRepository.UpdateAsync(stock);
                 }
@@ -394,15 +394,48 @@ namespace Proyect_InvOperativa.Services
             }
         #endregion
 
+        #region Actualizar stock (ventas)
+            public async Task<bool> ValidarStockDisponible(long idArticulo, long cantidadSolicitada)
+            {
+                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+                if (stockArticulo == null) return false; 
+
+                return stockArticulo.stockActual >= cantidadSolicitada;
+            }
+
+            public async Task ActualizarStockVenta(long idArticulo, long cantidadVendida)
+            {
+                var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
+                if (articulo == null) throw new Exception($"articulo con Id {idArticulo} no encontrado ");
+
+                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+                if (stockArticulo == null) throw new Exception($"no se encuentra stock actual para el artículo con Id {idArticulo} ");
+
+                // actualiza el stock
+                stockArticulo.stockActual -= cantidadVendida;
+
+                // si el modelo es Lote Fijo se controla el stock
+                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                {
+                    if (stockArticulo.stockActual <= stockArticulo.stockSeguridad)
+                    {
+                        stockArticulo.control = true;
+                    }
+                }
+
+                await _stockArticuloRepository.UpdateAsync(stockArticulo);
+            }
+        #endregion
+
         #region Proveedor Predeterminado
             public async Task<string> EstablecerProveedorPredeterminadoAsync(long idProveedor)
             {
             var proveedorActual = await _proveedorRepository.GetByIdAsync(idProveedor);
             if (proveedorActual == null)
-                return $"Proveedor con ID {idProveedor} no encontrado.";
+                return $"proveedor con Id {idProveedor} no encontrado ";
 
             if (proveedorActual.predeterminado)
-            return "Este proveedor ya está definido como predeterminado.";
+            return "este proveedor ya esta definido como predeterminado ";
 
             // busca si ya existe un proveedor predeterminado
             var proveedorPredeterminadoExistente = await _proveedorRepository.GetProveedorPredeterminado();
@@ -416,7 +449,7 @@ namespace Proyect_InvOperativa.Services
             proveedorActual.predeterminado = true;
             await _proveedorRepository.UpdateAsync(proveedorActual);
 
-            return $"Proveedor con ID {idProveedor} ahora es el predeterminado del sistema.";
+            return $"proveedor con ID {idProveedor} ahora es el predeterminado del sistema ";
         }
         #endregion
 }   
