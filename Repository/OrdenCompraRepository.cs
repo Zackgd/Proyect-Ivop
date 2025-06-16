@@ -36,8 +36,6 @@ namespace Proyect_InvOperativa.Repository
             return await session.Query<OrdenCompraEstado>()
                 .FirstOrDefaultAsync(eComp => eComp.nombreEstadoOrden == nombreEstado && eComp.fechaFinEstadoDisponible == null);
             }
-<<<<<<< HEAD
-=======
 
         public async Task<bool> GetOrdenActual(long idArticulo, string[] estadosOrden)
             {
@@ -48,7 +46,6 @@ namespace Proyect_InvOperativa.Repository
                 .AnyAsync();
             return ordP;
             }           
->>>>>>> 2b87e89 (ajustes en modelos de stock)
     
     }
 }
