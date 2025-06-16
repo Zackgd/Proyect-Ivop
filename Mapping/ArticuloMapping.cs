@@ -15,6 +15,10 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.demandaDiaria);
             Map(x => x.costoAlmacen);
             Map(x => x.tiempoRevision);
+<<<<<<< HEAD
+=======
+            Map(x => x.fechaRevisionP);
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
             Map(x => x.cgi);
             Map(x => x.modeloInv).CustomType<ModeloInv>(); 
             Map(x => x.categoriaArt).CustomType<CategoriaArt>();

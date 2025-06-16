@@ -36,6 +36,19 @@ namespace Proyect_InvOperativa.Repository
             return await session.Query<OrdenCompraEstado>()
                 .FirstOrDefaultAsync(eComp => eComp.nombreEstadoOrden == nombreEstado && eComp.fechaFinEstadoDisponible == null);
             }
+<<<<<<< HEAD
+=======
+
+        public async Task<bool> GetOrdenActual(long idArticulo, string[] estadosOrden)
+            {
+            using var session = _sessionFactory.OpenSession();
+            var ordP = await session.Query<OrdenCompra>()
+                .Where(ordActual => estadosOrden.Contains(ordActual.ordenEstado!.nombreEstadoOrden!)
+            && ordActual.detalleOrdenCompra.Any(det => det.articulo!.idArticulo == idArticulo))
+                .AnyAsync();
+            return ordP;
+            }           
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
     
     }
 }

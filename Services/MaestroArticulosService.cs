@@ -24,15 +24,27 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly OrdenCompraRepository _ordenCompraRepository;
+<<<<<<< HEAD
+=======
+        private readonly OrdenCompraEstadoRepository _ordenCompraEstadoRepository;
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
       
+<<<<<<< HEAD
         public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
+=======
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
             _ordenCompraRepository = ordenCompraRepository;
+<<<<<<< HEAD
+=======
+            _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
             _maestroArticuloRepository = maestroArticulosRepository;
             _stockArticuloRepository=stockRepo;
             _proveedorArticuloRepository = PARepository;
@@ -183,6 +195,11 @@ namespace Proyect_InvOperativa.Services
                 // parametros para calculo
                 double demanda = articulo.demandaDiaria;
                 double demandaAnual = demanda*365;
+<<<<<<< HEAD
+=======
+                double dProm = articulo.demandaDiaria; // demanda diaria promedio
+                double L = proveedorArt.tiempoEntregaDias; 
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                 double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;
                 double costoAlmacen = articulo.costoAlmacen;
@@ -194,12 +211,21 @@ namespace Proyect_InvOperativa.Services
 
                 // calc. stock de Seguridad
                 double stockSeguridad = Z*valSigma*Math.Sqrt(tiempoEntrega);
+<<<<<<< HEAD
                 long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+=======
+                double puntoPedido = stockSeguridad+(dProm*L);
+                long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                 // obtener StockArticulos 
                 var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                 if (stock == null) continue;
 
+<<<<<<< HEAD
                 stock.stockSeguridad = stockSeguridadEnt;
+=======
+                stock.stockSeguridad = puntoPedidoEnt;
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                 await _stockArticuloRepository.UpdateAsync(stock);
                 double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
                 articulo.cgi = cgi;
@@ -218,6 +244,7 @@ namespace Proyect_InvOperativa.Services
                 {
                     if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
+<<<<<<< HEAD
                     double dProm = articulo.demandaDiaria; // demanda diaria promedio
 
                     // proveedores del artículo
@@ -246,18 +273,111 @@ namespace Proyect_InvOperativa.Services
                     if (qEnt < 0) qEnt = 0;
 
                     double demandaAnual = dProm*365;
+=======
+                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                    if (!proveedoresArticulo.Any()) continue;
+
+                    var proveedorArt = proveedoresArticulo.OrderBy(pArt => pArt.precioUnitario).First();
+
+                    long cantidadAPedir = await CalcCantidadAPedirP(articulo, proveedorArt);
+                    if (cantidadAPedir == 0) continue;
+
+                    double demandaAnual = articulo.demandaDiaria*365;
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                     double costoUnidad = proveedorArt.precioUnitario;
                     double costoPedido = proveedorArt.costoPedido;
                     double costoAlmacen = articulo.costoAlmacen;
 
+<<<<<<< HEAD
                     // actualizar stock de seguridad
                     stock.stockSeguridad = stockSeguridadEnt;
                     await _stockArticuloRepository.UpdateAsync(stock);
                     double cgi = CalcularCGI(demandaAnual, costoUnidad, qEnt, costoPedido, costoAlmacen);
+=======
+                    double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                     articulo.cgi = cgi;
                     await _articuloRepository.UpdateAsync(articulo);
                 }
             }
+<<<<<<< HEAD
+=======
+
+            private async Task<long> CalcCantidadAPedirP(Articulo articulo, ProveedorArticulo proveedorArt)
+            {
+                double dProm = articulo.demandaDiaria;
+                double T = articulo.tiempoRevision;
+                double L = proveedorArt.tiempoEntregaDias;
+                double periodoVulnerable = T + L;
+
+                var (Z, sigma) = ObtenerZySigma(articulo.categoriaArt, periodoVulnerable);
+
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null) return 0;
+
+                double stockSeguridad = Z * sigma;
+                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+
+                double q = dProm * periodoVulnerable + stockSeguridad - stock.stockActual;
+                long qEnt = (long)Math.Ceiling(q);
+                if (qEnt < 0) qEnt = 0;
+
+                // actualizar stock de seguridad
+                stock.stockSeguridad = stockSeguridadEnt;
+                await _stockArticuloRepository.UpdateAsync(stock);
+
+                return qEnt;
+            }
+
+            public async Task ControlStockPeriodico(CancellationToken cancellationToken)
+            {
+               var articulos = await _articuloRepository.GetAllAsync();
+
+                foreach (var articulo in articulos)
+                {
+                    if (cancellationToken.IsCancellationRequested)  break;
+
+                    if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
+
+                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                    if (!proveedoresArticulo.Any()) continue;
+
+                    // proveedor con menor precio unitario
+                    var proveedorArt = proveedoresArticulo.OrderBy(pUnitario => pUnitario.precioUnitario).First();
+
+                    // calcular cantidad a pedir
+                    long cantidadAPedir = await CalcCantidadAPedirP(articulo, proveedorArt);
+                    if (cantidadAPedir == 0) continue;
+
+                    // verificar existencia de orden vigente
+                    bool existeOrdenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo,new[] { "Pendiente", "Enviada" });
+
+                    if (existeOrdenVigente)  continue;
+
+                    var estadoPendiente = await _ordenCompraEstadoRepository.GetEstado("Pendiente");
+                    if (estadoPendiente == null) throw new Exception("Estado 'Pendiente' no encontrado.");
+
+                    var ordenGenerada = new OrdenCompra
+                    {
+                        detalleOrden = $"Orden generada automaticamente para el articulo {articulo.nombreArticulo}",
+                        proveedor = proveedorArt.proveedor,
+                        ordenEstado = estadoPendiente,
+                        totalPagar = cantidadAPedir * proveedorArt.precioUnitario,
+                        detalleOrdenCompra = new List<DetalleOrdenCompra>
+                        {
+                            new DetalleOrdenCompra
+                            {
+                                articulo = articulo,
+                                cantidadArticulos = cantidadAPedir,
+                                precioSubTotal = proveedorArt.precioUnitario
+                            }
+                        }
+                    };
+
+                    await _ordenCompraRepository.AddAsync(ordenGenerada);
+                }
+            }
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
         #endregion
 
         #region Calculo CostoGlobalInv
@@ -333,9 +453,20 @@ namespace Proyect_InvOperativa.Services
 
                 // verificar estado actual
                 var estActual = ordenC.ordenEstado?.nombreEstadoOrden;
+<<<<<<< HEAD
                 if (estActual == null || estActual.Equals("Archivada", StringComparison.OrdinalIgnoreCase) || estActual.Equals("Cancelada", StringComparison.OrdinalIgnoreCase))
                 {
                 throw new Exception("No se puede cancelar una orden archivada o previamente cancelada ");
+=======
+                if (estActual == null || 
+                estActual.Equals("Archivada", StringComparison.OrdinalIgnoreCase) || 
+                estActual.Equals("Cancelada", StringComparison.OrdinalIgnoreCase) ||
+                estActual.Equals("En proceso", StringComparison.OrdinalIgnoreCase) ||
+                estActual.Equals("Enviada", StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                throw new Exception("No se puede cancelar la orden de compra ");
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
                 }
 
                 // obtener estado `cancelada`
@@ -347,5 +478,34 @@ namespace Proyect_InvOperativa.Services
                  await _ordenCompraRepository.UpdateAsync(ordenC);
             }
         #endregion
+<<<<<<< HEAD
+=======
+
+        #region Proveedor Predeterminado
+            public async Task<string> EstablecerProveedorPredeterminadoAsync(long idProveedor)
+            {
+            var proveedorActual = await _proveedorRepository.GetByIdAsync(idProveedor);
+            if (proveedorActual == null)
+                return $"Proveedor con ID {idProveedor} no encontrado.";
+
+            if (proveedorActual.predeterminado)
+            return "Este proveedor ya está definido como predeterminado.";
+
+            // Buscar si ya existe un proveedor predeterminado
+            var proveedorPredeterminadoExistente = await _proveedorRepository.GetProveedorPredeterminado();
+            if (proveedorPredeterminadoExistente != null)
+            {
+                proveedorPredeterminadoExistente.predeterminado = false;
+                await _proveedorRepository.UpdateAsync(proveedorPredeterminadoExistente);
+            }
+
+            // Establecer nuevo proveedor predeterminado
+            proveedorActual.predeterminado = true;
+            await _proveedorRepository.UpdateAsync(proveedorActual);
+
+            return $"Proveedor con ID {idProveedor} ahora es el predeterminado del sistema.";
+        }
+        #endregion
+>>>>>>> 2b87e89 (ajustes en modelos de stock)
 }   
 }

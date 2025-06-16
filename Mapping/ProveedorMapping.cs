@@ -23,6 +23,7 @@ namespace Proyect_InvOperativa.Mapping
             .Inverse()
             .Cascade.All();
             
+            Map(x => x.predeterminado).Not.Nullable().Default("false");
         }
     }
 }

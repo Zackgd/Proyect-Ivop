@@ -50,6 +50,7 @@ builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
+builder.Services.AddScoped<StockArticuloRepository>();
 
 
 //Registro de Servicios
@@ -61,6 +62,8 @@ builder.Services.AddScoped<ProveedorArticuloService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();
+
+builder.Services.AddHostedService<Proyect_InvOperativa.Services.ControlStockPeriodoFijoService>();
 
 
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
