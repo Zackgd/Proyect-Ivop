@@ -14,7 +14,7 @@ namespace Proyect_InvOperativa.Services
         }
 
 
-        public async Task CreateOrdenCompraEstado(OrdenCompraEstadosDto dtoOrdenEstado)
+        public async Task<OrdenCompraEstado> CreateOrdenCompraEstado(OrdenCompraEstadosDto dtoOrdenEstado)
         {
             var ordenEstadoNueva = new OrdenCompraEstado()
             {
@@ -22,12 +22,12 @@ namespace Proyect_InvOperativa.Services
                 idOrdenCompraEstado = dtoOrdenEstado.idOrdenCompraEstado,
                 fechaFinEstadoDisponible = null,
             };
-            await _OCrepository.AddAsync(ordenEstadoNueva);
+            return await _OCrepository.AddAsync(ordenEstadoNueva);
         }
 
-        public async Task DeleteOrdenCompraEstado(OrdenCompraEstadosDto ocEdto)
+        public async Task DeleteOrdenCompraEstado(long id)
         {
-            var ordenCEstado = await _OCrepository.GetByIdAsync(ocEdto.idOrdenCompraEstado);
+            var ordenCEstado = await _OCrepository.GetByIdAsync(id);
 
             ordenCEstado.fechaFinEstadoDisponible = DateTime.UtcNow;
 

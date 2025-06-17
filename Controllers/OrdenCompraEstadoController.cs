@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Proyect_InvOperativa.Dtos.OrdenCompra;
+using Proyect_InvOperativa.Services;
 using System;
 namespace Proyect_InvOperativa.Controllers
 {
@@ -10,18 +11,24 @@ namespace Proyect_InvOperativa.Controllers
     {
 
 
-        [HttpPost]
-        public async Task<IActionResult> CreateOrdenCompraEstados(OrdenCompraEstadosDto createOrdenCompraEstados)
+        private readonly OrdenCompraEstadoService _ordenCompraEstadoService;
+        public OrdenCompraEstadoController(OrdenCompraEstadoService ordenCompraEstadoService)
         {
-
-            return Ok("retorno de prueba");
+            _ordenCompraEstadoService = ordenCompraEstadoService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllOrdenCompraEstados()
+        [HttpPost]
+        public async Task<IActionResult> CreateOrdenCompraEstados([FromBody] OrdenCompraEstadosDto ordenCompraEstadoDto)
         {
+            var result = await _ordenCompraEstadoService.CreateOrdenCompraEstado(ordenCompraEstadoDto);
+            return Ok(result);
+        }
 
-            return Ok("retorno de prueba");
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrdenCompraEstado(long id)
+        {
+            await _ordenCompraEstadoService.DeleteOrdenCompraEstado(id);
+            return NoContent();
         }
 
     } 

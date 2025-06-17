@@ -57,3 +57,5 @@ Properties/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+*.csproj.user

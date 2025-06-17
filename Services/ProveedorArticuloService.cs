@@ -17,7 +17,7 @@ namespace Proyect_InvOperativa.Services
             _articuloRepository = artRepo;  
             _proveedoresArticuloRepository = pArtRepo;
         }
-        public async Task<ProveedorArticulo> CreateProveedorArticulo (ProveedorArticuloDto provArtDto)
+        public async Task<ProveedorArticulo> CreateProveedorArticulo(ProveedorArticuloDto provArtDto)
         {
             var articulo = await _articuloRepository.GetByIdAsync(provArtDto.idArticulo);
             var proveedor = await _proveedoresRepository.GetByIdAsync(provArtDto.idProveedor);
@@ -35,9 +35,9 @@ namespace Proyect_InvOperativa.Services
             return proveedorArticulo;
         }
 
-        public async Task DeleteListaArticulo (ProveedorArticuloDto provArtDto)
+        public async Task DeleteProveedorArticulo(long id)
         {
-            var proveedorArticulo = await _proveedoresArticuloRepository.GetByIdAsync(provArtDto.idArticulo); //revisar mapeo para que busque por id o hacer query
+            var proveedorArticulo = await _proveedoresArticuloRepository.GetByIdAsync(id); //revisar mapeo para que busque por id o hacer query
             if (proveedorArticulo == null)
             {
                 throw new Exception("No existe la lista");
