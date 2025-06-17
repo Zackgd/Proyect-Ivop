@@ -17,6 +17,7 @@ namespace Proyect_InvOperativa.Models
         public virtual CategoriaArt? categoriaArt { get; set; }
         public virtual ProveedorArticulo? proveedorArticulo { get; set; }
         public virtual MaestroArticulo? masterArticulo { get; set; }
+        public virtual long idMaestroArticulo { get; set; }
         public virtual IList<ProveedorArticulo> proveedorArticulos { get; set; } = new List<ProveedorArticulo>();
     }
 }

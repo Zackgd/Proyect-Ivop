@@ -12,13 +12,22 @@ namespace Proyect_InvOperativa.Services
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ArticuloRepository _articuloRepository;
 
+
         public VentasService( StockArticuloRepository stockArticuloRepository,ArticuloRepository articuloRepository)
         {
             _stockArticuloRepository = stockArticuloRepository;
             _articuloRepository = articuloRepository;
         }
-
+        
         #region Actualizar stock (ventas)
+            public async Task<bool> ValidarStockDisponible(long idArticulo, long cantidadSolicitada)
+            {
+                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+
+                if (stockArticulo == null) return false; 
+                return stockArticulo.stockActual >= cantidadSolicitada;
+            }
+
             public async Task<string?> ActualizarStockVenta(long idArticulo, long cantidadVendida)
             {
                 var articulo = await _articuloRepository.GetByIdAsync(idArticulo);

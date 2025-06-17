@@ -10,7 +10,6 @@
         public virtual MaestroArticulo? masterArticulo { get; set; }
         public virtual IList<ProveedorArticulo> proveedorArticulos { get; set; } = new List<ProveedorArticulo>();
 
-        public virtual bool predeterminado { get; set; }
 
     }
 }

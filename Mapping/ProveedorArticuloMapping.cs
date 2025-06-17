@@ -15,6 +15,7 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.precioUnitario);
             Map(x => x.costoPedido);
             Map(x => x.tiempoEntregaDias);
+            Map(x => x.predeterminado).Not.Nullable().Default("false");
             Map(x => x.fechaFinProveedorArticulo);
 
 
