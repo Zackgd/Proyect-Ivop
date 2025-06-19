@@ -9,7 +9,6 @@ namespace Proyect_InvOperativa.Mapping
         {
             Table("OrdenCompra");
             Id(x => x.nOrdenCompra).GeneratedBy.Identity();
-            Map(x => x.detalleOrden);
             Map(x => x.totalPagar);
             Map(x => x.fechaOrden);
             References(x => x.ordenEstado)

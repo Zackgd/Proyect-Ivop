@@ -96,7 +96,6 @@ namespace Proyect_InvOperativa.Services
 
             var articuloStock = new StockArticulos()
             {
-                nStock = ArticuloDto.nStock,
                 stockSeguridad = 0,
                 stockActual = 0,
                 fechaStockInicio = DateTime.UtcNow,

@@ -86,7 +86,6 @@ namespace Proyect_InvOperativa.Services
                 var ordenC = new OrdenCompra
                 {
                     fechaOrden = DateTime.Now,
-                    detalleOrden = "orden generada automaticamente",
                     proveedor = proveedor,
                     ordenEstado = estadoPendiente,
                     totalPagar = totalPagar,
