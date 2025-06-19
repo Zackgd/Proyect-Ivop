@@ -18,4 +18,3 @@ namespace Proyect_InvOperativa.Mapping
         }
     }
 }
-

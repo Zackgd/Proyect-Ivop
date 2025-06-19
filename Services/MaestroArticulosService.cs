@@ -196,9 +196,8 @@ namespace Proyect_InvOperativa.Services
                 if (proveedorArt == null) continue; // si no hay proveedor predeterminado no se puede calcular
 
                 // parametros para calculo
-                double demanda = articulo.demandaDiaria;
-                double demandaAnual = demanda*365;
-                double dProm = articulo.demandaDiaria; // demanda diaria promedio
+                double dProm = articulo.demandaDiaria;
+                double demandaAnual = dProm*365;
                 double L = proveedorArt.tiempoEntregaDias; 
                 double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;

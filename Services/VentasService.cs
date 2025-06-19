@@ -70,73 +70,62 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
-        #region
-
-        public async Task<Ventas> CreateVentas(VentasDto ventasDto)
-        {
-            if (ventasDto.detalles.Length < 1)
+        #region create ventas
+           public async Task<Ventas> CreateVentas(VentasDto ventasDto)
             {
-                throw new Exception("No hay artículos en la venta. ");
-            }
+                if (ventasDto.detalles.Length < 1)
+                    throw new Exception("No hay artículos en la venta.");
 
-            using (var tx = _session.BeginTransaction())
-            {
-                try
+                using (var tx = _session.BeginTransaction())
                 {
-                    var venta = new Ventas
+                    try
                     {
-                        descripcionVenta = ventasDto.descripcionVenta,
-                        totalVenta = 0,
-                        detallesVentas = []
-                    };
-
-                    double total = 0;
-
-                    foreach (var detalle in ventasDto.detalles)
-                    {
-                        var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
-                        if (articulo is null)
+                        var venta = new Ventas
                         {
-                            throw new Exception($"no se encontró el articulo con Id: {detalle.idArticulo} ");
-                        }
-
-                        // con qué calculo el subtotal? esto solo sería el costo de compra nuestro
-                        var subtotal = detalle.cantidadArticulo * articulo.proveedorArticulo!.precioUnitario;
-
-                        var newDetalle = new DetalleVentas
-                        {
-                            cantidad = detalle.cantidadArticulo,
-                            subTotalVenta = subtotal*0.15,
-                            venta = venta,
-                            articulo = articulo
+                            descripcionVenta = ventasDto.descripcionVenta,
+                            totalVenta = 0
                         };
 
-                        total += (subtotal);
+                        await _ventasRepository.AddAsync(venta); // o usar _session.SaveAsync(venta);
 
-                        await ActualizarStockVenta(articulo, newDetalle);
-                         await _detalleVentasRepository.AddAsync(newDetalle);
-                        await _session.SaveAsync(newDetalle);
+                        double total = 0;
 
+                        foreach (var detalle in ventasDto.detalles)
+                        {
+                            var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
+                            if (articulo is null)
+                    throw new Exception($"No se encontró el artículo con ID: {detalle.idArticulo}");
+
+                            var precioCompra = articulo.proveedorArticulo!.precioUnitario;
+                            var subtotal = detalle.cantidadArticulo * precioCompra;
+
+                            var newDetalle = new DetalleVentas
+                            {
+                                cantidad = detalle.cantidadArticulo,
+                                subTotalVenta = subtotal * 0.15, // ¿margen de ganancia fijo?
+                                articulo = articulo,
+                                venta = venta
+                            };
+
+                            total += subtotal;
+
+                            await ActualizarStockVenta(articulo, newDetalle);
+                            await _detalleVentasRepository.AddAsync(newDetalle); // o _session.SaveAsync(newDetalle);
+                        }
+
+                        venta.totalVenta = total;
+                        await _ventasRepository.UpdateAsync(venta); // o _session.UpdateAsync(venta)
+
+                        await tx.CommitAsync();
+                        return venta;
                     }
-
-                    venta.totalVenta = total;
-
-                     await _ventasRepository.AddAsync(venta);
-                    await _session.SaveAsync(venta);
-
-                    await tx.CommitAsync();
-                    return venta;
+                    catch
+                    {
+                        await tx.RollbackAsync();
+                        throw;
+                    }
                 }
-                catch
-                {
-                    await tx.RollbackAsync();
-                    throw;
-                }
-
             }
-
-        }
-
         #endregion
     }
 }

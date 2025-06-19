@@ -51,6 +51,7 @@ builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
 builder.Services.AddScoped<StockArticuloRepository>();
+builder.Services.AddScoped<DetalleOrdenCompraRepository>();
 builder.Services.AddScoped<BaseRepository<DetalleVentas>>();
 
 //Registro de Servicios
