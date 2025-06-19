@@ -16,10 +16,10 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly ProveedorArticuloRepository _proveedorArtRepository;
+        private readonly ProveedorArticuloService _proveedorArtService;
         private readonly StockArticuloRepository _stockarticuloRepository;
-        private readonly MaestroArticulosService _maestroArtService;
 
-        public OrdenCompraService( OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository,ArticuloRepository articuloRepository,ProveedoresRepository proveedoresRepository,ProveedorArticuloRepository proveedorArtRepository,StockArticuloRepository stockarticuloRepository,MaestroArticulosService maestroArtService)
+        public OrdenCompraService( OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository,ArticuloRepository articuloRepository,ProveedoresRepository proveedoresRepository,ProveedorArticuloRepository proveedorArtRepository,StockArticuloRepository stockarticuloRepository,ProveedorArticuloService proveedorArticuloService)
         {
             _ordenCompraRepository = ordenCompraRepository;
             _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
@@ -27,7 +27,7 @@ namespace Proyect_InvOperativa.Services
             _proveedorRepository = proveedoresRepository;
             _proveedorArtRepository = proveedorArtRepository;
             _stockarticuloRepository = stockarticuloRepository;
-            _maestroArtService = maestroArtService;
+            _proveedorArtService = proveedorArticuloService;
         }
 
         #region Generar orden de compra
@@ -63,7 +63,7 @@ namespace Proyect_InvOperativa.Services
                     // modelo P
                     else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
                     {
-                        cantidad = await _maestroArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+                        cantidad = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
                         if (cantidad == 0) continue; 
                         subTotal = cantidad * precioUnitario;
                     }

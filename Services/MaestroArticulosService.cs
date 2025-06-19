@@ -3,6 +3,7 @@ using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Models.Enums;
+using Proyect_InvOperativa.Utils;
 using Proyect_InvOperativa.Repository;
 
 namespace Proyect_InvOperativa.Services
@@ -30,8 +31,9 @@ namespace Proyect_InvOperativa.Services
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
+        private readonly ProveedorArticuloService _proveedorArtService;
       
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraService ordenCompraService,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraService ordenCompraService,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository,ProveedorArticuloService proveedorArticuloService)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
@@ -41,6 +43,7 @@ namespace Proyect_InvOperativa.Services
             _maestroArticuloRepository = maestroArticulosRepository;
             _stockArticuloRepository=stockRepo;
             _proveedorArticuloRepository = PARepository;
+            _proveedorArtService = proveedorArticuloService;
         }
         #region AB Maestro Articulo
         public async Task<MaestroArticulo> CreateMaestroArticulo(CreateMaestroArticuloDto createMaestroArticuloDto)
@@ -201,7 +204,7 @@ namespace Proyect_InvOperativa.Services
                 double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;
                 double costoAlmacen = articulo.costoAlmacen;
-                var (Z,valSigma) = ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
+                var (Z,valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
 
                 // calculo EOQ
                 double qOpt = Math.Sqrt((2*demandaAnual*costoPedido)/costoAlmacen);
@@ -245,7 +248,7 @@ namespace Proyect_InvOperativa.Services
                 var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
                 if (proveedorArt == null) continue; //
 
-                    long cantidadAPedir = await CalcCantidadAPedirP(articulo, proveedorArt);
+                    long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
                     if (cantidadAPedir == 0) continue;
 
                     double demandaAnual = articulo.demandaDiaria*365;
@@ -257,32 +260,6 @@ namespace Proyect_InvOperativa.Services
                     articulo.cgi = cgi;
                     await _articuloRepository.UpdateAsync(articulo);
                 }
-            }
-
-            public async Task<long> CalcCantidadAPedirP(Articulo articulo, ProveedorArticulo proveedorArt)
-            {
-                double dProm = articulo.demandaDiaria;
-                double T = articulo.tiempoRevision;
-                double L = proveedorArt.tiempoEntregaDias;
-                double periodoVulnerable = T + L;
-
-                var (Z, sigma) = ObtenerZySigma(articulo.categoriaArt, periodoVulnerable);
-
-                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                if (stock == null) return 0;
-
-                double stockSeguridad = Z * sigma;
-                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
-
-                double q = dProm * periodoVulnerable + stockSeguridad - stock.stockActual;
-                long qEnt = (long)Math.Ceiling(q);
-                if (qEnt < 0) qEnt = 0;
-
-                // actualizar stock de seguridad
-                stock.stockSeguridad = stockSeguridadEnt;
-                await _stockArticuloRepository.UpdateAsync(stock);
-
-                return qEnt;
             }
 
             public async Task ControlStockPeriodico(CancellationToken cancellationToken)
@@ -331,26 +308,6 @@ namespace Proyect_InvOperativa.Services
                  ((demandaAnual / cantidadPedido) * costoPedido) +
                  ((cantidadPedido / 2.0) * costoAlmacen);
                 return cgi;
-            }
-        #endregion
-
-        #region val. Z y sigma
-            private (double Z, double sigma) ObtenerZySigma(CategoriaArt? categoria, double tiempo_p)
-            {
-                double Z = 1.64485363; // nivel de servicio esperado (z) para 0,95
-
-                if (categoria == null) throw new ArgumentException("Categoria no encontrada");
-                double val_Sigma = categoria switch
-                {
-                    CategoriaArt.Categoria_A => (6.0+2.0)/2.0,
-                    CategoriaArt.Categoria_B => (4.0+1.0)/2.0,
-                    CategoriaArt.Categoria_C => (0.2+1.0)/2.0,
-                    CategoriaArt.Categoria_D => (0.1+1.0)/2.0,
-                    _ => throw new ArgumentException("Categoría no válida")
-                };
-
-                double sigma = val_Sigma * Math.Sqrt(tiempo_p);
-                return (Z, sigma);
             }
         #endregion
 
