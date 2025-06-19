@@ -35,11 +35,11 @@ namespace Proyect_InvOperativa.Services
             {
                 // obtener proveedor
                 var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
-                if (proveedor == null) throw new Exception($"Proveedor con ID {idProveedor} no encontrado.");
+                if (proveedor == null) throw new Exception($"proveedor con Id {idProveedor} no encontrado ");
 
                 // obtener estado ``Pendiente``
                 var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
-                if (estadoPendiente == null) throw new Exception("Estado 'Pendiente' no encontrado.");
+                if (estadoPendiente == null) throw new Exception("estado 'Pendiente' no encontrado ");
 
                 var detallesOrden = new List<DetalleOrdenCompra>();
                 double totalPagar = 0;
