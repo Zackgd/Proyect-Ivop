@@ -22,11 +22,11 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(disponible);
         }
 
-        [HttpPut("actualizar-stock")]
-        public async Task<IActionResult> ActualizarStock([FromBody] StockDto ventasDto)
+        [HttpPost()]
+        public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
         {
-            var mensaje = await _ventasService.ActualizarStockVenta(ventasDto);
-            return Ok(mensaje);
+            var result = await _ventasService.CreateVentas(ventasDto);
+            return Ok(result);
         }
     }
 }
