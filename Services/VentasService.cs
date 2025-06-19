@@ -102,7 +102,7 @@ namespace Proyect_InvOperativa.Services
                             var newDetalle = new DetalleVentas
                             {
                                 cantidad = detalle.cantidadArticulo,
-                                subTotalVenta = subtotal * 0.15, // ¿margen de ganancia fijo?
+                                subTotalVenta = subtotal * 0.15, 
                                 articulo = articulo,
                                 venta = venta
                             };
@@ -110,11 +110,11 @@ namespace Proyect_InvOperativa.Services
                             total += subtotal;
 
                             await ActualizarStockVenta(articulo, newDetalle);
-                            await _detalleVentasRepository.AddAsync(newDetalle); // o _session.SaveAsync(newDetalle);
+                            await _detalleVentasRepository.AddAsync(newDetalle); 
                         }
 
                         venta.totalVenta = total;
-                        await _ventasRepository.UpdateAsync(venta); // o _session.UpdateAsync(venta)
+                        await _ventasRepository.UpdateAsync(venta); 
 
                         await tx.CommitAsync();
                         return venta;
