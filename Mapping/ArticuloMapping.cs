@@ -21,11 +21,6 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.modeloInv).CustomType<ModeloInv>(); 
             Map(x => x.categoriaArt).CustomType<CategoriaArt>();
 
-           HasMany(x => x.proveedorArticulos)
-            .KeyColumn("idArticulo")
-            .Inverse()
-            .Cascade.All();
-
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
