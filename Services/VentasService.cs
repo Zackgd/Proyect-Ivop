@@ -101,17 +101,17 @@ namespace Proyect_InvOperativa.Services
                         }
 
                         // con qué calculo el subtotal? esto solo sería el costo de compra nuestro
-                        var subtotal = detalle.cantidadArticulo * articulo.proveedorArticulo!.precioUnitario;
+                        //var subtotal = detalle.cantidadArticulo * articulo.proveedorArticulo!.precioUnitario;
 
                         var newDetalle = new DetalleVentas
                         {
                             cantidad = detalle.cantidadArticulo,
-                            subTotalVenta = subtotal,
+                            //subTotalVenta = subtotal,
                             venta = venta,
                             articulo = articulo
                         };
 
-                        total += subtotal;
+                        //total += subtotal;
 
                         await ActualizarStockVenta(articulo, newDetalle);
                         // await _detalleVentasRepository.AddAsync(newDetalle);
@@ -119,7 +119,7 @@ namespace Proyect_InvOperativa.Services
 
                     }
 
-                    venta.totalVenta = total;
+                    //venta.totalVenta = total;
 
                     // await _ventasRepository.AddAsync(venta);
                     await _session.SaveAsync(venta);
