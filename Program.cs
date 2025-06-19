@@ -16,7 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-
 // BASE DE DATOS
 var connectionString = builder.Configuration.GetConnectionString("MySQLConnection");
 builder.Services.AddSingleton<ISessionFactory>(provider =>
@@ -54,7 +53,6 @@ builder.Services.AddScoped<OrdenCompraRepository>();
 builder.Services.AddScoped<StockArticuloRepository>();
 builder.Services.AddScoped<BaseRepository<DetalleVentas>>();
 
-
 //Registro de Servicios
 builder.Services.AddScoped<MaestroArticulosService>();
 builder.Services.AddScoped<OrdenCompraService>();
@@ -67,44 +65,39 @@ builder.Services.AddScoped<ProveedorEstadoService>();
 
 builder.Services.AddHostedService<Proyect_InvOperativa.Services.ControlStockPeriodoFijoService>();
 
-
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
-
 
 builder.Services.AddControllers(); 
 
-
 var app = builder.Build();
-
 
 // Comprobación conexión a BD
 using (var scope = app.Services.CreateScope())
-{
-try
-{
-    var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
-    var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
-    Console.WriteLine("✅ Conexión a MySQL exitosa");
-}
-catch (Exception ex)
-{
-    Console.WriteLine("❌ Error de conexión: " + ex.Message);
-    Exception inner = ex.InnerException;
-    while (inner != null)
     {
-        Console.WriteLine("Inner Exception: " + inner.Message);
-        inner = inner.InnerException;
+    try
+        {
+        var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
+        var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
+        Console.WriteLine("✅ Conexión a MySQL exitosa");
+        }
+    catch (Exception ex)
+        {   
+        Console.WriteLine("❌ Error de conexión: " + ex.Message);
+        Exception inner = ex.InnerException;
+        while (inner != null)
+            {
+            Console.WriteLine("Inner Exception: " + inner.Message);
+            inner = inner.InnerException;
+            }
+        }
     }
-}
-}
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
+            app.UseHsts();
 
-}
-
+        }
 
 app.UseHttpsRedirection();
 

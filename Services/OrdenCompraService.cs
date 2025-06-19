@@ -1,4 +1,6 @@
 ﻿using Proyect_InvOperativa.Repository;
+using Proyect_InvOperativa.Models;
+using Proyect_InvOperativa.Models.Enums;
 
 namespace Proyect_InvOperativa.Services
 {
@@ -12,15 +14,87 @@ namespace Proyect_InvOperativa.Services
         private readonly OrdenCompraRepository _ordenCompraRepository;
         private readonly OrdenCompraEstadoRepository _ordenCompraEstadoRepository;
         private readonly ArticuloRepository _articuloRepository;
+        private readonly ProveedoresRepository _proveedorRepository;
+        private readonly ProveedorArticuloRepository _proveedorArtRepository;
         private readonly StockArticuloRepository _stockarticuloRepository;
+        private readonly MaestroArticulosService _maestroArtService;
 
-        public OrdenCompraService( OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository,ArticuloRepository articuloRepository,StockArticuloRepository stockarticuloRepository)
+        public OrdenCompraService( OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository,ArticuloRepository articuloRepository,ProveedoresRepository proveedoresRepository,ProveedorArticuloRepository proveedorArtRepository,StockArticuloRepository stockarticuloRepository,MaestroArticulosService maestroArtService)
         {
             _ordenCompraRepository = ordenCompraRepository;
             _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
             _articuloRepository = articuloRepository;
+            _proveedorRepository = proveedoresRepository;
+            _proveedorArtRepository = proveedorArtRepository;
             _stockarticuloRepository = stockarticuloRepository;
+            _maestroArtService = maestroArtService;
         }
+
+        #region Generar orden de compra
+            public async Task GenerarOrdenCompra(List<Articulo> articulos, long idProveedor)
+            {
+                // obtener proveedor
+                var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
+                if (proveedor == null) throw new Exception($"Proveedor con ID {idProveedor} no encontrado.");
+
+                // obtener estado ``Pendiente``
+                var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
+                if (estadoPendiente == null) throw new Exception("Estado 'Pendiente' no encontrado.");
+
+                var detallesOrden = new List<DetalleOrdenCompra>();
+                double totalPagar = 0;
+
+                foreach (var articulo in articulos)
+                {
+                    // buscar ProveedorArticulo correspondiente
+                    var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(articulo.idArticulo, idProveedor);
+                    if (proveedorArt == null) continue;
+
+                    long cantidad;
+                    double precioUnitario = proveedorArt.precioUnitario;
+                    double subTotal;
+
+                    // modelo Q
+                    if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                    {
+                        cantidad = articulo.qOptimo; 
+                        subTotal = cantidad * precioUnitario;
+                    }
+                    // modelo P
+                    else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
+                    {
+                        cantidad = await _maestroArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+                        if (cantidad == 0) continue; 
+                        subTotal = cantidad * precioUnitario;
+                    }
+                    else
+                    {
+                        continue; 
+                    }
+
+                    var detalleC = new DetalleOrdenCompra
+                    {
+                        articulo = articulo,
+                        cantidadArticulos = cantidad,
+                        precioSubTotal = subTotal
+                    };
+                    detallesOrden.Add(detalleC);
+                    totalPagar += subTotal;
+                }
+                if (!detallesOrden.Any()) return; 
+
+                var ordenC = new OrdenCompra
+                {
+                    fechaOrden = DateTime.Now,
+                    detalleOrden = "orden generada automáticamente",
+                    proveedor = proveedor,
+                    ordenEstado = estadoPendiente,
+                    totalPagar = totalPagar,
+                    detalleOrdenCompra = detallesOrden
+                };
+                await _ordenCompraRepository.AddAsync(ordenC);
+            }
+        #endregion
 
             #region Cancelar orden de compra
             public async Task CancelarOrdenCompra(long nOrdenCompra)

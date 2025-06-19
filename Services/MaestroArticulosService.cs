@@ -25,16 +25,18 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly OrdenCompraRepository _ordenCompraRepository;
+        private readonly OrdenCompraService _ordenCompraService;
         private readonly OrdenCompraEstadoRepository _ordenCompraEstadoRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
       
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraService ordenCompraService,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
             _ordenCompraRepository = ordenCompraRepository;
+            _ordenCompraService = ordenCompraService;
             _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
             _stockArticuloRepository=stockRepo;
@@ -216,6 +218,7 @@ namespace Proyect_InvOperativa.Services
 
                 stock.stockSeguridad = stockSeguridadEnt;
                 stock.puntoPedido = puntoPedidoEnt;
+                articulo.qOptimo = qOptEnt;
                 await _stockArticuloRepository.UpdateAsync(stock);
                 double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
                 articulo.cgi = cgi;
@@ -256,7 +259,7 @@ namespace Proyect_InvOperativa.Services
                 }
             }
 
-            private async Task<long> CalcCantidadAPedirP(Articulo articulo, ProveedorArticulo proveedorArt)
+            public async Task<long> CalcCantidadAPedirP(Articulo articulo, ProveedorArticulo proveedorArt)
             {
                 double dProm = articulo.demandaDiaria;
                 double T = articulo.tiempoRevision;
@@ -294,6 +297,14 @@ namespace Proyect_InvOperativa.Services
                     var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                     if (stockArticulo == null) continue;
 
+                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                if (!proveedoresArticulo.Any()) continue;
+
+                // selecciona proveedor predeterminado
+                var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
+                if (proveedorArt == null) continue; 
+                long idProv = proveedorArt.proveedor.idProveedor;
+
                     // control por fecha de revisión
                     if (articulo.fechaRevisionP.HasValue)
                     {
@@ -301,51 +312,8 @@ namespace Proyect_InvOperativa.Services
                         DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
                         if (DateTime.Now < proximaRevision) continue;
                     }
-
-                    // verificar si ya hay una orden vigente
-                    var estadosVigentes = new[] { "Pendiente", "Enviada" };
-                    bool ordenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo, estadosVigentes);
-                    if (ordenVigente) continue;
-
-                    // estado 'Pendiente' de la orden
-                    var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
-                    if (estadoPendiente == null) throw new Exception("no se encuentra el estado 'Pendiente' para Orden de Compra ");
-
-                    // obtener proveedor predeterminado para este artículo
-                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
-                    var proveedorPred = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
-                    if (proveedorPred == null) throw new Exception($"no hay proveedor predeterminado para el articulo {articulo.idArticulo}");
-
-                    var proveedor = proveedorPred.proveedor;
-                    if (proveedor == null) throw new Exception($"no se encuentra proveedor asociado al articulo {articulo.idArticulo} ");
-
-                    // calcular cantidad a pedir
-                    long cantidad = await CalcCantidadAPedirP(articulo, proveedorPred);
-                    if (cantidad > 0)
-                    {
-                        double precioUnitario = proveedorPred.precioUnitario;
-                        double subtotal = cantidad * precioUnitario;
-
-                        var orden = new OrdenCompra
-                        {
-                            fechaOrden = DateTime.Now,
-                            detalleOrden = "orden generada automáticamente",
-                            ordenEstado = estadoPendiente,
-                            totalPagar = subtotal,
-                            proveedor = proveedor,
-                            detalleOrdenCompra = new List<DetalleOrdenCompra>
-                            {
-                                new DetalleOrdenCompra
-                                {
-                                    articulo = articulo,
-                                    cantidadArticulos = cantidad,
-                                    precioSubTotal = precioUnitario
-                                }
-                            }
-                        };
-
-                        await _ordenCompraRepository.AddAsync(orden);
-                    }
+                        var articulo_p = new List<Articulo> { articulo };
+                        await _ordenCompraService.GenerarOrdenCompra(articulo_p,idProv);
 
                     // actualizar fecha de revisión
                     articulo.fechaRevisionP = DateTime.Now;
