@@ -64,7 +64,7 @@ namespace Proyect_InvOperativa.Services
                     aviso_pp = $"el articulo '{articulo.nombreArticulo}' alcanzo o esta por debajo del punto de pedido ";
                 }
             }
-            // await _stockArticuloRepository.UpdateAsync(stockArticulo);
+             await _stockArticuloRepository.UpdateAsync(stockArticulo);
             await _session.UpdateAsync(stockArticulo);
             return aviso_pp;
         }
@@ -86,11 +86,11 @@ namespace Proyect_InvOperativa.Services
                     var venta = new Ventas
                     {
                         descripcionVenta = ventasDto.descripcionVenta,
-                        //totalVenta = 0,
+                        totalVenta = 0,
                         detallesVentas = []
                     };
 
-                    //double total = 0;
+                    double total = 0;
 
                     foreach (var detalle in ventasDto.detalles)
                     {
@@ -101,27 +101,27 @@ namespace Proyect_InvOperativa.Services
                         }
 
                         // con qué calculo el subtotal? esto solo sería el costo de compra nuestro
-                        //var subtotal = detalle.cantidadArticulo * articulo.proveedorArticulo!.precioUnitario;
+                        var subtotal = detalle.cantidadArticulo * articulo.proveedorArticulo!.precioUnitario;
 
                         var newDetalle = new DetalleVentas
                         {
                             cantidad = detalle.cantidadArticulo,
-                            //subTotalVenta = subtotal,
+                            subTotalVenta = subtotal*0.15,
                             venta = venta,
                             articulo = articulo
                         };
 
-                        //total += subtotal;
+                        total += (subtotal);
 
                         await ActualizarStockVenta(articulo, newDetalle);
-                        // await _detalleVentasRepository.AddAsync(newDetalle);
+                         await _detalleVentasRepository.AddAsync(newDetalle);
                         await _session.SaveAsync(newDetalle);
 
                     }
 
-                    //venta.totalVenta = total;
+                    venta.totalVenta = total;
 
-                    // await _ventasRepository.AddAsync(venta);
+                     await _ventasRepository.AddAsync(venta);
                     await _session.SaveAsync(venta);
 
                     await tx.CommitAsync();
