@@ -3,11 +3,11 @@ using Proyect_InvOperativa.Models;
 
 namespace Proyect_InvOperativa.Mapping
 {
-    public class VentasDetalleMapping:ClassMap<VentaDetalle>
+    public class DetalleVentasMapping:ClassMap<DetalleVentas>
     {
-        public VentasDetalleMapping()
+        public DetalleVentasMapping()
         {
-            Table("DetalleVenta");
+            Table("DetalleVentas");
             Id(x => x.nDetalleVenta).GeneratedBy.Identity();
             Map(x => x.subTotalVenta);
             Map(x => x.cantidad);

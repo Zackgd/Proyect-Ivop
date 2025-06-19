@@ -4,7 +4,6 @@
     {
         public string nombreEstadoOrden { get; set; } = "";
         public long idOrdenCompraEstado { get; set; }
-        public DateTime? fechaFinEstadoDisponible { get; set; }
         
         
     }

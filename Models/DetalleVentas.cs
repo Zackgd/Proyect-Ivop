@@ -1,6 +1,6 @@
 
 namespace Proyect_InvOperativa.Models {
-    public class VentaDetalle
+    public class DetalleVentas
     {
         public virtual long cantidad { get; set; }
         public virtual long nDetalleVenta { get; set; }

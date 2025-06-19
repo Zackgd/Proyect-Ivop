@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Proyect_InvOperativa.Dtos.Ventas;
 using Proyect_InvOperativa.Services;
 
 namespace Proyect_InvOperativa.Controllers
@@ -15,16 +16,16 @@ namespace Proyect_InvOperativa.Controllers
         }
 
         [HttpGet("validar-stock")]
-        public async Task<IActionResult> ValidarStock([FromQuery] long idArticulo, [FromQuery] long cantidad)
+        public async Task<IActionResult> ValidarStock([FromBody] StockDto ventasDto)
         {
-            var disponible = await _ventasService.ValidarStockDisponible(idArticulo, cantidad);
+            var disponible = await _ventasService.ValidarStockDisponible(ventasDto);
             return Ok(disponible);
         }
 
         [HttpPut("actualizar-stock")]
-        public async Task<IActionResult> ActualizarStock([FromQuery] long idArticulo, [FromQuery] long cantidad)
+        public async Task<IActionResult> ActualizarStock([FromBody] StockDto ventasDto)
         {
-            var mensaje = await _ventasService.ActualizarStockVenta(idArticulo, cantidad);
+            var mensaje = await _ventasService.ActualizarStockVenta(ventasDto);
             return Ok(mensaje);
         }
     }

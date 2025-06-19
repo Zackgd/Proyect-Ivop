@@ -7,6 +7,7 @@ using NHibernate.Dialect;
 using NHibernate.Driver;
 using NHibernate.Tool.hbm2ddl;
 using Proyect_InvOperativa.Mapping;
+using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Services;
 
@@ -51,6 +52,7 @@ builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
 builder.Services.AddScoped<StockArticuloRepository>();
+builder.Services.AddScoped<BaseRepository<DetalleVentas>>();
 
 
 //Registro de Servicios

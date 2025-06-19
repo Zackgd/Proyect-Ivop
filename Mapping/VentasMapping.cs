@@ -11,6 +11,10 @@ namespace Proyect_InvOperativa.Mapping
             Id(x => x.nVenta).GeneratedBy.Identity();
             Map(x => x.descripcionVenta);
             Map(x => x.totalVenta);
+            HasMany(x => x.detallesVentas)
+                .KeyColumn("nVenta")
+                .Inverse()
+                .Cascade.All();
         }
     }
 }
