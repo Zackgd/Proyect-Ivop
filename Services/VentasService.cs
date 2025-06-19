@@ -86,18 +86,18 @@ namespace Proyect_InvOperativa.Services
                     var venta = new Ventas
                     {
                         descripcionVenta = ventasDto.descripcionVenta,
-                        totalVenta = 0,
+                        //totalVenta = 0,
                         detallesVentas = []
                     };
 
-                    double total = 0;
+                    //double total = 0;
 
                     foreach (var detalle in ventasDto.detalles)
                     {
                         var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
                         if (articulo is null)
                         {
-                            throw new Exception($"No se encontró el artículo con ID: {detalle.idArticulo}. ");
+                            throw new Exception($"no se encontró el articulo con Id: {detalle.idArticulo} ");
                         }
 
                         // con qué calculo el subtotal? esto solo sería el costo de compra nuestro
