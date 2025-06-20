@@ -17,8 +17,6 @@ namespace Proyect_InvOperativa.Mapping
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();
-
-           
             
         }
     }

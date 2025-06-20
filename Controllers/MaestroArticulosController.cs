@@ -3,11 +3,10 @@ using Proyect_InvOperativa.Dtos.Articulo;
 using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Services;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Proyect_InvOperativa.Controllers
 {
-    
+
     [ApiController]
     [Route("[controller]")]
     public class MaestroArticulosController : ControllerBase
@@ -20,8 +19,8 @@ namespace Proyect_InvOperativa.Controllers
         }
 
         #region Artículo
-        
-        [HttpPost("articulo")]
+
+        [HttpPost("articulo/CreateArticulo")]
         public async Task<IActionResult> CreateArticulo([FromBody] ArticuloDto articuloDto)
         {
             var result = await _maestroArticulosService.CreateArticulo(articuloDto);
@@ -30,7 +29,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpDelete("articulo/{idArticulo}")]
+        [HttpDelete("articulo/DeleteArticulo/{idArticulo}")]
         public async Task<IActionResult> DeleteArticulo(long idArticulo)
         {
             await _maestroArticulosService.DeleteArticulo(idArticulo);
@@ -39,7 +38,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpPut("articulo")]
+        [HttpPost("articulo/UpdateArticulo")]
         public async Task<IActionResult> UpdateArticulo([FromBody] ArticuloDto articuloDto)
         {
             await _maestroArticulosService.UpdateArticulo(articuloDto);
@@ -48,7 +47,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpGet("articulo")]
+        [HttpGet("articulo/GetAllArticulos")]
         public async Task<IActionResult> GetAllArticulos()
         {
             var articulos = await _maestroArticulosService.GetAllArticulos();
@@ -56,7 +55,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(articulos);
         }
 
-        [HttpGet("articulo/{idArticulo}")]
+        [HttpGet("articulo/GetArticuloById/{idArticulo}")]
         public async Task<IActionResult> GetArticuloById(long idArticulo)
         {
             var articulo = await _maestroArticulosService.GetArticuloById(idArticulo);
@@ -67,7 +66,7 @@ namespace Proyect_InvOperativa.Controllers
         #endregion
 
         #region MaestroArticulo 
-        [HttpPost("maestro-articulo")]
+        [HttpPost("maestroarticulo/CreateMaestro")]
         public async Task<IActionResult> CreateMaestroArticulo([FromBody] CreateMaestroArticuloDto createMaestroArticuloDto)
         {
             var maestro = await _maestroArticulosService.CreateMaestroArticulo(createMaestroArticuloDto);
@@ -76,7 +75,7 @@ namespace Proyect_InvOperativa.Controllers
 
         }
 
-        [HttpDelete("maestro-articulo/{idMaestroArticulo}")]
+        [HttpDelete("maestroarticulo/DeleteMaestro/{idMaestroArticulo}")]
         public async Task<IActionResult> DeleteMaestroArticulo(long idMaestroArticulo)
         {
             await _maestroArticulosService.DeleteMaestroArticulo(idMaestroArticulo);
@@ -87,21 +86,21 @@ namespace Proyect_InvOperativa.Controllers
 
         #region Modelo Inventario
 
-        [HttpPost("lote-fijo-q")]
+        [HttpGet("modeloInventario/lote-fijo-q")]
         public async Task<IActionResult> CalcularLoteFijoQ()
         {
             await _maestroArticulosService.CalculoLoteFijoQ();
             return NoContent();
         }
 
-        [HttpPost("periodo-fijo-p")]
+        [HttpGet("modeloInventario/periodo-fijo-p")]
         public async Task<IActionResult> CalcularPeriodoFijoP()
         {
             await _maestroArticulosService.CalculoPeriodoFijoP();
             return NoContent();
         }
 
-        [HttpPost("control-stock-periodico")]
+        [HttpGet("modeloInventario/control-stock-periodico")]
         public async Task<IActionResult> ControlStockPeriodico(CancellationToken cancellationToken)
         {
             await _maestroArticulosService.ControlStockPeriodico(cancellationToken);
@@ -111,7 +110,7 @@ namespace Proyect_InvOperativa.Controllers
         #endregion
 
         #region Proveedor Predeterminado
-        [HttpPost("articulo/{idArticulo}/proveedores/{idProveedor}/predeterminado")]
+        [HttpPost("proveedor/predeterminado")]
         public async Task<IActionResult> EstablecerProveedorPredeterminado(long idArticulo, long idProveedor)
         {
             var mensaje = await _maestroArticulosService.EstablecerProveedorPredeterminadoAsync(idArticulo, idProveedor);
@@ -120,21 +119,21 @@ namespace Proyect_InvOperativa.Controllers
         #endregion
 
         #region Artículos Listas
-        [HttpGet("articulos/a-reponer")]
+        [HttpGet("articulosLista/reponer")]
         public async Task<ActionResult<List<ArticuloStockReposicionDto>>> ListarArticulosAReponer()
         {
             var resultado = await _maestroArticulosService.ListarArticulosAReponer();
             return Ok(resultado);
         }
 
-        [HttpGet("articulos/faltantes")]
+        [HttpGet("articulosLista/faltantes")]
         public async Task<ActionResult<List<ArticuloStockReposicionDto>>> ListarArticulosFaltantes()
         {
             var resultado = await _maestroArticulosService.ListarArticulosFaltantes();
             return Ok(resultado);
         }
 
-        [HttpGet("articulo/{idArticulo}/proveedores")]
+        [HttpGet("articulosLista/proveedores")]
         public async Task<ActionResult<List<ProveedoresPorArticuloDto>>> ListarProveedoresPorArticulo(long idArticulo)
         {
             var resultado = await _maestroArticulosService.ListarProveedoresPorArticulo(idArticulo);

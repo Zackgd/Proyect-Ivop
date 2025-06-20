@@ -1,6 +1,6 @@
-﻿using Proyect_InvOperativa.Models;
+﻿using Proyect_InvOperativa.Dtos.Proveedor;
+using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
-using Proyect_InvOperativa.Dtos.Proveedor;
 
 namespace Proyect_InvOperativa.Services
 {
@@ -23,12 +23,12 @@ namespace Proyect_InvOperativa.Services
 
 
         #region ABM Proveedores
-        
+
 
         public async Task<Proveedor> CreateProveedor(ProveedorDto ProveedorDto)
         {
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1);
-            var EstProv = await _proveedorEstadoRepository.GetByIdAsync(1);
+            var EstProv = await _proveedorEstadoRepository.GetByIdAsync(1);//revisar
             var proveedor_n = new Proveedor()
             {
                 nombreProveedor = ProveedorDto.nombreProveedor,
@@ -118,5 +118,5 @@ namespace Proyect_InvOperativa.Services
         #endregion
     }
 }
-    
+
 

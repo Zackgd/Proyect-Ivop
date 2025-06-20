@@ -1,15 +1,14 @@
-﻿using MySqlX.XDevAPI;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Linq;
 using Proyect_InvOperativa.Models;
 
 namespace Proyect_InvOperativa.Repository
 {
-    public class ProveedorArticuloRepository:BaseRepository<ProveedorArticulo>
+    public class ProveedorArticuloRepository : BaseRepository<ProveedorArticulo>
     {
-        public ProveedorArticuloRepository(ISessionFactory sessionFactory) : base(sessionFactory){}
+        public ProveedorArticuloRepository(ISessionFactory sessionFactory) : base(sessionFactory) { }
 
-        public async Task<IEnumerable<ProveedorArticulo>> GetByArticuloIdAsync(long idArticulo)
+        public async Task<IEnumerable<ProveedorArticulo>> GetAllArticuloProveedorByIdAsync(long idArticulo)
         {
             using var session = _sessionFactory.OpenSession();
 
@@ -25,6 +24,6 @@ namespace Proyect_InvOperativa.Repository
             .FirstOrDefaultAsync(prArt =>
             prArt.articulo!.idArticulo == idArticulo &&
             prArt.proveedor!.idProveedor == idProveedor);
-        }       
+        }
     }
 }

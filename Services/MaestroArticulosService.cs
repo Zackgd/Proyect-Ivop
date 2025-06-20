@@ -3,8 +3,8 @@ using Proyect_InvOperativa.Dtos.MaestroArticulo;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Models.Enums;
-using Proyect_InvOperativa.Utils;
 using Proyect_InvOperativa.Repository;
+using Proyect_InvOperativa.Utils;
 
 namespace Proyect_InvOperativa.Services
 {
@@ -32,8 +32,8 @@ namespace Proyect_InvOperativa.Services
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
         private readonly ProveedorArticuloService _proveedorArtService;
-      
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository,OrdenCompraRepository ordenCompraRepository,OrdenCompraService ordenCompraService,OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository,StockArticuloRepository stockRepo,ProveedorArticuloRepository PARepository,ProveedorArticuloService proveedorArticuloService)
+
+        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, OrdenCompraRepository ordenCompraRepository, OrdenCompraService ordenCompraService, OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository, StockArticuloRepository stockRepo, ProveedorArticuloRepository PARepository, ProveedorArticuloService proveedorArticuloService)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
@@ -41,7 +41,7 @@ namespace Proyect_InvOperativa.Services
             _ordenCompraService = ordenCompraService;
             _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
             _maestroArticuloRepository = maestroArticulosRepository;
-            _stockArticuloRepository=stockRepo;
+            _stockArticuloRepository = stockRepo;
             _proveedorArticuloRepository = PARepository;
             _proveedorArtService = proveedorArticuloService;
         }
@@ -79,25 +79,24 @@ namespace Proyect_InvOperativa.Services
         public async Task<Articulo> CreateArticulo(ArticuloDto ArticuloDto)
         {
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1); //debe haber otra forma, es para que funcione, despues lo arreglo 
-            
+
             var articulo = new Articulo()
             {
-               idArticulo = ArticuloDto.idArticulo,
-               nombreArticulo = ArticuloDto.nombreArticulo,
-               descripcion = ArticuloDto.descripcion,
-               demandaDiaria = ArticuloDto.demandaDiaria,
-               costoAlmacen = ArticuloDto.costoAlmacen,
-               tiempoRevision = ArticuloDto.tiemporevision,
-               categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
-               modeloInv = (ModeloInv)ArticuloDto.modeloInv,
-               masterArticulo = maestro
+
+                nombreArticulo = ArticuloDto.nombreArticulo,
+                descripcion = ArticuloDto.descripcion,
+                demandaDiaria = ArticuloDto.demandaDiaria,
+                costoAlmacen = ArticuloDto.costoAlmacen,
+                tiempoRevision = ArticuloDto.tiempoRevision,
+                categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
+                modeloInv = (ModeloInv)ArticuloDto.modeloInv,
+                masterArticulo = maestro
             };
 
             var newArticulo = await _articuloRepository.AddAsync(articulo);
 
             var articuloStock = new StockArticulos()
             {
-                
                 stockSeguridad = 0,
                 stockActual = 0,
                 fechaStockInicio = DateTime.UtcNow,
@@ -109,7 +108,7 @@ namespace Proyect_InvOperativa.Services
 
             return newArticulo;
         }
-     
+
 
         public async Task UpdateArticulo(ArticuloDto ArticuloDto)
         {
@@ -121,15 +120,15 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception($"Artículo con id: {ArticuloDto.idArticulo} no encontrado. ");
             }
             // MODIFICAR LOS DATOS PROPIOS DE ARTICULO
-            articuloModificado.nombreArticulo=ArticuloDto.nombreArticulo;
+            articuloModificado.nombreArticulo = ArticuloDto.nombreArticulo;
             articuloModificado.descripcion = ArticuloDto.descripcion;
-            articuloModificado.demandaDiaria= ArticuloDto.demandaDiaria;
-            articuloModificado.costoAlmacen= ArticuloDto.costoAlmacen;
-            articuloModificado.tiempoRevision= ArticuloDto.tiemporevision;
-            articuloModificado.modeloInv= (ModeloInv)ArticuloDto.modeloInv;
-            articuloModificado.categoriaArt=(CategoriaArt)ArticuloDto.categoriaArt;
+            articuloModificado.demandaDiaria = ArticuloDto.demandaDiaria;
+            articuloModificado.costoAlmacen = ArticuloDto.costoAlmacen;
+            articuloModificado.tiempoRevision = ArticuloDto.tiempoRevision;
+            articuloModificado.modeloInv = (ModeloInv)ArticuloDto.modeloInv;
+            articuloModificado.categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt;
             // MODIFICAR LOS DATOS PROPIOS DE STOCK ASOCIADO A ARTICULO, si es que se pueden 
-            
+
             await _articuloRepository.UpdateAsync(articuloModificado);
             //await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
 
@@ -137,7 +136,7 @@ namespace Proyect_InvOperativa.Services
 
         public async Task DeleteArticulo(long idArticulo)
         {
-            
+
             var artEliminar = await _articuloRepository.GetByIdAsync(idArticulo);
 
             if (artEliminar is null)
@@ -145,22 +144,27 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception($"Artículo con id: {idArticulo} no encontrado. ");
             }
 
-            var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(idArticulo,new[] { "Pendiente", "Enviada" });
+            var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(idArticulo, new[] { "Pendiente", "Enviada" });
 
             if (ordenesVigentesArt.Any())
+            {
                 throw new Exception($"No se puede eliminar el artículo con id: {idArticulo} porque tiene órdenes de compra pendientes o enviadas.");
+            }
 
-                    var stockAsociado = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
-                    if (stockAsociado is null)
-                    {
-                       throw new Exception($"No se encuenctra stock asociado al IDArticulo: {idArticulo}.");
-                    }
+            var stockAsociado = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+            if (stockAsociado is null)
+            {
+                throw new Exception($"No se encuenctra stock asociado al IDArticulo: {idArticulo}.");
+            }
 
-                        if (stockAsociado.stockActual > 0)
-                        throw new Exception($"No se puede eliminar el artículo con id: {idArticulo} porque aún tiene unidades en stock.");
+            if (stockAsociado.stockActual > 0)
+            {
+                throw new Exception($"No se puede eliminar el artículo con id: {idArticulo} porque aún tiene unidades en stock.");
 
-                stockAsociado.fechaStockFin = DateTime.UtcNow;
-                await _stockArticuloRepository.UpdateAsync(stockAsociado);
+            }
+
+            stockAsociado.fechaStockFin = DateTime.UtcNow;
+            await _stockArticuloRepository.UpdateAsync(stockAsociado);
         }
 
         public async Task<IEnumerable<Articulo>> GetAllArticulos()
@@ -179,7 +183,7 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region ABM Proveedor
-        public async Task CreateProveedor(string nombreP,long idP)
+        public async Task CreateProveedor(string nombreP, long idP)
         {
             var proveedor = new Proveedor
             {
@@ -192,7 +196,7 @@ namespace Proyect_InvOperativa.Services
 
         public async Task DeleteProveedor(long idProveedor)
         {
-           await _proveedorRepository.DeleteIdAsync(idProveedor);
+            await _proveedorRepository.DeleteIdAsync(idProveedor);
         }
         #endregion
 
@@ -201,7 +205,7 @@ namespace Proyect_InvOperativa.Services
         #region Calculo LoteFijo_Q
         public async Task CalculoLoteFijoQ()
         {
-            
+
             var articulos = await _articuloRepository.GetAllAsync();
 
             foreach (var articulo in articulos)
@@ -210,31 +214,32 @@ namespace Proyect_InvOperativa.Services
                 if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
 
                 // proveedores del articulo
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
                 if (!proveedoresArticulo.Any()) continue;
 
                 // selecciona proveedor predeterminado
+                //revisar pq no calcula por fechas, si busca y se trae la primera puede no ser la ultima habilitada
                 var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
                 if (proveedorArt == null) continue; // si no hay proveedor predeterminado no se puede calcular
 
                 // parametros para calculo
-                double dProm = articulo.demandaDiaria; // demanda diaria promedio
-                double demandaAnual = dProm*365;
-                double L = proveedorArt.tiempoEntregaDias; 
+                double dProm = articulo.demandaDiaria;
+                double demandaAnual = dProm * 365;
+                double L = proveedorArt.tiempoEntregaDias;
                 double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;
                 double costoAlmacen = articulo.costoAlmacen;
-                var (Z,valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
+                var (Z, valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
 
 
                 // calculo EOQ
-                double qOpt = Math.Sqrt((2*demandaAnual*costoPedido)/costoAlmacen);
+                double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
                 long qOptEnt = (long)Math.Ceiling(qOpt);
 
                 // calc. stock de Seguridad
-                double stockSeguridad = Z*valSigma*Math.Sqrt(tiempoEntrega);
+                double stockSeguridad = Z * valSigma * Math.Sqrt(tiempoEntrega);
                 long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
-                double puntoPedido = stockSeguridad+(dProm*L);
+                double puntoPedido = stockSeguridad + (dProm * L);
                 long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
                 // obtener StockArticulos 
                 var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
@@ -253,205 +258,205 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region Calculo PeriodoFijo_P
-            public async Task CalculoPeriodoFijoP()
+        public async Task CalculoPeriodoFijoP()
+        {
+            var articulos = await _articuloRepository.GetAllAsync();
+
+            foreach (var articulo in articulos)
             {
-                var articulos = await _articuloRepository.GetAllAsync();
+                if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
-                foreach (var articulo in articulos)
-                {
-                    if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
-
-                    var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
-                    if (!proveedoresArticulo.Any()) continue;
+                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                if (!proveedoresArticulo.Any()) continue;
 
 
                 // selecciona proveedor predeterminado
                 var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
                 if (proveedorArt == null) continue; //
 
-                    long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
-                    if (cantidadAPedir == 0) continue;
+                long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+                if (cantidadAPedir == 0) continue;
 
-                    double demandaAnual = articulo.demandaDiaria*365;
-                    double costoUnidad = proveedorArt.precioUnitario;
-                    double costoPedido = proveedorArt.costoPedido;
-                    double costoAlmacen = articulo.costoAlmacen;
+                double demandaAnual = articulo.demandaDiaria * 365;
+                double costoUnidad = proveedorArt.precioUnitario;
+                double costoPedido = proveedorArt.costoPedido;
+                double costoAlmacen = articulo.costoAlmacen;
 
-                    double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
-                    articulo.cgi = cgi;
-                    await _articuloRepository.UpdateAsync(articulo);
-                }
+                double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
+                articulo.cgi = cgi;
+                await _articuloRepository.UpdateAsync(articulo);
             }
+        }
 
-            public async Task ControlStockPeriodico(CancellationToken cancellationToken)
+        public async Task ControlStockPeriodico(CancellationToken cancellationToken)
+        {
+            var articulos = await _articuloRepository.GetAllAsync();
+
+            foreach (var articulo in articulos)
             {
-                var articulos = await _articuloRepository.GetAllAsync();
+                if (cancellationToken.IsCancellationRequested) break;
+                if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
-                foreach (var articulo in articulos)
-                {
-                    if (cancellationToken.IsCancellationRequested) break;
-                    if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
+                var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stockArticulo == null) continue;
 
-                    var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stockArticulo == null) continue;
-
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(articulo.idArticulo);
+                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
                 if (!proveedoresArticulo.Any()) continue;
 
                 // selecciona proveedor predeterminado
                 var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
-                if (proveedorArt == null) continue; 
+                if (proveedorArt == null) continue;
                 long idProv = proveedorArt.proveedor!.idProveedor;
 
-                    // control por fecha de revisión
-                    if (articulo.fechaRevisionP.HasValue)
-                    {
-                        TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision);
-                        DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
-                        if (DateTime.Now < proximaRevision) continue;
-                    }
-                        var articulo_p = new List<Articulo> { articulo };
-                        await _ordenCompraService.GenerarOrdenCompra(articulo_p,idProv);
-
-                    // actualizar fecha de revisión
-                    articulo.fechaRevisionP = DateTime.Now;
-                    await _articuloRepository.UpdateAsync(articulo);
+                // control por fecha de revisión
+                if (articulo.fechaRevisionP.HasValue)
+                {
+                    TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision);
+                    DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
+                    if (DateTime.Now < proximaRevision) continue;
                 }
+                var articulo_p = new List<Articulo> { articulo };
+                await _ordenCompraService.GenerarOrdenCompra(articulo_p, idProv);
+
+                // actualizar fecha de revisión
+                articulo.fechaRevisionP = DateTime.Now;
+                await _articuloRepository.UpdateAsync(articulo);
             }
+        }
         #endregion
 
         #region Calculo CostoGlobalInv
-            private double CalcularCGI(double demandaAnual, double costoUnidad, double cantidadPedido, double costoPedido, double costoAlmacen)
-            {
-                if (cantidadPedido <= 0) return 0; 
+        private double CalcularCGI(double demandaAnual, double costoUnidad, double cantidadPedido, double costoPedido, double costoAlmacen)
+        {
+            if (cantidadPedido <= 0) return 0;
 
-                double cgi = (demandaAnual * costoUnidad) +
-                 ((demandaAnual / cantidadPedido) * costoPedido) +
-                 ((cantidadPedido / 2.0) * costoAlmacen);
-                return cgi;
-            }
+            double cgi = (demandaAnual * costoUnidad) +
+             ((demandaAnual / cantidadPedido) * costoPedido) +
+             ((cantidadPedido / 2.0) * costoAlmacen);
+            return cgi;
+        }
         #endregion
 
         #region Proveedor Predeterminado
-            public async Task<string> EstablecerProveedorPredeterminadoAsync(long idArticulo, long idProveedor)
+        public async Task<string> EstablecerProveedorPredeterminadoAsync(long idArticulo, long idProveedor)
+        {
+            // obtener proveedores del articulo
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+            if (proveedoresArticulo == null || !proveedoresArticulo.Any()) return $"el articulo con Id {idArticulo} no tiene proveedores asignados ";
+
+            var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct => pAct.proveedor!.idProveedor == idProveedor);
+            if (proveedorActual == null) return $"el proveedor con ID {idProveedor} no esta asociado al articulo con Id {idArticulo} ";
+
+            // salir si el proveedor ya es predeterminado
+            if (proveedorActual.predeterminado) return "este proveedor ya esta definido como predeterminado para el articulo ";
+
+            // buscar el proveedor predeterminado actual
+            var provPredActual = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
+            if (provPredActual != null)
             {
-                // obtener proveedores del articulo
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(idArticulo);
-                if (proveedoresArticulo == null || !proveedoresArticulo.Any()) return $"el articulo con Id {idArticulo} no tiene proveedores asignados ";
-
-                var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct => pAct.proveedor!.idProveedor == idProveedor);
-                if (proveedorActual == null) return $"el proveedor con ID {idProveedor} no esta asociado al articulo con Id {idArticulo} ";
-
-                // salir si el proveedor ya es predeterminado
-                if (proveedorActual.predeterminado) return "este proveedor ya esta definido como predeterminado para el articulo ";
-
-                // buscar el proveedor predeterminado actual
-                var provPredActual = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
-                if (provPredActual != null)
-                {
-                    provPredActual.predeterminado = false;
-                    await _proveedorArticuloRepository.UpdateAsync(provPredActual);
-                }
-
-                // Establecer el nuevo proveedor predeterminado
-                proveedorActual.predeterminado = true;
-                await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
-
-                return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo} ";
+                provPredActual.predeterminado = false;
+                await _proveedorArticuloRepository.UpdateAsync(provPredActual);
             }
+
+            // Establecer el nuevo proveedor predeterminado
+            proveedorActual.predeterminado = true;
+            await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
+
+            return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo} ";
+        }
         #endregion
 
         #region Lista productos a reponer
 
-            public async Task<List<ArticuloStockReposicionDto>> ListarArticulosAReponer()
+        public async Task<List<ArticuloStockReposicionDto>> ListarArticulosAReponer()
+        {
+            var articulos = await _articuloRepository.GetAllAsync();
+            var listaArticulosReposicion = new List<ArticuloStockReposicionDto>();
+
+            foreach (var articulo in articulos)
             {
-                var articulos = await _articuloRepository.GetAllAsync();
-                var listaArticulosReposicion = new List<ArticuloStockReposicionDto>();
+                if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
 
-                foreach (var articulo in articulos)
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null) continue;
+
+                // verifica si el stock actual está por debajo del punto de pedido
+                if (stock.stockActual > stock.puntoPedido) continue;
+
+                // verificar si no existe una orden vigente
+                var estados = new[] { "Pendiente", "Enviada" };
+                bool ordenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo, estados);
+
+                if (!ordenVigente)
                 {
-                    if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
-
-                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null) continue;
-
-                    // verifica si el stock actual está por debajo del punto de pedido
-                    if (stock.stockActual > stock.puntoPedido) continue;
-
-                    // verificar si no existe una orden vigente
-                    var estados = new[] { "Pendiente", "Enviada" };
-                    bool ordenVigente = await _ordenCompraRepository.GetOrdenActual(articulo.idArticulo, estados);
-
-                    if (!ordenVigente)
+                    listaArticulosReposicion.Add(new ArticuloStockReposicionDto
                     {
-                        listaArticulosReposicion.Add(new ArticuloStockReposicionDto
-                        {
-                            IdArticulo = articulo.idArticulo,
-                            NombreArticulo = articulo.nombreArticulo ?? "",
-                            StockActual = stock.stockActual,
-                            PuntoPedido = stock.puntoPedido
-                        });
-                    }
+                        IdArticulo = articulo.idArticulo,
+                        NombreArticulo = articulo.nombreArticulo ?? "",//????????????????
+                        StockActual = stock.stockActual,
+                        PuntoPedido = stock.puntoPedido
+                    });
                 }
-                return listaArticulosReposicion;
             }
+            return listaArticulosReposicion;
+        }
         #endregion
 
         #region Lista articulos Faltantes
-            public async Task<List<ArticuloStockReposicionDto>> ListarArticulosFaltantes()
-{
-                var articulos = await _articuloRepository.GetAllAsync();
-                var listaArticulosFaltantes = new List<ArticuloStockReposicionDto>();
+        public async Task<List<ArticuloStockReposicionDto>> ListarArticulosFaltantes()
+        {
+            var articulos = await _articuloRepository.GetAllAsync();
+            var listaArticulosFaltantes = new List<ArticuloStockReposicionDto>();
 
-                foreach (var articulo in articulos)
+            foreach (var articulo in articulos)
+            {
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null) continue;
+
+                // Verifica si el stock actual está por debajo del stock de seguridad
+                if (stock.stockActual < stock.stockSeguridad)
                 {
-                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null) continue;
-
-                    // Verifica si el stock actual está por debajo del stock de seguridad
-                    if (stock.stockActual < stock.stockSeguridad)
+                    listaArticulosFaltantes.Add(new ArticuloStockReposicionDto
                     {
-                        listaArticulosFaltantes.Add(new ArticuloStockReposicionDto
-                        {
-                            IdArticulo = articulo.idArticulo,
-                            NombreArticulo = articulo.nombreArticulo ?? "",
-                            StockActual = stock.stockActual,
-                            StockSeguridad = stock.stockSeguridad
-                        });
-                    }
+                        IdArticulo = articulo.idArticulo,
+                        NombreArticulo = articulo.nombreArticulo ?? "",
+                        StockActual = stock.stockActual,
+                        StockSeguridad = stock.stockSeguridad
+                    });
                 }
-                return listaArticulosFaltantes;
             }
+            return listaArticulosFaltantes;
+        }
         #endregion
 
         #region Lista proveedores por articulo
-            public async Task<List<ProveedoresPorArticuloDto>> ListarProveedoresPorArticulo(long idArticulo)
+        public async Task<List<ProveedoresPorArticuloDto>> ListarProveedoresPorArticulo(long idArticulo)
+        {
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+            var listaProveedoresDto = new List<ProveedoresPorArticuloDto>();
+
+            foreach (var proveedorArt in proveedoresArticulo)
             {
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetByArticuloIdAsync(idArticulo);
-                var listaProveedoresDto = new List<ProveedoresPorArticuloDto>();
+                var proveedor = proveedorArt.proveedor;
+                if (proveedor == null) continue;
 
-                foreach (var proveedorArt in proveedoresArticulo)
+                listaProveedoresDto.Add(new ProveedoresPorArticuloDto
                 {
-                    var proveedor = proveedorArt.proveedor;
-                    if (proveedor == null) continue;
-
-                    listaProveedoresDto.Add(new ProveedoresPorArticuloDto
-                    {
-                        idProveedor = proveedor.idProveedor,
-                        nombreProveedor = proveedor.nombreProveedor ?? "",
-                        emailProveedor = proveedor.mail ?? "",
-                        telProveedor = proveedor.telefono ?? "",
-                        direccionProveedor = proveedor.direccion ?? "",
-                        precioUnitario = proveedorArt.precioUnitario,
-                        costoPedido = proveedorArt.costoPedido,
-                        tiempoEntregaDias = proveedorArt.tiempoEntregaDias,
-                        predeterminado = proveedorArt.predeterminado
-                    });
-                }
-                return listaProveedoresDto;
-            }  
+                    idProveedor = proveedor.idProveedor,
+                    nombreProveedor = proveedor.nombreProveedor ?? "",
+                    emailProveedor = proveedor.mail ?? "",
+                    telProveedor = proveedor.telefono ?? "",
+                    direccionProveedor = proveedor.direccion ?? "",
+                    precioUnitario = proveedorArt.precioUnitario,
+                    costoPedido = proveedorArt.costoPedido,
+                    tiempoEntregaDias = proveedorArt.tiempoEntregaDias,
+                    predeterminado = proveedorArt.predeterminado
+                });
+            }
+            return listaProveedoresDto;
+        }
         #endregion
 
-        
-}   
+
+    }
 }

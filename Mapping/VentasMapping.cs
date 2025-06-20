@@ -11,7 +11,6 @@ namespace Proyect_InvOperativa.Mapping
             Id(x => x.nVenta).GeneratedBy.Identity();
             Map(x => x.descripcionVenta);
             Map(x => x.totalVenta);
-            
         }
     }
 }

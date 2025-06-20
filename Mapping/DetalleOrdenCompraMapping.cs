@@ -7,15 +7,14 @@ namespace Proyect_InvOperativa.Mapping
     {
         public DetalleOrdenCompraMapping()
         {
-        Table("DetalleOrdenCompra");
+            Table("DetalleOrdenCompra");
 
-        Id(x => x.nDetalleOrdenCompra);
-        Map(x => x.cantidadArticulos);
-        Map(x => x.precioSubTotal);
+            Id(x => x.nDetalleOrdenCompra).GeneratedBy.Identity();
+            Map(x => x.cantidadArticulos);
+            Map(x => x.precioSubTotal);
 
-        References(x => x.ordenCompra).Column("nOrdenCompra");
-        References(x => x.articulo).Column("idArticulo");
+            References(x => x.ordenCompra).Column("nOrdenCompra");
+            References(x => x.articulo).Column("idArticulo");
         }
     }
 }
-

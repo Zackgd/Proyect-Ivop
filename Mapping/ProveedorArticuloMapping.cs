@@ -3,7 +3,7 @@ using Proyect_InvOperativa.Models;
 
 namespace Proyect_InvOperativa.Mapping
 {
-    public class ProveedorArticuloMapping: ClassMap<ProveedorArticulo>
+    public class ProveedorArticuloMapping : ClassMap<ProveedorArticulo>
     {
         public ProveedorArticuloMapping()
         {
@@ -12,7 +12,7 @@ namespace Proyect_InvOperativa.Mapping
                 .KeyReference(x => x.proveedor, "idProveedor")
                 .KeyReference(x => x.articulo, "idArticulo");
 
-            Id(x => x.idProveedorArticulo);
+            Id(x => x.idProveedorArticulo).GeneratedBy.Identity();
             Map(x => x.precioUnitario);
             Map(x => x.costoPedido);
             Map(x => x.tiempoEntregaDias);

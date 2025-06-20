@@ -10,12 +10,8 @@ namespace Proyect_InvOperativa.Dtos.Articulo
         public long modeloInv { get; set; }
         public long demandaDiaria { get; set; }
         public double costoAlmacen { get; set; }
-        public CategoriaArt categoriaArt { get; set; }
-        public long tiemporevision {get; set;}
+        public long categoriaArt { get; set; }
+        public long tiempoRevision {get; set;}
         public long idMaster { get; set; }
-      
-       
-
-
     }
 }

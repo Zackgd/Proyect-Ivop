@@ -46,6 +46,16 @@ namespace Proyect_InvOperativa.Repository
                 .AnyAsync();
             return ordP;
             }           
+
+            public async Task<List<DetalleOrdenCompra>> GetDetallesByOrdenId(long nOrdenCompra)
+            {
+                using var session = _sessionFactory.OpenSession();
+
+                return await session.Query<DetalleOrdenCompra>()
+                    .Where(dOrden => dOrden.ordenCompra.nOrdenCompra == nOrdenCompra)
+                    .Fetch(dOrden => dOrden.articulo) // opcional: incluye info del artículo
+                    .ToListAsync();
+            }
     
     }
 }
