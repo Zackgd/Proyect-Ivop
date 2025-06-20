@@ -199,17 +199,16 @@ namespace Proyect_InvOperativa.Services
                 double dProm = articulo.demandaDiaria;
                 double demandaAnual = dProm*365;
                 double L = proveedorArt.tiempoEntregaDias; 
-                double tiempoEntrega = proveedorArt.tiempoEntregaDias;
                 double costoPedido = proveedorArt.costoPedido;
                 double costoAlmacen = articulo.costoAlmacen;
-                var (Z,valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
+                var (Z,valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, L);
 
                 // calculo EOQ
                 double qOpt = Math.Sqrt((2*demandaAnual*costoPedido)/costoAlmacen);
                 long qOptEnt = (long)Math.Ceiling(qOpt);
 
                 // calc. stock de Seguridad
-                double stockSeguridad = Z*valSigma*Math.Sqrt(tiempoEntrega);
+                double stockSeguridad = Z*valSigma*Math.Sqrt(L);
                 long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
                 double puntoPedido = stockSeguridad+(dProm*L);
                 long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
