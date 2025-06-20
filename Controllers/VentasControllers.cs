@@ -1,15 +1,33 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Proyect_InvOperativa.Dtos.Ventas;
 using Proyect_InvOperativa.Services;
 
 namespace Proyect_InvOperativa.Controllers
 {
-    public class VentasControllers: ControllerBase
+    [ApiController]
+    [Route("api/[controller]")]
+    public class VentasController : ControllerBase
     {
-        public readonly VentasService _ventasService;
-        public VentasControllers(VentasService ventitasServices) 
+        private readonly VentasService _ventasService;
+
+        public VentasController(VentasService ventasService)
         {
-            _ventasService = ventitasServices;
+            _ventasService = ventasService;
+        }
+
+        [HttpGet("validar-stock")]
+        public async Task<IActionResult> ValidarStock([FromBody] StockDto ventasDto)
+        {
+            var disponible = await _ventasService.ValidarStockDisponible(ventasDto);
+            return Ok(disponible);
+        }
+
+        [HttpPost()]
+        public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
+        {
+            var result = await _ventasService.CreateVentas(ventasDto);
+            return Ok(result);
         }
     }
 }

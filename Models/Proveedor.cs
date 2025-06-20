@@ -8,6 +8,7 @@
         public virtual string? mail { get; set; }
         public virtual string? telefono {  get; set; }
         public virtual MaestroArticulo? masterArticulo { get; set; }
+        
 
 
     }

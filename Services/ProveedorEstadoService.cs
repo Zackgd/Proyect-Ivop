@@ -25,14 +25,14 @@ namespace Proyect_InvOperativa.Services
             return pEstado;
         }
 
-        public async Task DeleteProveedorEstado(ProveedorEstadoDto proveEdto)
+        public async Task DeleteProveedorEstado(long id)
         {
-            var pEstado = await _proveedorERepository.GetByIdAsync(proveEdto.idEstadoProveedor);
+            var pEstado = await _proveedorERepository.GetByIdAsync(id);
             if (pEstado == null)
             {
                 throw new Exception("No se encontro el estado para el proveedor");
             }
-           pEstado.fechaBajaProveedorEstado = DateTime.Now;
+            pEstado.fechaBajaProveedorEstado = DateTime.Now;
             await _proveedorERepository.UpdateAsync(pEstado);
         }
     }

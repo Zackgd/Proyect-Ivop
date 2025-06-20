@@ -15,12 +15,14 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.demandaDiaria);
             Map(x => x.costoAlmacen);
             Map(x => x.tiempoRevision);
+            Map(x => x.qOptimo);
+            Map(x => x.fechaRevisionP);
+            Map(x => x.cgi);
             Map(x => x.modeloInv).CustomType<ModeloInv>(); 
             Map(x => x.categoriaArt).CustomType<CategoriaArt>();
 
-            References(x => x.proveedorArticulo)
-                .Column("ProveedorArticulo")
-                .Cascade.None();
+    
+
             References(x => x.masterArticulo)
                 .Column("idMaestroArticulo")
                 .Cascade.None();

@@ -13,8 +13,10 @@ namespace Proyect_InvOperativa.Mapping
                 .GeneratedBy.Identity();
             Map(x => x.stockActual);
             Map(x => x.stockSeguridad);
+            Map(x => x.puntoPedido);
             Map(x => x.fechaStockInicio);
             Map(x => x.fechaStockFin);
+            Map(x => x.control).Not.Nullable().Default("false");
 
             References(x => x.articulo)
           .Column("idArticulo")

@@ -1,11 +1,10 @@
 ﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
-
 using NHibernate;
 using NHibernate.Dialect;
-
 using NHibernate.Tool.hbm2ddl;
 using Proyect_InvOperativa.Mapping;
+using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
 using Proyect_InvOperativa.Services;
 
@@ -44,11 +43,12 @@ builder.Services.AddScoped<MaestroArticulosRepository>();
 builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorArticuloRepository>();
 builder.Services.AddScoped<OrdenCompraEstadoRepository>();
+builder.Services.AddScoped<ProveedoresRepository>();
 builder.Services.AddScoped<ProveedorEstadoRepository>();
 builder.Services.AddScoped<VentasRepository>();
 builder.Services.AddScoped<OrdenCompraRepository>();
 builder.Services.AddScoped<StockArticuloRepository>();
-
+builder.Services.AddScoped<BaseRepository<DetalleVentas>>();
 
 //Registro de Servicios
 builder.Services.AddScoped<MaestroArticulosService>();
@@ -58,7 +58,7 @@ builder.Services.AddScoped<ProveedorArticuloService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();
-
+builder.Services.AddScoped<ControlStockPeriodoFijoService>();
 
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 
@@ -71,25 +71,31 @@ var app = builder.Build();
 
 // Comprobación conexión a BD
 using (var scope = app.Services.CreateScope())
-{
-    try
     {
+    try
+        {
         var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
         var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
         Console.WriteLine("✅ Conexión a MySQL exitosa");
-    }
+        }
     catch (Exception ex)
-    {
+        {   
         Console.WriteLine("❌ Error de conexión: " + ex.Message);
+        Exception inner = ex.InnerException!;
+        while (inner != null)
+            {
+            Console.WriteLine("Inner Exception: " + inner.Message);
+            inner = inner.InnerException!;
+            }
+        }
     }
-}
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error");
+            app.UseHsts();
 
-}
+        }
 
 
 app.UseHttpsRedirection();
