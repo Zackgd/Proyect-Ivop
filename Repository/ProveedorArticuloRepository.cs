@@ -25,5 +25,13 @@ namespace Proyect_InvOperativa.Repository
             prArt.articulo!.idArticulo == idArticulo &&
             prArt.proveedor!.idProveedor == idProveedor);
         }
+
+        public async Task<IEnumerable<ProveedorArticulo>> GetAllByProveedorIdAsync(long idProveedor)
+        {
+            using var session = _sessionFactory.OpenSession();
+            return await session.Query<ProveedorArticulo>()
+            .Where(prArt => prArt.proveedor!.idProveedor == idProveedor && prArt.fechaFinProveedorArticulo == null)
+            .ToListAsync();
+        }
     }
 }

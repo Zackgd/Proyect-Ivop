@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Services;
-using System;
-using System.Web;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace Proyect_InvOperativa.Controllers
 {

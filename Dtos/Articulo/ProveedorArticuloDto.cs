@@ -6,7 +6,8 @@
         public double precioUnitario { get; set; }
         public long tiempoEntregaDias { get; set; }
         public long idArticulo { get; set; }
-
-    public double costoPedido { get; set; }
+        public Boolean predeterminado { get; set; } = false;
+        public DateTime fechaFinProveedorArticulo { get; set; }
+        public double costoPedido { get; set; }
     }
 }

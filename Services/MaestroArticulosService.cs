@@ -27,16 +27,18 @@ namespace Proyect_InvOperativa.Services
         private readonly ProveedoresRepository _proveedorRepository;
         private readonly OrdenCompraRepository _ordenCompraRepository;
         private readonly OrdenCompraService _ordenCompraService;
+        private readonly EstadoProveedoresRepository _estProveedorRepository;
         private readonly OrdenCompraEstadoRepository _ordenCompraEstadoRepository;
         private readonly MaestroArticulosRepository _maestroArticuloRepository;
         private readonly StockArticuloRepository _stockArticuloRepository;
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
         private readonly ProveedorArticuloService _proveedorArtService;
 
-        public MaestroArticulosService(ArticuloRepository articuloRepository, ProveedoresRepository proveedorRepository, OrdenCompraRepository ordenCompraRepository, OrdenCompraService ordenCompraService, OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository, StockArticuloRepository stockRepo, ProveedorArticuloRepository PARepository, ProveedorArticuloService proveedorArticuloService)
+        public MaestroArticulosService(ArticuloRepository articuloRepository, EstadoProveedoresRepository estProveedorRepository, ProveedoresRepository proveedorRepository, OrdenCompraRepository ordenCompraRepository, OrdenCompraService ordenCompraService, OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository, StockArticuloRepository stockRepo, ProveedorArticuloRepository PARepository, ProveedorArticuloService proveedorArticuloService)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
+            _estProveedorRepository = estProveedorRepository;
             _ordenCompraRepository = ordenCompraRepository;
             _ordenCompraService = ordenCompraService;
             _ordenCompraEstadoRepository = ordenCompraEstadoRepository;
@@ -344,11 +346,24 @@ namespace Proyect_InvOperativa.Services
             var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
             if (proveedoresArticulo == null || !proveedoresArticulo.Any()) return $"el articulo con Id {idArticulo} no tiene proveedores asignados ";
 
-            var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct => pAct.proveedor!.idProveedor == idProveedor);
-            if (proveedorActual == null) return $"el proveedor con ID {idProveedor} no esta asociado al articulo con Id {idArticulo} ";
+            var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct =>
+                pAct.proveedor != null &&
+                pAct.proveedor.idProveedor == idProveedor &&
+                pAct.fechaFinProveedorArticulo == null);
+
+            if (proveedorActual == null) return $"el proveedor con Id {idProveedor} no esta asociado actualmente al articulo con Id {idArticulo} ";
+
+            // cargar estados del proveedor
+            var estados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            var estadoActual = estados.FirstOrDefault(estP => estP.fechaFEstadoProveedor == null);
+
+            if (estadoActual == null || estadoActual.proveedorEstado == null || estadoActual.proveedorEstado.idEstadoProveedor != 1)
+            {
+                return "el proveedor no se encuentra en estado 'Activo', no puede ser asignado como predeterminado ";
+            }
 
             // salir si el proveedor ya es predeterminado
-            if (proveedorActual.predeterminado) return "este proveedor ya esta definido como predeterminado para el articulo ";
+            if (proveedorActual.predeterminado) return "este proveedor ya está definido como predeterminado para el artículo ";
 
             // buscar el proveedor predeterminado actual
             var provPredActual = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
@@ -357,12 +372,10 @@ namespace Proyect_InvOperativa.Services
                 provPredActual.predeterminado = false;
                 await _proveedorArticuloRepository.UpdateAsync(provPredActual);
             }
-
-            // Establecer el nuevo proveedor predeterminado
+            // establecer el nuevo proveedor predeterminado
             proveedorActual.predeterminado = true;
             await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
-
-            return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo} ";
+            return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el artículo con ID {idArticulo}";
         }
         #endregion
 
@@ -392,7 +405,7 @@ namespace Proyect_InvOperativa.Services
                     listaArticulosReposicion.Add(new ArticuloStockReposicionDto
                     {
                         IdArticulo = articulo.idArticulo,
-                        NombreArticulo = articulo.nombreArticulo ?? "",//????????????????
+                        NombreArticulo = articulo.nombreArticulo!,
                         StockActual = stock.stockActual,
                         PuntoPedido = stock.puntoPedido
                     });
