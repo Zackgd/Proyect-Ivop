@@ -405,7 +405,7 @@ namespace Proyect_InvOperativa.Services
                     listaArticulosReposicion.Add(new ArticuloStockReposicionDto
                     {
                         IdArticulo = articulo.idArticulo,
-                        NombreArticulo = articulo.nombreArticulo ?? "",//????????????????
+                        NombreArticulo = articulo.nombreArticulo,
                         StockActual = stock.stockActual,
                         PuntoPedido = stock.puntoPedido
                     });
@@ -469,7 +469,6 @@ namespace Proyect_InvOperativa.Services
             return listaProveedoresDto;
         }
         #endregion
-
 
     }
 }

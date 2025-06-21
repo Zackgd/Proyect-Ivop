@@ -11,24 +11,27 @@ namespace Proyect_InvOperativa.Repository
 
         }
 
-        public async Task<IEnumerable<OrdenCompra>> GetOrdenesVigentesArt(long idArticulo, string[] estadosOrden)
-        {
-            using var session = _sessionFactory.OpenSession();
-            return await session.Query<OrdenCompra>()
-           .Where(ordCompra => estadosOrden.Contains(ordCompra.ordenEstado.nombreEstadoOrden)
-               && ordCompra.detalleOrdenCompra.Any(detOrden => detOrden.articulo.idArticulo == idArticulo))
-           .ToListAsync();
-        }
+            public async Task<IEnumerable<OrdenCompra>> GetOrdenesVigentesArt(long idArticulo, string[] estadosOrden)
+            {
+                using var session = _sessionFactory.OpenSession();
 
-        public async Task<OrdenCompra?> GetOrdenCompraYDetalles(long nOrdenCompra)
-            {   
-            using var session = _sessionFactory.OpenSession();
-            return await session.Query<OrdenCompra>()
-                .Fetch(x => x.ordenEstado)
-                .FetchMany(x => x.detalleOrdenCompra)
-                .ThenFetch(x => x.articulo)
-                .FirstOrDefaultAsync(x => x.nOrdenCompra == nOrdenCompra);
+                return await session.Query<DetalleOrdenCompra>()
+                    .Where(detC => detC.articulo.idArticulo == idArticulo &&
+                      detC.ordenCompra != null &&
+                      detC.ordenCompra.ordenEstado != null &&
+                      estadosOrden.Contains(detC.ordenCompra.ordenEstado.nombreEstadoOrden))
+                    .Select(detC => detC.ordenCompra!)
+                    .Distinct()
+                    .ToListAsync();
             }
+
+            public async Task<OrdenCompra?> GetOrdenCompraConEstado(long nOrdenCompra)
+            {       
+                using var session = _sessionFactory.OpenSession();
+                return await session.Query<OrdenCompra>()
+                .Fetch(x => x.ordenEstado)
+                .FirstOrDefaultAsync(x => x.nOrdenCompra == nOrdenCompra);
+            }   
 
         public async Task<OrdenCompraEstado?> GetEstadoOrdenCompra(string nombreEstado)
             {
@@ -37,15 +40,17 @@ namespace Proyect_InvOperativa.Repository
                 .FirstOrDefaultAsync(eComp => eComp.nombreEstadoOrden == nombreEstado && eComp.fechaFinEstadoDisponible == null);
             }
 
-        public async Task<bool> GetOrdenActual(long idArticulo, string[] estadosOrden)
+            public async Task<bool> GetOrdenActual(long idArticulo, string[] estadosOrden)
             {
-            using var session = _sessionFactory.OpenSession();
-            var ordP = await session.Query<OrdenCompra>()
-                .Where(ordActual => estadosOrden.Contains(ordActual.ordenEstado!.nombreEstadoOrden!)
-            && ordActual.detalleOrdenCompra.Any(detOC => detOC.articulo!.idArticulo == idArticulo))
-                .AnyAsync();
-            return ordP;
-            }           
+                using var session = _sessionFactory.OpenSession();
+
+                return await session.Query<DetalleOrdenCompra>()
+                    .Where(detC => detC.articulo.idArticulo == idArticulo &&
+                      detC.ordenCompra != null &&
+                      detC.ordenCompra.ordenEstado != null &&
+                      estadosOrden.Contains(detC.ordenCompra.ordenEstado.nombreEstadoOrden))
+        .           AnyAsync();
+            }      
 
             public async Task<List<DetalleOrdenCompra>> GetDetallesByOrdenId(long nOrdenCompra)
             {
@@ -55,6 +60,15 @@ namespace Proyect_InvOperativa.Repository
                     .Where(dOrden => dOrden.ordenCompra.nOrdenCompra == nOrdenCompra)
                     .Fetch(dOrden => dOrden.articulo) // opcional: incluye info del artículo
                     .ToListAsync();
+            }
+
+            public async Task<IEnumerable<OrdenCompra>> GetAllByProveedorIdAsync(long idProveedor)
+            {
+                using var session = _sessionFactory.OpenSession();
+                return await session.Query<OrdenCompra>()
+                .Where(ordCompP => ordCompP.proveedor!.idProveedor == idProveedor)
+                .Fetch(ordCompP => ordCompP.ordenEstado)
+                .ToListAsync();
             }
     
     }

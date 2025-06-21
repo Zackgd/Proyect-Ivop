@@ -17,11 +17,7 @@ namespace Proyect_InvOperativa.Mapping
 
             References(x => x.proveedor)
                 .Column("idProveedor");
-            
-            HasMany(x => x.detalleOrdenCompra)
-            .KeyColumn("nOrdenCompra")
-            .Cascade.All()
-            .Inverse();
+
         }
     }
 }

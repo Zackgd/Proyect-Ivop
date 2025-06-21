@@ -4,7 +4,9 @@
     public class ProveedorDto
     {
         public  string nombreProveedor { get; set; } = "";
-        public long idProveedor { get; set; }
+        public  string direccion { get; set; } 
+        public  string mail { get; set; } 
+        public  string telefono { get; set; } 
         public long? masterArticulo { get; set; }
     }
 }
