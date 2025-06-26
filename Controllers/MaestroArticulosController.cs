@@ -141,7 +141,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(resultado);
         }
 
-        [HttpGet("articulosLista/proveedores")]
+        [HttpGet("articulosLista/proveedores/{idArticulo}")]
         public async Task<ActionResult<List<ProveedoresPorArticuloDto>>> ListarProveedoresPorArticulo(long idArticulo)
         {
             var resultado = await _maestroArticulosService.ListarProveedoresPorArticulo(idArticulo);
