@@ -251,7 +251,7 @@ namespace Proyect_InvOperativa.Services
                 public async Task RegistrarEntradaPedido(long nOrdenCompra)
                 {
                     // obtener orden de compra
-                var ordenC = await _ordenCompraRepository.GetByIdAsync(nOrdenCompra);
+                var ordenC = await _ordenCompraRepository.GetOrdenCompraConEstado(nOrdenCompra);
                 if (ordenC == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
 
                 // validar estado actual
