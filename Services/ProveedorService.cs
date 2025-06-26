@@ -353,23 +353,22 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region Historial estados proveedor
-        public async Task<IEnumerable<EstadoProveedores>> GetHistorialEstadosProveedor(long idProveedor)
-        {
-            var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
-            if (proveedor is null)
+            public async Task<IEnumerable<ProveedorHistoricoEstadosDto>> GetHistoricoEstadosProveedor(long idProveedor)
             {
-                throw new Exception($"Proveedor con ID: {idProveedor} no encontrado. ");
-            }
-            var historialEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
-            if (historialEstados.Count < 1)
-            {
-                throw new Exception($"El proveedor con ID: {idProveedor} no tiene historial de estados. ");
-            }
+                var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
+                if (proveedor is null) throw new Exception($"proveedor con Id: {idProveedor} no encontrado.");
 
-            return historialEstados;
+                var historicoEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+                if (!historicoEstados.Any()) throw new Exception($"el proveedor con Id: {idProveedor} no tiene historial de estados ");
 
-        }
-        #endregion
+                return historicoEstados.Select(estP => new ProveedorHistoricoEstadosDto
+                {
+                nombreEstado = estP.proveedorEstado.nombreEstadoProveedor,
+                fechaIEstadoProveedor = estP.fechaIEstadoProveedor,
+                fechaFEstadoProveedor = estP.fechaFEstadoProveedor
+                }).ToList();
+            }
+            #endregion
 
     }
     #endregion

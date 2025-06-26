@@ -88,14 +88,14 @@ namespace Proyect_InvOperativa.Controllers
                 var result = await _proveedorService.AltaProveedorConArticulos(ProvArtDto);
                 return Ok(new { mensaje = result });
             }
-            catch (Exception exc) { return BadRequest(new { error = exc.Message }); }
+            catch (Exception exc) {return BadRequest(new { error = exc.Message}); }
         }
 
         [HttpGet("{idProveedor}/historial")]
         public async Task<IActionResult> GetHistorialEstadosProveedor(long idProveedor)
         {
-            var estados = await _proveedorService.GetHistorialEstadosProveedor(idProveedor);
-            return Ok(estados);
+            var estadosP = await _proveedorService.GetHistoricoEstadosProveedor(idProveedor);
+            return Ok(estadosP);
         }
 
     }
