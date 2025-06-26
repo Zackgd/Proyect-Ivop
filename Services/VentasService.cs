@@ -45,9 +45,8 @@ namespace Proyect_InvOperativa.Services
         {
 
             var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-            if (stockArticulo == null) 
-                throw new Exception($"no se encuentra stock actual para el articulo con Id {articulo.idArticulo} ");
-
+            if (stockArticulo == null) throw new Exception($"no se encuentra stock actual para el articulo con Id {articulo.idArticulo} ");
+            
             // actualiza el stock restando la cantidad vendida
             stockArticulo.stockActual -= detalle.cantidad;
 
@@ -73,11 +72,11 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region create ventas
-           public async Task<Ventas> CreateVentas(VentasDto ventasDto)
+           public async Task<VentaResultadoDto> CreateVentas(VentasDto ventasDto)
             {
-                if (ventasDto.detalles.Length < 1)
-                    throw new Exception("no se dispone de articulos en la venta recibida ");
-
+                if (ventasDto.detalles.Length<1)  throw new Exception("no se dispone de articulos en la venta recibida ");
+                    var resultadoVenta = new VentaResultadoDto();
+                    var advertencias_Stock = new List<string>();
                 using (var tx = _session.BeginTransaction())
                 {
                     try
@@ -89,7 +88,6 @@ namespace Proyect_InvOperativa.Services
                         };
 
                         await _ventasRepository.AddAsync(venta); // o usar _session.SaveAsync(venta);
-
                         double total = 0;
 
                         foreach (var detalle in ventasDto.detalles)
@@ -111,18 +109,19 @@ namespace Proyect_InvOperativa.Services
                                 articulo = articulo,
                                 venta = venta
                             };
-
                             total += subtotal;
 
-                            await ActualizarStockVenta(articulo, newDetalle);
+                            var aviso_stock = await ActualizarStockVenta(articulo, newDetalle);
+                            if (!string.IsNullOrEmpty(aviso_stock)) advertencias_Stock.Add(aviso_stock);
                             await _detalleVentasRepository.AddAsync(newDetalle); 
                         }
 
                         venta.totalVenta = total;
-                        await _ventasRepository.UpdateAsync(venta); 
-
+                        await _ventasRepository.UpdateAsync(venta);
                         await tx.CommitAsync();
-                        return venta;
+                        resultadoVenta.venta = venta;
+                        resultadoVenta.advertencias = advertencias_Stock;
+                        return resultadoVenta;
                     }
                     catch
                     {

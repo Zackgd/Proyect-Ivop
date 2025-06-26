@@ -23,12 +23,16 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(disponible);
         }
 
-        [HttpPost()]
-        public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
-        {
-            var result = await _ventasService.CreateVentas(ventasDto);
-            return Ok(result);
-        }
+            [HttpPost("crear-venta")]
+            public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
+            {
+                var result = await _ventasService.CreateVentas(ventasDto);
+                return Ok(new {
+                    mensaje = "venta generada correctamente",
+                    venta = result.venta,
+                    advertencias = result.advertencias
+                });
+}
 
         [HttpGet("art-vent/{idArticulo}")]
         public async Task<ActionResult<List<ArtVentasDto>>> GetVentasPorArticulo(long idArticulo)
