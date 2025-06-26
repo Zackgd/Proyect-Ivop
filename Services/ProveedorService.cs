@@ -90,10 +90,6 @@ namespace Proyect_InvOperativa.Services
 
             if (estadoActual == null) throw new Exception("no se encontro estado vigente para este proveedor ");
 
-            // cerrar estado actual
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // validar que no sea proveedor predeterminado de ningun articulo
             var aProvArt = await _proveedorArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
             if (aProvArt.Any(pPred => pPred.predeterminado)) throw new Exception("no se puede eliminar el proveedor porque es predeterminado de uno o más artículos ");
@@ -107,6 +103,10 @@ namespace Proyect_InvOperativa.Services
             // obtener estado 'eliminado' 
             var estadoEliminado = await _proveedorEstadoRepository.GetByIdAsync(3);
             if (estadoEliminado == null) throw new Exception("no se encontro el estado 'eliminado' ");
+
+           // cerrar estado actual
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
 
             // registrar nuevo estado
             var nuevoEstado = new EstadoProveedores
@@ -142,13 +142,13 @@ namespace Proyect_InvOperativa.Services
             // verificar que no este previamente suspendido
             if (estadoActual.proveedorEstado?.idEstadoProveedor == 2) throw new Exception("el proveedor ya se encuentra suspendido ");
 
-            // cerrar estado anterior
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // obtener estado 'Suspendido'
             var estadoSuspendido = await _proveedorEstadoRepository.GetByIdAsync(2);
             if (estadoSuspendido == null) throw new Exception("estado 'Suspendido'  no encontrado");
+
+            // cerrar estado anterior
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
 
             // crear nuevo estado
             var nuevoEstado = new EstadoProveedores
@@ -186,16 +186,17 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception("el proveedor no se encuentra en estado 'Suspendido' ");
             }
 
-            // cerrar estado actual
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // obtener estado 'activo' 
             var estadoActivo = await _proveedorEstadoRepository.GetByIdAsync(1);
             if (estadoActivo == null)
             {
                 throw new Exception("no se encontro el estado 'Activo' ");
             }
+
+         // cerrar estado actual
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
+
             // crear nuevo estado de proveedor
             var nuevoEstado = new EstadoProveedores
             {
@@ -348,6 +349,25 @@ namespace Proyect_InvOperativa.Services
             };
                 await _estProveedorRepository.AddAsync(estadoProv);
                 return "proveedor guardado correctamente ";
+        }
+        #endregion
+
+        #region Historial estados proveedor
+        public async Task<IEnumerable<EstadoProveedores>> GetHistorialEstadosProveedor(long idProveedor)
+        {
+            var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
+            if (proveedor is null)
+            {
+                throw new Exception($"Proveedor con ID: {idProveedor} no encontrado. ");
+            }
+            var historialEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            if (historialEstados.Count < 1)
+            {
+                throw new Exception($"El proveedor con ID: {idProveedor} no tiene historial de estados. ");
+            }
+
+            return historialEstados;
+
         }
         #endregion
 

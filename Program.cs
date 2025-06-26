@@ -57,7 +57,7 @@ builder.Services.AddScoped<ProveedorArticuloService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();
-builder.Services.AddScoped<ControlStockPeriodoFijoService>();
+builder.Services.AddHostedService<ControlStockPeriodoFijoService>();
 
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 

@@ -92,6 +92,7 @@ namespace Proyect_InvOperativa.Services
                 tiempoRevision = ArticuloDto.tiempoRevision,
                 categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
                 modeloInv = (ModeloInv)ArticuloDto.modeloInv,
+                fechaRevisionP = DateTime.Now,
                 masterArticulo = maestro
             };
 
@@ -382,7 +383,7 @@ namespace Proyect_InvOperativa.Services
                 // control por fecha de revision
                 if (articulo.fechaRevisionP.HasValue)
                 {
-                    TimeSpan tiempo = TimeSpan.FromDays(articulo.tiempoRevision);
+                    TimeSpan tiempo = TimeSpan.FromMinutes(articulo.tiempoRevision);
                     DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
                     if (DateTime.Now < proximaRevision) continue;
                 }

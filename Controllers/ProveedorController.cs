@@ -38,6 +38,13 @@ namespace Proyect_InvOperativa.Controllers
             return NoContent();
         }
 
+        [HttpPut("restaurar/{idProveedor}")]
+        public async Task<IActionResult> RestaurarProveedor(long idProveedor)
+        {
+            await _proveedorService.RestaurarProveedor(idProveedor);
+            return NoContent();
+        }
+
         [HttpDelete("eliminar/{idProveedor}")]
         public async Task<IActionResult> DeleteProveedor(long idProveedor)
         {
@@ -83,5 +90,13 @@ namespace Proyect_InvOperativa.Controllers
             }
             catch (Exception exc) { return BadRequest(new { error = exc.Message }); }
         }
+
+        [HttpGet("{idProveedor}/historial")]
+        public async Task<IActionResult> GetHistorialEstadosProveedor(long idProveedor)
+        {
+            var estados = await _proveedorService.GetHistorialEstadosProveedor(idProveedor);
+            return Ok(estados);
+        }
+
     }
 }
