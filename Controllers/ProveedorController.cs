@@ -38,6 +38,13 @@ namespace Proyect_InvOperativa.Controllers
             return NoContent();
         }
 
+        [HttpPut("restaurar/{idProveedor}")]
+        public async Task<IActionResult> RestaurarProveedor(long idProveedor)
+        {
+            await _proveedorService.RestaurarProveedor(idProveedor);
+            return NoContent();
+        }
+
         [HttpDelete("eliminar/{idProveedor}")]
         public async Task<IActionResult> DeleteProveedor(long idProveedor)
         {
