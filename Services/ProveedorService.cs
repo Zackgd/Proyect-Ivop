@@ -90,10 +90,6 @@ namespace Proyect_InvOperativa.Services
 
             if (estadoActual == null) throw new Exception("no se encontro estado vigente para este proveedor ");
 
-            // cerrar estado actual
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // validar que no sea proveedor predeterminado de ningun articulo
             var aProvArt = await _proveedorArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
             if (aProvArt.Any(pPred => pPred.predeterminado)) throw new Exception("no se puede eliminar el proveedor porque es predeterminado de uno o más artículos ");
@@ -107,6 +103,10 @@ namespace Proyect_InvOperativa.Services
             // obtener estado 'eliminado' 
             var estadoEliminado = await _proveedorEstadoRepository.GetByIdAsync(3);
             if (estadoEliminado == null) throw new Exception("no se encontro el estado 'eliminado' ");
+
+           // cerrar estado actual
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
 
             // registrar nuevo estado
             var nuevoEstado = new EstadoProveedores
