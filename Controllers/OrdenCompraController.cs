@@ -39,8 +39,8 @@ namespace Proyect_InvOperativa.Controllers
     
     }
 
-    [HttpPost("confirmar-orden")]
-    public async Task<IActionResult> ConfirmarOrdenCompra([FromQuery] long nOrdenCompra)
+    [HttpPost("confirmar-orden/{nOrdenCompra}")]
+    public async Task<IActionResult> ConfirmarOrdenCompra(long nOrdenCompra)
     {
         try
         {
