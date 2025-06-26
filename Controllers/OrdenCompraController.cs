@@ -18,24 +18,24 @@ namespace Proyect_InvOperativa.Controllers
 
     [HttpPost("generar-orden")]
     public async Task<IActionResult> GenerarOrdenCompra([FromBody] OrdenCompraGeneradaDto ordenC_Pedidos)
-    {
+    {   
         try
         {
-            await _ordenCompraService.GenerarOrdenCompra(ordenC_Pedidos.articulos, ordenC_Pedidos.idProveedor);
-            return Ok(new {mensaje = "orden de compra generada correctamente " });
+            var resultadoOC = await _ordenCompraService.GenerarOrdenCompra(ordenC_Pedidos.articulos, ordenC_Pedidos.idProveedor);
+            return Ok(resultadoOC);
         }
-        catch (Exception ex) {return BadRequest(new {error = ex.Message}); }
-    }
+        catch (Exception ex){return BadRequest(new {error = ex.Message});}
+}
 
     [HttpPut("modificar-orden")]
     public async Task<IActionResult> ModificarOrdenCompra([FromBody] OrdenCompraModificadaDto ordenModDto)
     {   
         try
         {
-            await _ordenCompraService.ModificarOrdenCompra(ordenModDto);
-            return Ok(new { mensaje = "orden de compra modificada correctamente " });
+            var resultadoOCM = await _ordenCompraService.ModificarOrdenCompra(ordenModDto);
+            return Ok(resultadoOCM);
         }
-        catch (Exception ex){return BadRequest(new { error = ex.Message });}
+        catch (Exception ex){return BadRequest(new {error = ex.Message});}
     
     }
 
