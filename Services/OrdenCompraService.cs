@@ -200,7 +200,7 @@ namespace Proyect_InvOperativa.Services
                 {
                     await _detalleOrdenCompraRepository.AddAsync(detalle);
                 }
-                resultadoOC.mensajeOC = "orden de compra generada correctamente ";
+                resultadoOC.mensajeOC = "orden de compra modificada correctamente ";
                 resultadoOC.advertenciasOC = avisosPP;
                 return resultadoOC;
             }
