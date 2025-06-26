@@ -142,13 +142,13 @@ namespace Proyect_InvOperativa.Services
             // verificar que no este previamente suspendido
             if (estadoActual.proveedorEstado?.idEstadoProveedor == 2) throw new Exception("el proveedor ya se encuentra suspendido ");
 
-            // cerrar estado anterior
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // obtener estado 'Suspendido'
             var estadoSuspendido = await _proveedorEstadoRepository.GetByIdAsync(2);
             if (estadoSuspendido == null) throw new Exception("estado 'Suspendido'  no encontrado");
+
+            // cerrar estado anterior
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
 
             // crear nuevo estado
             var nuevoEstado = new EstadoProveedores
@@ -186,16 +186,17 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception("el proveedor no se encuentra en estado 'Suspendido' ");
             }
 
-            // cerrar estado actual
-            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
-            await _estProveedorRepository.UpdateAsync(estadoActual);
-
             // obtener estado 'activo' 
             var estadoActivo = await _proveedorEstadoRepository.GetByIdAsync(1);
             if (estadoActivo == null)
             {
                 throw new Exception("no se encontro el estado 'Activo' ");
             }
+
+         // cerrar estado actual
+            estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
+            await _estProveedorRepository.UpdateAsync(estadoActual);
+
             // crear nuevo estado de proveedor
             var nuevoEstado = new EstadoProveedores
             {
