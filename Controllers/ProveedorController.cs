@@ -90,5 +90,13 @@ namespace Proyect_InvOperativa.Controllers
             }
             catch (Exception exc) { return BadRequest(new { error = exc.Message }); }
         }
+
+        [HttpGet("{idProveedor}/historial")]
+        public async Task<IActionResult> GetHistorialEstadosProveedor(long idProveedor)
+        {
+            var estados = await _proveedorService.GetHistorialEstadosProveedor(idProveedor);
+            return Ok(estados);
+        }
+
     }
 }

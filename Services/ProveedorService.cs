@@ -352,6 +352,25 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
+        #region Historial estados proveedor
+        public async Task<IEnumerable<EstadoProveedores>> GetHistorialEstadosProveedor(long idProveedor)
+        {
+            var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
+            if (proveedor is null)
+            {
+                throw new Exception($"Proveedor con ID: {idProveedor} no encontrado. ");
+            }
+            var historialEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            if (historialEstados.Count < 1)
+            {
+                throw new Exception($"El proveedor con ID: {idProveedor} no tiene historial de estados. ");
+            }
+
+            return historialEstados;
+
+        }
+        #endregion
+
     }
     #endregion
 }
