@@ -37,7 +37,7 @@ namespace Proyect_InvOperativa.Services
         }
 
         #region Generar orden de compra
-            public async Task GenerarOrdenCompra(List<ArticuloDto> articulos, long idProveedor)
+            public async Task<OrdenCompraAvisoDto> GenerarOrdenCompra(List<ArticuloDto> articulos, long idProveedor)
             {
                 // obtener proveedor
                 var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
@@ -55,7 +55,9 @@ namespace Proyect_InvOperativa.Services
                 if (artRepetidos.Any()){ throw new Exception("se han recibido articulos repetidos: " + string.Join(",", artRepetidos));}
 
                 double totalPagar = 0;
+                var resultadoOC = new OrdenCompraAvisoDto();
                 var detallesOrden = new List<DetalleOrdenCompra>();
+                var avisosPP = new List<string>();
 
                 foreach (var articulosDto in articulos)
                 {
@@ -63,6 +65,8 @@ namespace Proyect_InvOperativa.Services
                     if (articulo == null) continue;
                     var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(articulo.idArticulo, idProveedor);
                     if (proveedorArt == null) continue;
+                    var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stock == null) throw new Exception($"stock no encontrado para el articulo con Id {articulo.idArticulo} ");
                     long cantidad;
                     double precioUnitario = proveedorArt.precioUnitario;
                     double subTotal;
@@ -71,6 +75,10 @@ namespace Proyect_InvOperativa.Services
                     {
                        cantidad = articulo.qOptimo;
                        subTotal = cantidad * precioUnitario;
+                       if ((cantidad+stock.stockActual) < stock.puntoPedido)
+                        {
+                        avisosPP.Add($"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente ");
+                        }
                     }
                     else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
                     {
@@ -92,7 +100,7 @@ namespace Proyect_InvOperativa.Services
                     };
                     detallesOrden.Add(detalle);
                 }
-                if (!detallesOrden.Any()) return;
+                if (!detallesOrden.Any()) throw new Exception($"no se pudo generar ningun detalle para la orden de compra ");;
 
                 // crear orden
                 var orden = new OrdenCompra
@@ -111,11 +119,14 @@ namespace Proyect_InvOperativa.Services
                     detalle.ordenCompra = orden;
                     await _detalleOrdenCompraRepository.AddAsync(detalle);
                 }
+                resultadoOC.mensajeOC = "orden de compra generada correctamente ";
+                resultadoOC.advertenciasOC = avisosPP;
+                return resultadoOC;
             }
         #endregion
 
         #region modificar ordenCompra
-            public async Task ModificarOrdenCompra(OrdenCompraModificadaDto ordCModDto)
+            public async Task<OrdenCompraAvisoDto> ModificarOrdenCompra(OrdenCompraModificadaDto ordCModDto)
             {
                 var orden = await _ordenCompraRepository.GetOrdenCompraConEstado(ordCModDto.nOrdenCompra);
                 if (orden == null) throw new Exception("orden de compra no encontrada ");
@@ -136,6 +147,8 @@ namespace Proyect_InvOperativa.Services
                 if (artRepetidos.Any()){  throw new Exception("se han recibido articulos repetidos: " + string.Join(",", artRepetidos));}
 
                 double total = 0;
+                var resultadoOC = new OrdenCompraAvisoDto();
+                var avisosPP = new List<string>();
                 var nDetalles = new List<DetalleOrdenCompra>();
 
                 foreach (var artDto in ordCModDto.articulos)
@@ -152,6 +165,14 @@ namespace Proyect_InvOperativa.Services
                     double precioUnitario = proveedorArticulo.precioUnitario;
                     double subTotal = precioUnitario*artDto.cantidad;
                     total += subTotal;
+
+                    if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                    {
+                       if ((artDto.cantidad+stock.stockActual) < stock.puntoPedido)
+                        {
+                        avisosPP.Add($"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente ");
+                        }
+                    }
 
                     nDetalles.Add(new DetalleOrdenCompra
                     {
@@ -179,6 +200,9 @@ namespace Proyect_InvOperativa.Services
                 {
                     await _detalleOrdenCompraRepository.AddAsync(detalle);
                 }
+                resultadoOC.mensajeOC = "orden de compra generada correctamente ";
+                resultadoOC.advertenciasOC = avisosPP;
+                return resultadoOC;
             }
         #endregion
 
