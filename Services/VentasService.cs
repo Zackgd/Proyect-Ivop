@@ -1,0 +1,157 @@
+﻿using ISession = NHibernate.ISession;
+using Proyect_InvOperativa.Dtos.Ventas;
+using Proyect_InvOperativa.Models;
+using Proyect_InvOperativa.Models.Enums;
+using Proyect_InvOperativa.Repository;
+
+namespace Proyect_InvOperativa.Services
+{
+    public class VentasService
+    {
+        #region LISTA DE FALTANTES
+        //Alta Venta
+        #endregion
+
+        private readonly StockArticuloRepository _stockArticuloRepository;
+        private readonly ArticuloRepository _articuloRepository;
+        private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
+        private readonly BaseRepository<DetalleVentas> _detalleVentasRepository;
+        private readonly VentasRepository _ventasRepository;
+        private readonly ISession _session;
+
+
+        public VentasService(StockArticuloRepository stockArticuloRepository,ProveedorArticuloRepository proveedorArticuloRepository, ArticuloRepository articuloRepository, BaseRepository<DetalleVentas> detalleVentasRepository, VentasRepository ventasRepository, ISession session)
+        {
+            _stockArticuloRepository = stockArticuloRepository;
+            _articuloRepository = articuloRepository;
+            _proveedorArticuloRepository =proveedorArticuloRepository;
+            _detalleVentasRepository = detalleVentasRepository;
+            _ventasRepository = ventasRepository;
+            _session = session;
+        }
+        
+        #region Actualizar stock (ventas)
+        public async Task<bool> ValidarStockDisponible(StockDto ventasDto)
+        {
+            long idArticulo = ventasDto.idArticulo;
+            long cantidadSolicitada = ventasDto.cantidad;
+            var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+
+            if (stockArticulo == null) return false; 
+            return stockArticulo.stockActual >= cantidadSolicitada;
+        }
+
+        private async Task<string?> ActualizarStockVenta(Articulo articulo, DetalleVentas detalle)
+        {
+
+            var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+            if (stockArticulo == null) 
+                throw new Exception($"no se encuentra stock actual para el articulo con Id {articulo.idArticulo} ");
+
+            // actualiza el stock restando la cantidad vendida
+            stockArticulo.stockActual -= detalle.cantidad;
+
+            // actualiza control si el stock queda por debajo del stock de seguridad
+            if (stockArticulo.stockActual <= stockArticulo.stockSeguridad)
+            {
+                stockArticulo.control = true;
+            }
+
+            // advertencia si es modelo Q y se alcanza el punto de pedido
+            string? aviso_pp = null;
+            if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+            {
+                if (stockArticulo.stockActual <= stockArticulo.puntoPedido)
+                {
+                    aviso_pp = $"el articulo '{articulo.nombreArticulo}' alcanzo o esta por debajo del punto de pedido ";
+                }
+            }
+             await _stockArticuloRepository.UpdateAsync(stockArticulo);
+            await _session.UpdateAsync(stockArticulo);
+            return aviso_pp;
+        }
+        #endregion
+
+        #region create ventas
+           public async Task<Ventas> CreateVentas(VentasDto ventasDto)
+            {
+                if (ventasDto.detalles.Length < 1)
+                    throw new Exception("no se dispone de articulos en la venta recibida ");
+
+                using (var tx = _session.BeginTransaction())
+                {
+                    try
+                    {
+                        var venta = new Ventas
+                        {
+                            descripcionVenta = ventasDto.descripcionVenta,
+                            totalVenta = 0
+                        };
+
+                        await _ventasRepository.AddAsync(venta); // o usar _session.SaveAsync(venta);
+
+                        double total = 0;
+
+                        foreach (var detalle in ventasDto.detalles)
+                        {
+                            var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
+                            if (articulo is null) throw new Exception($"no se encuentra el articulo con Id: {detalle.idArticulo} ");
+
+                            var proveedoresRelacionados = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                            var proveedorPredeterminado = proveedoresRelacionados.FirstOrDefault(pArt => pArt.predeterminado);
+                            if (proveedorPredeterminado == null) throw new Exception($"no hay proveedor predeterminado para el articulo {articulo.nombreArticulo}");
+
+                           var precioCompra = proveedorPredeterminado.precioUnitario;
+                            var subtotal = detalle.cantidadArticulo * precioCompra*1.15;;
+
+                            var newDetalle = new DetalleVentas
+                            {
+                                cantidad = detalle.cantidadArticulo,
+                                subTotalVenta = subtotal, 
+                                articulo = articulo,
+                                venta = venta
+                            };
+
+                            total += subtotal;
+
+                            await ActualizarStockVenta(articulo, newDetalle);
+                            await _detalleVentasRepository.AddAsync(newDetalle); 
+                        }
+
+                        venta.totalVenta = total;
+                        await _ventasRepository.UpdateAsync(venta); 
+
+                        await tx.CommitAsync();
+                        return venta;
+                    }
+                    catch
+                    {
+                        await tx.RollbackAsync();
+                        throw;
+                    }
+                }
+            }
+        #endregion
+
+        #region lista ventas por articulo
+        public async Task<List<ArtVentasDto>> GetVentasPorArticulo(long idArticulo)
+            {
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(idArticulo);
+                if (stock == null || stock.fechaStockFin != null)
+                {
+                    throw new Exception($"el articulo con Id {idArticulo} no existe o fue dado de baja ");
+                }
+
+                // obtener ventas relacionadas
+                var ventasDetalle = await _ventasRepository.GetVentasDetallePorArticulo(idArticulo);
+
+                return ventasDetalle.Select(vdet => new ArtVentasDto
+                {
+                    nVenta = vdet.venta!.nVenta,
+                    cantidadVendida = vdet.cantidad,
+                    subtotal = vdet.subTotalVenta
+                }).ToList();
+            }
+        #endregion
+    }
+}
