@@ -31,5 +31,12 @@ namespace Proyect_InvOperativa.Controllers
             return NoContent();
         }
 
+        [HttpGet("estados-orden")]
+        public async Task<IActionResult> GetEstadosOrdenCompra()
+        {
+            var estadosOC = await _ordenCompraEstadoService.ListarEstadosOrdenCompra();
+            return Ok(estadosOC);
+        }
+
     } 
 }

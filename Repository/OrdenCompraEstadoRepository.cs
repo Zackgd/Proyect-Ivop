@@ -17,6 +17,12 @@ namespace Proyect_InvOperativa.Repository
             return await session.Query<OrdenCompraEstado>()
                 .FirstOrDefaultAsync(OC_est => OC_est.nombreEstadoOrden == nombreEstado && OC_est.fechaFinEstadoDisponible == null);
         }
+
+        public async Task<List<OrdenCompraEstado>> GetAllEstadosOrden()
+        {
+            using var session = _sessionFactory.OpenSession();
+            return await session.Query<OrdenCompraEstado>().ToListAsync();
+        }
     
     }
 }

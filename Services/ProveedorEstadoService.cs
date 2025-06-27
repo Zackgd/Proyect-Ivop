@@ -44,5 +44,16 @@ namespace Proyect_InvOperativa.Services
             pEstado.fechaBajaProveedorEstado = DateTime.Now;
             await _proveedorEstRepository.UpdateAsync(pEstado);
         }
+
+        public async Task<List<ProveedorEstadoDto>> ListarEstadosProveedor()
+        {
+            var estados = await _proveedorEstRepository.GetAllEstadosProveedor();
+            return estados.Select(est => new ProveedorEstadoDto
+            {
+                idEstadoProveedor = est.idEstadoProveedor,
+                nombreEstadoProveedor = est.nombreEstadoProveedor,
+                fechaBajaProveedorEstado = est.fechaBajaProveedorEstado
+            }).ToList();
+        }
     }
 }

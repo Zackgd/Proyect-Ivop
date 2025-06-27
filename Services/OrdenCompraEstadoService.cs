@@ -33,6 +33,17 @@ namespace Proyect_InvOperativa.Services
 
             await _OCrepository.UpdateAsync(ordenCEstado);
         }
+
+        public async Task<List<OrdenCompraEstadosDto>> ListarEstadosOrdenCompra()
+        {
+            var estados = await _OCrepository.GetAllEstadosOrden();
+            return estados.Select(est => new OrdenCompraEstadosDto
+            {
+                idOrdenCompraEstado = est.idOrdenCompraEstado,
+                nombreEstadoOrden = est.nombreEstadoOrden,
+                fechaFinEstadoDisponible = est.fechaFinEstadoDisponible
+            }).ToList();
+        }
      
     }
 }
