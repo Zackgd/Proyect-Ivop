@@ -13,11 +13,15 @@ namespace Proyect_InvOperativa.Services
         private readonly ArticuloRepository _articuloRepository;
         private readonly ProveedorArticuloRepository _proveedoresArticuloRepository;
         private readonly StockArticuloRepository _stockArtRepository;
+        private readonly OrdenCompraRepository _oCompraRepository;
+        private readonly DetalleOrdenCompraRepository _detOrdCRepository;
 
-        public ProveedorArticuloService(ProveedoresRepository proveedoresRepository,ArticuloRepository artRepo, ProveedorArticuloRepository  pArtRepo,StockArticuloRepository stockArticuloRepository) 
+        public ProveedorArticuloService(ProveedoresRepository proveedoresRepository,DetalleOrdenCompraRepository detOrdCRepository,OrdenCompraRepository oCompraRepository,ArticuloRepository artRepo, ProveedorArticuloRepository  pArtRepo,StockArticuloRepository stockArticuloRepository) 
         {
             _proveedoresRepository = proveedoresRepository;
             _articuloRepository = artRepo;  
+            _detOrdCRepository = _detOrdCRepository;
+            _oCompraRepository = oCompraRepository;
             _proveedoresArticuloRepository = pArtRepo;
             _stockArtRepository = stockArticuloRepository;
         }
@@ -65,10 +69,25 @@ namespace Proyect_InvOperativa.Services
                 var stock = await _stockArtRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                 if (stock == null) return 0;
 
+                 var ordenesVigentesArt = await _oCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "En proceso" });
+                long stockPedido = 0;
+                foreach (var orden in ordenesVigentesArt)
+                {
+                    var detallesOrden = await _detOrdCRepository.GetDetallesByOrdenId(orden.nOrdenCompra);
+                    foreach (var detalle in detallesOrden)
+                    {
+                        if (detalle.articulo.idArticulo == articulo.idArticulo)
+                        {
+                            stockPedido += detalle.cantidadArticulos;
+                        }
+                    }
+                }
+                
+
                 double stockSeguridad = Z*valSigma;
                 long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
 
-                double q = dProm * periodoVulnerable + stockSeguridad - stock.stockActual;
+                double q = dProm * periodoVulnerable + stockSeguridad - (stock.stockActual+stockPedido);
                 long qEnt = (long)Math.Ceiling(q);
                 if (qEnt < 0) qEnt = 0;
 
