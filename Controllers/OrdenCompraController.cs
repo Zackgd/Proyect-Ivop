@@ -82,7 +82,6 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(ordenesP);
         }
 
-
         [HttpGet("lista-ordenes")]
         public async Task<IActionResult> GetOrdenesCompraLista()
         {
@@ -90,13 +89,17 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(listaOC);
         }
 
-        [HttpGet("{idOrdenCompra}/detalles")]
-        public async Task<IActionResult> GetDetallesOrdenCompra(long idOrdenCompra)
-        {
-            var detalles = await _ordenCompraService.GetDetallesOrdenCompra(idOrdenCompra);
-            return Ok(detalles);
-        }
 
-    }
+        [HttpGet("detalles-orden/{nOrdenCompra}")]
+        public async Task<IActionResult> GetDetallesOrdenCompra(long nOrdenCompra)
+        {
+            try
+            {
+                var detallesDto = await _ordenCompraService.GetDetallesByOrdenId(nOrdenCompra);
+                return Ok(detallesDto);
+            }catch (Exception ex){return BadRequest(new { error = ex.Message });}
+            }
+
+        }
 
 }

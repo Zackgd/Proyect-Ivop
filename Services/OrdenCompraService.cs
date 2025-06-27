@@ -352,6 +352,37 @@ namespace Proyect_InvOperativa.Services
             }
             #endregion
 
+            #region  listar ordenes de compra
+            public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
+            {
+                var ordenes = await _ordenCompraRepository.GetOrdenesConEstadoYProveedor();
+                return ordenes.Select(oCompra => new OrdenCompraMostrarDto
+                {
+                 nOrdenCompra = oCompra.nOrdenCompra,
+                    proveedor = oCompra.proveedor?.nombreProveedor ?? "Desconocido",
+                    estado = oCompra.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
+                    fechaOrden = oCompra.fechaOrden,
+                    totalPagar = oCompra.totalPagar
+                    }).ToList();
+            }
+            #endregion
+
+            #region listar detalles OrdenCompra
+                public async Task<List<OrdenCompraDetalleDto>> GetDetallesByOrdenId(long nOrdenCompra)
+                {
+                    var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+
+                    return detalles.Select(det_OC => new OrdenCompraDetalleDto
+                    {
+                        idArticulo = det_OC.articulo.idArticulo,
+                        nombreArticulo = det_OC.articulo.nombreArticulo,
+                        cantidad = det_OC.cantidadArticulos,
+                         precioUnitario = det_OC.precioSubTotal / det_OC.cantidadArticulos,
+                         subTotal = det_OC.precioSubTotal
+                        }).ToList();
+}
+
+            #endregion
 
             #region  listar ordenes de compra
             public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
