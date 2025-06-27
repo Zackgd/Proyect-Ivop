@@ -81,5 +81,12 @@ namespace Proyect_InvOperativa.Controllers
                 var ordenesP = await _ordenCompraService.GetOrdenesPorProveedor(idProveedor);
                 return Ok(ordenesP);
         }
+
+        [HttpGet()]
+        public async Task<IActionResult> GetAllOrdenesCompra()
+        {
+            var ordenes = await _ordenCompraService.GetAllOrdenesCompra();
+            return Ok(ordenes);
+        }
     }
 }

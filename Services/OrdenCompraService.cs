@@ -335,6 +335,20 @@ namespace Proyect_InvOperativa.Services
             }
             #endregion
 
+        public async Task<IEnumerable<OrdenCompraDto>> GetAllOrdenesCompra()
+        {
+
+            var ordenes = await _ordenCompraRepository.GetAllAsync();
+
+            return ordenes.Select(oComp => new OrdenCompraDto
+            {
+                nOrdenCompra = oComp.nOrdenCompra,
+                fechaOrden = oComp.fechaOrden,
+                totalPagar = oComp.totalPagar,
+                ordenEstado = oComp.ordenEstado?.nombreEstadoOrden ?? "no definido"
+            }).ToList();
+        }
+
 
     }
 }
