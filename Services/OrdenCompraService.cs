@@ -364,7 +364,7 @@ namespace Proyect_InvOperativa.Services
                     totalPagar = oCompra.totalPagar
                     }).ToList();
             }
-            #endregion
+             #endregion
 
             #region listar detalles OrdenCompra
                 public async Task<List<OrdenCompraDetalleDto>> GetDetallesByOrdenId(long nOrdenCompra)
