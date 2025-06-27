@@ -32,6 +32,7 @@ namespace Proyect_InvOperativa.Repository
             using var session = _sessionFactory.OpenSession();
             return await session.Query<ProveedorArticulo>()
             .Where(prArt => prArt.proveedor!.idProveedor == idProveedor && prArt.fechaFinProveedorArticulo == null)
+            .Fetch(prArt=>prArt.articulo)
             .ToListAsync();
         }
     }

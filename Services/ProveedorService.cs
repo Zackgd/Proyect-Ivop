@@ -259,7 +259,7 @@ namespace Proyect_InvOperativa.Services
             public async Task<List<ProveedorArticuloDto>> GetArticulosPorProveedor(long idProveedor)
             {
                 var historial = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
-                var estadoActual = historial.FirstOrDefault(e => e.fechaFEstadoProveedor == null);
+                var estadoActual = historial.FirstOrDefault(estP => estP.fechaFEstadoProveedor == null);
 
                 if (estadoActual == null || estadoActual.proveedorEstado?.idEstadoProveedor != 1)
                 {
