@@ -282,6 +282,7 @@ namespace Proyect_InvOperativa.Services
                     {
                         idProveedor = idProveedor,
                         idArticulo = articulo.idArticulo,
+                        nombreArticulo = articulo.nombreArticulo,
                         precioUnitario = provArt.precioUnitario,
                         tiempoEntregaDias = provArt.tiempoEntregaDias,
                         predeterminado = provArt.predeterminado,

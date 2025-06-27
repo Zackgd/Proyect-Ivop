@@ -3,6 +3,7 @@
     public class ProveedorArticuloDto
     {
         public long idProveedor { get; set; }
+        public string nombreArticulo { get; set; }
         public double precioUnitario { get; set; }
         public long tiempoEntregaDias { get; set; }
         public long idArticulo { get; set; }
