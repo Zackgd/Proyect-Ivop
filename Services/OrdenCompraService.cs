@@ -1,8 +1,9 @@
-﻿using Proyect_InvOperativa.Repository;
+﻿using Microsoft.AspNetCore.Mvc;
+using Proyect_InvOperativa.Dtos.Articulo;
+using Proyect_InvOperativa.Dtos.OrdenCompra;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Models.Enums;
-using Proyect_InvOperativa.Dtos.OrdenCompra;
-using Proyect_InvOperativa.Dtos.Articulo;
+using Proyect_InvOperativa.Repository;
 
 namespace Proyect_InvOperativa.Services
 {
@@ -382,6 +383,38 @@ namespace Proyect_InvOperativa.Services
 }
 
             #endregion
+
+            #region  listar ordenes de compra
+            public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
+            {
+                var ordenes = await _ordenCompraRepository.GetOrdenesConEstadoYProveedor();
+                return ordenes.Select(oCompra => new OrdenCompraMostrarDto
+                {
+                 nOrdenCompra = oCompra.nOrdenCompra,
+                    proveedor = oCompra.proveedor?.nombreProveedor ?? "Desconocido",
+                    estado = oCompra.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
+                    fechaOrden = oCompra.fechaOrden,
+                    totalPagar = oCompra.totalPagar
+                    }).ToList();
+            }
+        #endregion
+
+        #region detalles orden compra
+        public async Task<IEnumerable<DetalleOrdenCompraDto>> GetDetallesOrdenCompra(long idOrdenCompra)
+        {
+            var detalles = await _ordenCompraRepository.GetDetallesByOrdenId(idOrdenCompra);
+
+            return detalles.Select(detalle => new DetalleOrdenCompraDto
+            {
+                nDetalleOrdenCompra = detalle.nDetalleOrdenCompra,
+                cantidadArticulos = detalle.cantidadArticulos,
+                precioSubTotal = detalle.precioSubTotal,
+                idArticulo = detalle.articulo?.idArticulo,
+                nombreArticulo = detalle.articulo?.nombreArticulo,
+            });
+            
+        }
+        #endregion
 
     }
 }

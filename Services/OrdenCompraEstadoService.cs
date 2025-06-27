@@ -33,6 +33,13 @@ namespace Proyect_InvOperativa.Services
 
             await _OCrepository.UpdateAsync(ordenCEstado);
         }
+
+        public async Task<IEnumerable<OrdenCompraEstado>> GetAllOrdenesCompraEstado()
+        {
+            var ordenes = await _OCrepository.GetAllAsync();
+
+            return ordenes;
+        }
      
     }
 }

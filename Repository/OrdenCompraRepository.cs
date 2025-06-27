@@ -31,7 +31,17 @@ namespace Proyect_InvOperativa.Repository
                 return await session.Query<OrdenCompra>()
                 .Fetch(x => x.ordenEstado)
                 .FirstOrDefaultAsync(x => x.nOrdenCompra == nOrdenCompra);
-            }   
+            }
+
+        public async Task<IEnumerable<OrdenCompra>> GetAllOrdenCompraConRelaciones()
+        {
+
+            using var session = _sessionFactory.OpenSession();
+            return await session.Query<OrdenCompra>()
+            .Fetch(x => x.ordenEstado)
+            .Fetch(x => x.proveedor)
+            .ToListAsync();
+        }
 
         public async Task<OrdenCompraEstado?> GetEstadoOrdenCompra(string nombreEstado)
             {

@@ -89,6 +89,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(listaOC);
         }
 
+
         [HttpGet("detalles-orden/{nOrdenCompra}")]
         public async Task<IActionResult> GetDetallesOrdenCompra(long nOrdenCompra)
         {
@@ -98,5 +99,7 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(detallesDto);
             }catch (Exception ex){return BadRequest(new { error = ex.Message });}
             }
-    }
+
+        }
+
 }
