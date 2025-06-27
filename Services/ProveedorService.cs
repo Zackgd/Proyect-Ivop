@@ -255,6 +255,33 @@ namespace Proyect_InvOperativa.Services
             }
         #endregion
 
+                #region listar proveedores suspendidos
+            public async Task<List<ProveedorDto>> GetProveedoresSuspendidos()
+            {
+                var proveedores = await _proveedoresRepository.GetAllProveedores();
+                var proveedoresSuspendidos = new List<ProveedorDto>();
+
+                foreach (var proveedor in proveedores)
+                {
+                    var historicoEst = await _estProveedorRepository.GetHistorialByProveedorId(proveedor.idProveedor);
+                    var estadoActual = historicoEst.FirstOrDefault(est => est.fechaFEstadoProveedor == null);
+
+                    if (estadoActual != null && estadoActual.proveedorEstado?.idEstadoProveedor == 2) 
+                    {
+                        proveedoresSuspendidos.Add(new ProveedorDto
+                        {
+                            idProveedor = proveedor.idProveedor,
+                            nombreProveedor = proveedor.nombreProveedor ?? "",
+                            direccion = proveedor.direccion ?? "",
+                            mail = proveedor.mail ?? "",
+                            telefono = proveedor.telefono ?? "",
+                        });
+                    }
+                }
+                return proveedoresSuspendidos;
+            }
+        #endregion
+
         #region lista articulos por Proveedor
             public async Task<List<ProveedorArticuloDto>> GetArticulosPorProveedor(long idProveedor)
             {

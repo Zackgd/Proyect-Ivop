@@ -73,6 +73,13 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(listaProvActivos);
         }
 
+        [HttpGet("suspendidos")]
+        public async Task<ActionResult<List<ProveedorDto>>> GetProveedoresSuspendidos()
+        {
+            var listaProvSuspendidos = await _proveedorService.GetProveedoresSuspendidos();
+            return Ok(listaProvSuspendidos);
+        }
+
         [HttpGet("articulos-proveedor/{idProveedor}")]
         public async Task<ActionResult<List<ProveedorArticuloDto>>> ListarArticulosProveedor(long idProveedor)
         {
