@@ -39,6 +39,15 @@ namespace Proyect_InvOperativa.Controllers
             await _proveedorEstadoService.DeleteProveedorEstado(id);
             return NoContent();
         }
+
+        [HttpGet()]
+        public async Task<IActionResult> GetAllEstadosProveedor()
+        {
+            var estados = await _proveedorEstadoService.GetAllEstadosProveedor();
+            return Ok(estados);
+        }
+
+     
     }
 
 }

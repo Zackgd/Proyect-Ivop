@@ -338,7 +338,7 @@ namespace Proyect_InvOperativa.Services
         public async Task<IEnumerable<OrdenCompra>> GetAllOrdenesCompra()
         {
 
-            var ordenes = await _ordenCompraRepository.GetAllOrdenCompraConEstado();
+            var ordenes = await _ordenCompraRepository.GetAllOrdenCompraConRelaciones();
 
             return ordenes;
         }

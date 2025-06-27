@@ -33,13 +33,14 @@ namespace Proyect_InvOperativa.Repository
                 .FirstOrDefaultAsync(x => x.nOrdenCompra == nOrdenCompra);
             }
 
-        public async Task<IEnumerable<OrdenCompra>> GetAllOrdenCompraConEstado()
+        public async Task<IEnumerable<OrdenCompra>> GetAllOrdenCompraConRelaciones()
         {
 
             using var session = _sessionFactory.OpenSession();
             return await session.Query<OrdenCompra>()
-                .Fetch(ordCompP => ordCompP.ordenEstado)
-                .ToListAsync();
+            .Fetch(x => x.ordenEstado)
+            .Fetch(x => x.proveedor)
+            .ToListAsync();
         }
 
         public async Task<OrdenCompraEstado?> GetEstadoOrdenCompra(string nombreEstado)
@@ -77,7 +78,6 @@ namespace Proyect_InvOperativa.Repository
                 return await session.Query<OrdenCompra>()
                 .Where(ordCompP => ordCompP.proveedor!.idProveedor == idProveedor)
                 .Fetch(ordCompP => ordCompP.ordenEstado)
-                .Fetch(ordCompP => ordCompP.proveedor)
                 .ToListAsync();
             }
 
