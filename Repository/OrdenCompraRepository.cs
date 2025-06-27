@@ -77,6 +77,7 @@ namespace Proyect_InvOperativa.Repository
                 return await session.Query<OrdenCompra>()
                 .Where(ordCompP => ordCompP.proveedor!.idProveedor == idProveedor)
                 .Fetch(ordCompP => ordCompP.ordenEstado)
+                .Fetch(ordCompP => ordCompP.proveedor)
                 .ToListAsync();
             }
 
