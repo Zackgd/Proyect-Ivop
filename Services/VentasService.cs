@@ -3,6 +3,7 @@ using Proyect_InvOperativa.Dtos.Ventas;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Models.Enums;
 using Proyect_InvOperativa.Repository;
+using Proyect_InvOperativa.Dtos.Articulo;
 
 namespace Proyect_InvOperativa.Services
 {
@@ -17,13 +18,17 @@ namespace Proyect_InvOperativa.Services
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
         private readonly BaseRepository<DetalleVentas> _detalleVentasRepository;
         private readonly VentasRepository _ventasRepository;
+        private readonly OrdenCompraRepository _oCompraRepository;
+        private readonly OrdenCompraService _oCompraService;
         private readonly ISession _session;
 
 
-        public VentasService(StockArticuloRepository stockArticuloRepository,ProveedorArticuloRepository proveedorArticuloRepository, ArticuloRepository articuloRepository, BaseRepository<DetalleVentas> detalleVentasRepository, VentasRepository ventasRepository, ISession session)
+        public VentasService(StockArticuloRepository stockArticuloRepository,OrdenCompraService oCompraService,OrdenCompraRepository oCompraRepository,ProveedorArticuloRepository proveedorArticuloRepository, ArticuloRepository articuloRepository, BaseRepository<DetalleVentas> detalleVentasRepository, VentasRepository ventasRepository, ISession session)
         {
             _stockArticuloRepository = stockArticuloRepository;
             _articuloRepository = articuloRepository;
+            _oCompraRepository = oCompraRepository;
+            _oCompraService = oCompraService;
             _proveedorArticuloRepository =proveedorArticuloRepository;
             _detalleVentasRepository = detalleVentasRepository;
             _ventasRepository = ventasRepository;
@@ -60,9 +65,25 @@ namespace Proyect_InvOperativa.Services
             string? aviso_pp = null;
             if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
             {
-                if (stockArticulo.stockActual <= stockArticulo.puntoPedido)
+                if (stockArticulo.stockActual < stockArticulo.puntoPedido)
                 {
                     aviso_pp = $"el articulo '{articulo.nombreArticulo}' alcanzo o esta por debajo del punto de pedido ";
+                    var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                    if (!proveedoresArticulo.Any()) throw new Exception($"no se encuentran proveedores para el articulo con Id {articulo.idArticulo} ");
+
+                    //  selecciona proveedor predeterminado
+                    var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
+                    if (proveedorArt == null) throw new Exception($"no se encuentra proveedor predeterminado para el articulo con Id {articulo.idArticulo} ");;
+                    long idProv = proveedorArt.proveedor!.idProveedor;
+
+                    var ordenesVigentesArt = await _oCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
+                    if (!ordenesVigentesArt.Any())
+                    {
+                        var articuloDto = new ArticuloDto {
+                        idArticulo = articulo.idArticulo
+                        };
+                        await _oCompraService.GenerarOrdenCompra(new List<ArticuloDto> {articuloDto}, idProv);
+                    }
                 }
             }
              await _stockArticuloRepository.UpdateAsync(stockArticulo);
