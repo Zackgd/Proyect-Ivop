@@ -518,6 +518,7 @@ namespace Proyect_InvOperativa.Services
         public async Task<List<ProveedoresPorArticuloDto>> ListarProveedoresPorArticulo(long idArticulo)
         {
             var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+            //if (proveedoresArticulo == null || !proveedoresArticulo.Any()) throw new Exception($"el articulo con Id {idArticulo} no tiene proveedores asignados ");
             var listaProveedoresDto = new List<ProveedoresPorArticuloDto>();
 
             foreach (var proveedorArt in proveedoresArticulo)
