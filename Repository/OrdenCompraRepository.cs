@@ -89,6 +89,15 @@ namespace Proyect_InvOperativa.Repository
                 .Fetch(ordC => ordC.ordenEstado)
                 .ToListAsync();
             }
+
+            public async Task<List<OrdenCompra>> GetOrdenesConEstadoYProveedor()
+            {
+                using var session = _sessionFactory.OpenSession();
+                return await session.Query<OrdenCompra>()
+                .Fetch(ordC => ordC.proveedor)
+                .Fetch(ordC => ordC.ordenEstado)
+                .ToListAsync();
+            }
     
     }
 }

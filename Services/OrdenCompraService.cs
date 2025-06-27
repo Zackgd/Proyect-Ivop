@@ -58,6 +58,7 @@ namespace Proyect_InvOperativa.Services
                 var resultadoOC = new OrdenCompraAvisoDto();
                 var detallesOrden = new List<DetalleOrdenCompra>();
                 var avisosPP = new List<string>();
+                var avisosOC = new List<string>();
 
                 foreach (var articulosDto in articulos)
                 {
@@ -70,6 +71,12 @@ namespace Proyect_InvOperativa.Services
                     long cantidad;
                     double precioUnitario = proveedorArt.precioUnitario;
                     double subTotal;
+
+                    var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
+                    if (ordenesVigentesArt.Any())
+                    {
+                        avisosOC.Add($" existe al menos una orden de compra Pendiente o Enviada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");
+                    }
 
                     if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
                     {
@@ -120,7 +127,8 @@ namespace Proyect_InvOperativa.Services
                     await _detalleOrdenCompraRepository.AddAsync(detalle);
                 }
                 resultadoOC.mensajeOC = "orden de compra generada correctamente ";
-                resultadoOC.advertenciasOC = avisosPP;
+                resultadoOC.advertenciasOC_pp = avisosPP;
+                resultadoOC.advertenciasOC_oc = avisosOC;
                 return resultadoOC;
             }
         #endregion
@@ -149,6 +157,7 @@ namespace Proyect_InvOperativa.Services
                 double total = 0;
                 var resultadoOC = new OrdenCompraAvisoDto();
                 var avisosPP = new List<string>();
+                var avisosOC = new List<string>();
                 var nDetalles = new List<DetalleOrdenCompra>();
 
                 foreach (var artDto in ordCModDto.articulos)
@@ -165,6 +174,12 @@ namespace Proyect_InvOperativa.Services
                     double precioUnitario = proveedorArticulo.precioUnitario;
                     double subTotal = precioUnitario*artDto.cantidad;
                     total += subTotal;
+
+                    var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
+                    if (ordenesVigentesArt.Any())
+                    {
+                        avisosOC.Add($" existe al menos una orden de compra Pendiente o Enviada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");
+                    }
 
                     if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
                     {
@@ -201,7 +216,8 @@ namespace Proyect_InvOperativa.Services
                     await _detalleOrdenCompraRepository.AddAsync(detalle);
                 }
                 resultadoOC.mensajeOC = "orden de compra modificada correctamente ";
-                resultadoOC.advertenciasOC = avisosPP;
+                resultadoOC.advertenciasOC_pp = avisosPP;
+                resultadoOC.advertenciasOC_oc = avisosOC;
                 return resultadoOC;
             }
         #endregion
@@ -335,13 +351,23 @@ namespace Proyect_InvOperativa.Services
             }
             #endregion
 
-        public async Task<IEnumerable<OrdenCompra>> GetAllOrdenesCompra()
-        {
 
-            var ordenes = await _ordenCompraRepository.GetAllOrdenCompraConRelaciones();
+            #region  listar ordenes de compra
+            public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
+            {
+                var ordenes = await _ordenCompraRepository.GetOrdenesConEstadoYProveedor();
+                return ordenes.Select(oCompra => new OrdenCompraMostrarDto
+                {
+                 nOrdenCompra = oCompra.nOrdenCompra,
+                    proveedor = oCompra.proveedor?.nombreProveedor ?? "Desconocido",
+                    estado = oCompra.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
+                    fechaOrden = oCompra.fechaOrden,
+                    totalPagar = oCompra.totalPagar
+                    }).ToList();
+            }
+            #endregion
 
-            return ordenes;
-        }
+
 
     }
 }

@@ -82,12 +82,13 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(ordenesP);
         }
 
-        [HttpGet()]
-        public async Task<IActionResult> GetAllOrdenesCompra()
+
+        [HttpGet("lista-ordenes")]
+        public async Task<IActionResult> GetOrdenesCompraLista()
         {
-            var ordenes = await _ordenCompraService.GetAllOrdenesCompra();
-            return Ok(ordenes);
+            var listaOC = await _ordenCompraService.GetOrdenesCompraLista();
+            return Ok(listaOC);
         }
-  
-    }
+            }
+
 }
