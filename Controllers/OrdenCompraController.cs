@@ -82,6 +82,7 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(ordenesP);
         }
 
+
         [HttpGet("lista-ordenes")]
         public async Task<IActionResult> GetOrdenesCompraLista()
         {
@@ -89,4 +90,5 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(listaOC);
         }
             }
+
 }

@@ -351,6 +351,7 @@ namespace Proyect_InvOperativa.Services
             }
             #endregion
 
+
             #region  listar ordenes de compra
             public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
             {
@@ -365,6 +366,8 @@ namespace Proyect_InvOperativa.Services
                     }).ToList();
             }
             #endregion
+
+
 
     }
 }
