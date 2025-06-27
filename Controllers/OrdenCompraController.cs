@@ -89,6 +89,14 @@ namespace Proyect_InvOperativa.Controllers
             var listaOC = await _ordenCompraService.GetOrdenesCompraLista();
             return Ok(listaOC);
         }
-            }
+
+        [HttpGet("{idOrdenCompra}/detalles")]
+        public async Task<IActionResult> GetDetallesOrdenCompra(long idOrdenCompra)
+        {
+            var detalles = await _ordenCompraService.GetDetallesOrdenCompra(idOrdenCompra);
+            return Ok(detalles);
+        }
+
+    }
 
 }
