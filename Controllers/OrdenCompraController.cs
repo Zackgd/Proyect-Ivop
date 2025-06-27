@@ -88,5 +88,7 @@ namespace Proyect_InvOperativa.Controllers
             var ordenes = await _ordenCompraService.GetAllOrdenesCompra();
             return Ok(ordenes);
         }
+
+     
     }
 }

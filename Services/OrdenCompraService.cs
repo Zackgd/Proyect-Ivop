@@ -338,7 +338,7 @@ namespace Proyect_InvOperativa.Services
         public async Task<IEnumerable<OrdenCompraDto>> GetAllOrdenesCompra()
         {
 
-            var ordenes = await _ordenCompraRepository.GetAllAsync();
+            var ordenes = await _ordenCompraRepository.GetAllOrdenCompraConEstado();
 
             return ordenes.Select(oComp => new OrdenCompraDto
             {
@@ -348,6 +348,7 @@ namespace Proyect_InvOperativa.Services
                 ordenEstado = oComp.ordenEstado?.nombreEstadoOrden ?? "no definido"
             }).ToList();
         }
+
 
 
     }
