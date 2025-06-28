@@ -69,7 +69,7 @@ namespace Proyect_InvOperativa.Services
                 var stock = await _stockArtRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                 if (stock == null) return 0;
 
-                 var ordenesVigentesArt = await _oCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "En proceso" });
+                 var ordenesVigentesArt = await _oCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Enviada" });
                 long stockPedido = 0;
                 foreach (var orden in ordenesVigentesArt)
                 {
@@ -127,6 +127,27 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
-        
+        #region lista articulos NO relacionados al proveedor
+            public async Task<List<ArticuloDto>> ArticulosNoRelacionadosProv(long idProveedor)
+            {
+                var Articulos = await _articuloRepository.GetAllAsync();
+                var articulosRelacionados = await _proveedoresArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
+
+                var idsRelacionados = articulosRelacionados
+                .Select(pArt => pArt.articulo.idArticulo)
+                .ToHashSet(); 
+
+                var articulosNoRelacionados = Articulos
+                .Where(art => !idsRelacionados.Contains(art.idArticulo))
+                .Select(art => new ArticuloDto
+                {
+                       idArticulo = art.idArticulo,
+                       nombreArticulo = art.nombreArticulo
+                })
+                .ToList();
+
+             return articulosNoRelacionados;
+            }
+        #endregion
     }
 }

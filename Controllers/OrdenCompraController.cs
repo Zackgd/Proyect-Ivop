@@ -57,17 +57,6 @@ namespace Proyect_InvOperativa.Controllers
             return Ok("orden de compra cancelada exitosamente ");
         }
 
-        [HttpPost("orden-enproceso/{nOrdenCompra}")]
-        public async Task<IActionResult> OrdenEnProceso(long nOrdenCompra)
-        {
-             try
-                {
-                await _ordenCompraService.OrdenEnProceso(nOrdenCompra);
-                return Ok(new { mensaje = "cambio a estado 'En proceso' realizado correctamente " });
-                }
-            catch (Exception ex){return BadRequest(new { error = ex.Message });}
-        }
-
         [HttpPost("registrar-entrada/{nOrdenCompra}")]
         public async Task<IActionResult> RegistrarEntradaPedido(long nOrdenCompra)
         {

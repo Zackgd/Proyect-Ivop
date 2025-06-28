@@ -43,5 +43,13 @@ namespace Proyect_InvOperativa.Controllers
                     }
                     catch (Exception ex){return BadRequest(new {error = ex.Message});}
                 }
+        
+        [HttpGet("art-no-relacionados/{idProveedor}")]
+        public async Task<IActionResult> GetArticulosNoRelacionados(long idProveedor)
+        {
+            var articulosNR = await _proveedorArticuloService.ArticulosNoRelacionadosProv(idProveedor);
+            return Ok(articulosNR);
+        }
+
     }
 }

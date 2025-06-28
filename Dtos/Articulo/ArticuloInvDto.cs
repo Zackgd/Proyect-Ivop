@@ -14,5 +14,6 @@ public class ArticuloInvDto
     public long stockActual { get; set; }
     public long stockSeguridad { get; set; }
     public long puntoPedido { get; set; }
+    public long stockMax { get; set; }
     public double cgi { get; set; }
 }

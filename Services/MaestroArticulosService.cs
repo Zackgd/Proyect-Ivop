@@ -93,7 +93,8 @@ namespace Proyect_InvOperativa.Services
                 categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
                 modeloInv = (ModeloInv)ArticuloDto.modeloInv,
                 fechaRevisionP = DateTime.Now,
-                masterArticulo = maestro
+                masterArticulo = maestro,
+                stockMax = ArticuloDto.stockMax
             };
 
             var newArticulo = await _articuloRepository.AddAsync(articulo);
@@ -130,6 +131,7 @@ namespace Proyect_InvOperativa.Services
             articuloModificado.tiempoRevision = ArticuloDto.tiempoRevision;
             articuloModificado.modeloInv = (ModeloInv)ArticuloDto.modeloInv;
             articuloModificado.categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt;
+            articuloModificado.stockMax = ArticuloDto.stockMax;
             // MODIFICAR LOS DATOS PROPIOS DE STOCK ASOCIADO A ARTICULO, si es que se pueden 
 
             await _articuloRepository.UpdateAsync(articuloModificado);
@@ -248,7 +250,8 @@ namespace Proyect_InvOperativa.Services
                         stockActual = stock.stockActual,
                         stockSeguridad = stock.stockSeguridad,
                         puntoPedido = stock.puntoPedido,
-                        cgi = Math.Round(articulo.cgi,4)
+                        cgi = Math.Round(articulo.cgi,4),
+                        stockMax = articulo.stockMax
                     });
                 }
                 return listaArt;
@@ -286,7 +289,8 @@ namespace Proyect_InvOperativa.Services
                         stockActual = stock.stockActual,
                         stockSeguridad = stock.stockSeguridad,
                         puntoPedido = stock.puntoPedido,
-                        cgi = Math.Round(articulo.cgi,4)
+                        cgi = Math.Round(articulo.cgi,4),
+                        stockMax =articulo.stockMax
                     });
                 }
                 return listaArtD;

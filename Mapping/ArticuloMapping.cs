@@ -15,6 +15,7 @@ namespace Proyect_InvOperativa.Mapping
             Map(x => x.costoAlmacen);
             Map(x => x.tiempoRevision);
             Map(x => x.qOptimo);
+            Map(x => x.stockMax);
             Map(x => x.fechaRevisionP);
             Map(x => x.cgi);
             Map(x => x.modeloInv).CustomType<ModeloInv>();

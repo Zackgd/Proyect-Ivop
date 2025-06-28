@@ -98,6 +98,8 @@ namespace Proyect_InvOperativa.Services
                         continue;
                     }
 
+                    if ((cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} ");}
+
                     totalPagar += subTotal;
                     var detalle = new DetalleOrdenCompra
                     {
@@ -189,6 +191,8 @@ namespace Proyect_InvOperativa.Services
                         }
                     }
 
+                    if ((artDto.cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} ");}
+
                     nDetalles.Add(new DetalleOrdenCompra
                     {
                         articulo = articulo,
@@ -252,7 +256,6 @@ namespace Proyect_InvOperativa.Services
                 if (estActual == null ||
                     estActual.Equals("Archivada", StringComparison.OrdinalIgnoreCase) ||
                     estActual.Equals("Cancelada", StringComparison.OrdinalIgnoreCase) ||
-                    estActual.Equals("En proceso", StringComparison.OrdinalIgnoreCase) ||
                     estActual.Equals("Enviada", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception("no se puede cancelar la orden de compra ");
@@ -268,25 +271,6 @@ namespace Proyect_InvOperativa.Services
             }
         #endregion
 
-        #region cambiar orden de compra a estado "en proceso"
-            public async Task OrdenEnProceso(long nOrdenCompra)
-            {
-                var ordenC = await _ordenCompraRepository.GetOrdenCompraConEstado(nOrdenCompra);
-                if (ordenC == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
-
-                var estActual = ordenC.ordenEstado?.nombreEstadoOrden;
-                if (estActual == null || !estActual.Equals("Enviada", StringComparison.OrdinalIgnoreCase)){throw new Exception("cambio permitido unicamente si la orden esta en estado 'Enviada' ");}
-
-                // obtener estado `En proceso`
-                var estEnProceso = await _ordenCompraRepository.GetEstadoOrdenCompra("En proceso");
-                if (estEnProceso == null || estEnProceso.fechaFinEstadoDisponible != null){throw new Exception("no se encuentra el estado 'En proceso' ");}
-
-                // asignar nuevo estado
-                ordenC.ordenEstado = estEnProceso;
-                await _ordenCompraRepository.UpdateAsync(ordenC);
-            }
-        #endregion
-
         #region RegistrarEntradaArticulos
                 public async Task RegistrarEntradaPedido(long nOrdenCompra)
                 {
@@ -295,9 +279,9 @@ namespace Proyect_InvOperativa.Services
                 if (ordenC == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
 
                 // validar estado actual
-                if (ordenC.ordenEstado == null || !ordenC.ordenEstado.nombreEstadoOrden!.Equals("En proceso", StringComparison.OrdinalIgnoreCase))
+                if (ordenC.ordenEstado == null || !ordenC.ordenEstado.nombreEstadoOrden!.Equals("Enviada", StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new Exception("solo se puede registrar ingreso de ordenes en estado 'En proceso' ");
+                    throw new Exception("solo se puede registrar ingreso de ordenes en estado 'Enviada' ");
                 }
 
                 // obtener los detalles asociados a la orden

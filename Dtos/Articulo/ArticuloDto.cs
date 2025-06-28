@@ -13,5 +13,6 @@ namespace Proyect_InvOperativa.Dtos.Articulo
         public long categoriaArt { get; set; }
         public long tiempoRevision {get; set;}
         public long idMaster { get; set; }
+        public long stockMax { get; set; }
     }
 }
