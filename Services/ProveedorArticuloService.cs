@@ -23,8 +23,8 @@ namespace Proyect_InvOperativa.Services
         }
         public async Task<ProveedorArticulo> CreateProveedorArticulo(ProveedorArticuloDto provArtDto)
         {
-            var articulo = await _articuloRepository.GetByIdAsync(provArtDto.idArticulo);
-            var proveedor = await _proveedoresRepository.GetByIdAsync(provArtDto.idProveedor);
+            var articulo = await _articuloRepository.GetArticuloById(provArtDto.idArticulo);
+            var proveedor = await _proveedoresRepository.GetProveedorById(provArtDto.idProveedor);
 
             var proveedorArticulo = new ProveedorArticulo()
             {
@@ -36,7 +36,7 @@ namespace Proyect_InvOperativa.Services
                 articulo = articulo
             };
             var listaANew = await _proveedoresArticuloRepository.AddAsync(proveedorArticulo);
-            return proveedorArticulo;
+            return listaANew;
         }
 
         public async Task DeleteProveedorArticulo(ProveedorArticuloDto ProvArtDto)

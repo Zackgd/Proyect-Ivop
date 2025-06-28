@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Linq;
+using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Models;
 
 namespace Proyect_InvOperativa.Repository
@@ -32,6 +33,7 @@ namespace Proyect_InvOperativa.Repository
             using var session = _sessionFactory.OpenSession();
             return await session.Query<ProveedorArticulo>()
             .Where(prArt => prArt.proveedor!.idProveedor == idProveedor && prArt.fechaFinProveedorArticulo == null)
+            .Fetch(prArt => prArt.articulo)
             .ToListAsync();
         }
     }

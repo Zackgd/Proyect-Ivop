@@ -22,7 +22,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("baja-prov-art")]
+        [HttpDelete("baja-prov-art")]
         public async Task<IActionResult> BajaProvArt([FromBody] ProveedorArticuloDto provArtDto)
             {
                 try
