@@ -249,7 +249,7 @@ namespace Proyect_InvOperativa.Services
                         proveedor = proveedorPred,
                         stockActual = stock.stockActual,
                         stockSeguridad = stock.stockSeguridad,
-                        stockMax = articulo.stockMax,
+                        stockMaximo = articulo.stockMax,
                         puntoPedido = stock.puntoPedido,
                         cgi = Math.Round(articulo.cgi,4)
                     });
@@ -288,7 +288,7 @@ namespace Proyect_InvOperativa.Services
                     proveedor = proveedorPred,
                     stockActual = stock.stockActual,
                     stockSeguridad = stock.stockSeguridad,
-                    stockMax = articulo.stockMax,
+                    stockMaximo = articulo.stockMax,
                     puntoPedido = stock.puntoPedido,
                     cgi = Math.Round(articulo.cgi, 4),
                     qOptimo = articulo.qOptimo
@@ -329,9 +329,11 @@ namespace Proyect_InvOperativa.Services
             double puntoPedido = stockSeguridad + (dProm * tiempoEntrega);
             long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
 
+            var stockMax = (int) Math.Round(stockSeguridad * qOpt);
             stock.stockSeguridad = stockSeguridadEnt;
             stock.puntoPedido = puntoPedidoEnt;
             articulo.qOptimo = qOptEnt;
+            articulo.stockMax = stockMax;
             double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
             articulo.cgi = cgi;
 
@@ -360,8 +362,10 @@ namespace Proyect_InvOperativa.Services
             double costoPedido = proveedorArt.costoPedido;
             double costoAlmacen = articulo.costoAlmacen;
 
+            var stockMax = stock.stockSeguridad + (articulo.demandaDiaria * articulo.demandaDiaria);
             double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
             articulo.cgi = cgi;
+            articulo.stockMax = stockMax;
             await _articuloRepository.UpdateAsync(articulo);
         }
 
