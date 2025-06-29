@@ -66,7 +66,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(result);
         }
 
-        [HttpGet("activos")]
+        [HttpGet("activo")]
         public async Task<ActionResult<List<ProveedorDto>>> GetProveedoresActivos()
         {
             var listaProvActivos = await _proveedorService.GetProveedoresActivos();
