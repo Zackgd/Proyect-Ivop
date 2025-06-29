@@ -272,22 +272,23 @@ namespace Proyect_InvOperativa.Services
 
                         var proveedorPred = proveedoresArt.FirstOrDefault(pred => pred.predeterminado)?.proveedor?.nombreProveedor ?? "";
 
-                    listaArtD.Add(new ArticuloInvDto
-                    {
-                        idArticulo = articulo.idArticulo,
-                        nombreArticulo = articulo.nombreArticulo,
-                        descripcion = articulo.descripcion,
-                        modeloInv = articulo.modeloInv.ToString(),
-                        categoriaArt = articulo.categoriaArt.ToString(),
-                        demandaDiaria = articulo.demandaDiaria,
-                        costoAlmacen = articulo.costoAlmacen,
-                        tiempoRevision = articulo.tiempoRevision,
-                        proveedor = proveedorPred,
-                        stockActual = stock.stockActual,
-                        stockSeguridad = stock.stockSeguridad,
-                        puntoPedido = stock.puntoPedido,
-                        cgi = Math.Round(articulo.cgi,4)
-                    });
+                listaArtD.Add(new ArticuloInvDto
+                {
+                    idArticulo = articulo.idArticulo,
+                    nombreArticulo = articulo.nombreArticulo,
+                    descripcion = articulo.descripcion,
+                    modeloInv = articulo.modeloInv.ToString(),
+                    categoriaArt = articulo.categoriaArt.ToString(),
+                    demandaDiaria = articulo.demandaDiaria,
+                    costoAlmacen = articulo.costoAlmacen,
+                    tiempoRevision = articulo.tiempoRevision,
+                    proveedor = proveedorPred,
+                    stockActual = stock.stockActual,
+                    stockSeguridad = stock.stockSeguridad,
+                    puntoPedido = stock.puntoPedido,
+                    cgi = Math.Round(articulo.cgi, 4),
+                    qOptimo = articulo.qOptimo
+                });
                 }
                 return listaArtD;
             }
