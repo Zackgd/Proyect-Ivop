@@ -38,101 +38,106 @@ namespace Proyect_InvOperativa.Services
         }
 
         #region Generar orden de compra
-            public async Task<OrdenCompraAvisoDto> GenerarOrdenCompra(List<ArticuloDto> articulos, long idProveedor)
+        public async Task<OrdenCompraAvisoDto> GenerarOrdenCompra(List<ArticuloDto> articulos, long idProveedor)
+        {
+            // obtener proveedor
+            var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
+            if (proveedor == null) throw new Exception($"proveedor con Id {idProveedor} no encontrado ");
+
+            // obtener estado ``Pendiente``
+            var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
+            if (estadoPendiente == null) throw new Exception("estado 'Pendiente' no encontrado ");
+
+            var artRepetidos = articulos
+            .GroupBy(art => art.idArticulo)
+            .Where(gr => gr.Count() > 1)
+            .Select(gr => gr.Key)
+            .ToList();
+            if (artRepetidos.Any()){ throw new Exception("se han recibido articulos repetidos: " + string.Join(",", artRepetidos));}
+
+            double totalPagar = 0;
+            var resultadoOC = new OrdenCompraAvisoDto();
+            var detallesOrden = new List<DetalleOrdenCompra>();
+            var avisosPP = new List<string>();
+            var avisosOC = new List<string>();
+
+            foreach (var articulosDto in articulos)
             {
-                // obtener proveedor
-                var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
-                if (proveedor == null) throw new Exception($"proveedor con Id {idProveedor} no encontrado ");
+                var articulo = await _articuloRepository.GetByIdAsync(articulosDto.idArticulo);
+                if (articulo == null) continue;
+                var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(articulo.idArticulo, idProveedor);
+                if (proveedorArt == null) continue;
+                var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null) throw new Exception($"stock no encontrado para el articulo con Id {articulo.idArticulo} ");
+                long cantidad;
+                double precioUnitario = proveedorArt.precioUnitario;
+                double subTotal;
 
-                // obtener estado ``Pendiente``
-                var estadoPendiente = await _ordenCompraRepository.GetEstadoOrdenCompra("Pendiente");
-                if (estadoPendiente == null) throw new Exception("estado 'Pendiente' no encontrado ");
-
-                var artRepetidos = articulos
-                .GroupBy(art => art.idArticulo)
-                .Where(gr => gr.Count() > 1)
-                .Select(gr => gr.Key)
-                .ToList();
-                if (artRepetidos.Any()){ throw new Exception("se han recibido articulos repetidos: " + string.Join(",", artRepetidos));}
-
-                double totalPagar = 0;
-                var resultadoOC = new OrdenCompraAvisoDto();
-                var detallesOrden = new List<DetalleOrdenCompra>();
-                var avisosPP = new List<string>();
-                var avisosOC = new List<string>();
-
-                foreach (var articulosDto in articulos)
+                var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
+                if (ordenesVigentesArt.Any())
                 {
-                    var articulo = await _articuloRepository.GetByIdAsync(articulosDto.idArticulo);
-                    if (articulo == null) continue;
-                    var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(articulo.idArticulo, idProveedor);
-                    if (proveedorArt == null) continue;
-                    var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null) throw new Exception($"stock no encontrado para el articulo con Id {articulo.idArticulo} ");
-                    long cantidad;
-                    double precioUnitario = proveedorArt.precioUnitario;
-                    double subTotal;
-
-                    var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
-                    if (ordenesVigentesArt.Any())
-                    {
-                        avisosOC.Add($" existe al menos una orden de compra Pendiente o Enviada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");
-                    }
-
-                    if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
-                    {
-                       cantidad = articulo.qOptimo;
-                       subTotal = cantidad * precioUnitario;
-                       if ((cantidad+stock.stockActual) < stock.puntoPedido)
-                        {
-                        avisosPP.Add($"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente ");
-                        }
-                    }
-                    else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
-                    {
-                        cantidad = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
-                        if (cantidad == 0) continue;
-                        subTotal = cantidad * precioUnitario;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
-                    totalPagar += subTotal;
-                    var detalle = new DetalleOrdenCompra
-                    {
-                        articulo = articulo,
-                        cantidadArticulos = cantidad,
-                        precioSubTotal = subTotal
-                    };
-                    detallesOrden.Add(detalle);
+                    avisosOC.Add($" existe al menos una orden de compra Pendiente o Enviada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");
                 }
-                if (!detallesOrden.Any()) 
-                    throw new Exception($"no se pudo generar ningun detalle para la orden de compra ");
 
-                // crear orden
-                var orden = new OrdenCompra
+                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
                 {
-                    fechaOrden = DateTime.Now,
-                    proveedor = proveedor,
-                    ordenEstado = estadoPendiente,
-                    totalPagar = totalPagar
+                    cantidad = articulo.qOptimo;
+                    subTotal = cantidad * precioUnitario;
+                    if ((cantidad+stock.stockActual) < stock.puntoPedido)
+                    {
+                    avisosPP.Add($"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente ");
+                    }
+                }
+                else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
+                {
+                    cantidad = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+                    if (cantidad == 0) continue;
+                    subTotal = cantidad * precioUnitario;
+                }
+                else
+                {
+                    continue;
+                }
+
+                if ((cantidad + stock.stockActual) > articulo.stockMax) 
+                { 
+                    throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} "); 
+                }
+
+                totalPagar += subTotal;
+                var detalle = new DetalleOrdenCompra
+                {
+                    articulo = articulo,
+                    cantidadArticulos = cantidad,
+                    precioSubTotal = subTotal
                 };
-
-                await _ordenCompraRepository.AddAsync(orden); // ahora tiene ID generado
-
-                // relacionar y guardar detalles
-                foreach (var detalle in detallesOrden)
-                {
-                    detalle.ordenCompra = orden;
-                    await _detalleOrdenCompraRepository.AddAsync(detalle);
-                }
-                resultadoOC.mensajeOC = "orden de compra generada correctamente ";
-                resultadoOC.advertenciasOC_pp = avisosPP;
-                resultadoOC.advertenciasOC_oc = avisosOC;
-                return resultadoOC;
+                detallesOrden.Add(detalle);
             }
+            if (!detallesOrden.Any()) 
+                throw new Exception($"no se pudo generar ningun detalle para la orden de compra ");
+
+            // crear orden
+            var orden = new OrdenCompra
+            {
+                fechaOrden = DateTime.Now,
+                proveedor = proveedor,
+                ordenEstado = estadoPendiente,
+                totalPagar = totalPagar
+            };
+
+            await _ordenCompraRepository.AddAsync(orden); // ahora tiene ID generado
+
+            // relacionar y guardar detalles
+            foreach (var detalle in detallesOrden)
+            {
+                detalle.ordenCompra = orden;
+                await _detalleOrdenCompraRepository.AddAsync(detalle);
+            }
+            resultadoOC.mensajeOC = "orden de compra generada correctamente ";
+            resultadoOC.advertenciasOC_pp = avisosPP;
+            resultadoOC.advertenciasOC_oc = avisosOC;
+            return resultadoOC;
+        }
         #endregion
 
         #region modificar ordenCompra
@@ -191,7 +196,12 @@ namespace Proyect_InvOperativa.Services
                         }
                     }
 
-                    nDetalles.Add(new DetalleOrdenCompra
+                if ((artDto.cantidad + stock.stockActual) > articulo.stockMax) 
+                { 
+                    throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} "); 
+                }
+
+                nDetalles.Add(new DetalleOrdenCompra
                     {
                         articulo = articulo,
                         cantidadArticulos = artDto.cantidad,

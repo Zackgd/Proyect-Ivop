@@ -93,6 +93,7 @@ namespace Proyect_InvOperativa.Services
                 categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt,
                 modeloInv = (ModeloInv)ArticuloDto.modeloInv,
                 fechaRevisionP = DateTime.Now,
+                stockMax = ArticuloDto.stockMax,
                 masterArticulo = maestro
             };
 
@@ -128,6 +129,7 @@ namespace Proyect_InvOperativa.Services
             articuloModificado.demandaDiaria = ArticuloDto.demandaDiaria;
             articuloModificado.costoAlmacen = ArticuloDto.costoAlmacen;
             articuloModificado.tiempoRevision = ArticuloDto.tiempoRevision;
+            articuloModificado.stockMax = ArticuloDto.stockMax;
             articuloModificado.modeloInv = (ModeloInv)ArticuloDto.modeloInv;
             articuloModificado.categoriaArt = (CategoriaArt)ArticuloDto.categoriaArt;
             // MODIFICAR LOS DATOS PROPIOS DE STOCK ASOCIADO A ARTICULO, si es que se pueden 
@@ -247,6 +249,7 @@ namespace Proyect_InvOperativa.Services
                         proveedor = proveedorPred,
                         stockActual = stock.stockActual,
                         stockSeguridad = stock.stockSeguridad,
+                        stockMax = articulo.stockMax,
                         puntoPedido = stock.puntoPedido,
                         cgi = Math.Round(articulo.cgi,4)
                     });
@@ -285,6 +288,7 @@ namespace Proyect_InvOperativa.Services
                     proveedor = proveedorPred,
                     stockActual = stock.stockActual,
                     stockSeguridad = stock.stockSeguridad,
+                    stockMax = articulo.stockMax,
                     puntoPedido = stock.puntoPedido,
                     cgi = Math.Round(articulo.cgi, 4),
                     qOptimo = articulo.qOptimo
@@ -295,71 +299,71 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region Calculo LoteFijo_Q
-            public async Task CalculoLoteFijoQ(Articulo articulo, StockArticulos stock)
-            {
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                if (!proveedoresArticulo.Any()) return;
+        public async Task CalculoLoteFijoQ(Articulo articulo, StockArticulos stock)
+        {
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+            if (!proveedoresArticulo.Any()) return;
 
-                var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
-                if (proveedorArt == null) return;
+            var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
+            if (proveedorArt == null) return;
 
-                // parametros de calculo
-                double dProm = articulo.demandaDiaria;
-                double demandaAnual = dProm * 365;
-                double tiempoEntrega = proveedorArt.tiempoEntregaDias;
-                double costoPedido = proveedorArt.costoPedido;
-                double costoAlmacen = articulo.costoAlmacen;
+            // parametros de calculo
+            double dProm = articulo.demandaDiaria;
+            double demandaAnual = dProm * 365;
+            double tiempoEntrega = proveedorArt.tiempoEntregaDias;
+            double costoPedido = proveedorArt.costoPedido;
+            double costoAlmacen = articulo.costoAlmacen;
 
-                // obtener Z y sigma segun categoria y tiempo
-                var (Z, valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
+            // obtener Z y sigma segun categoria y tiempo
+            var (Z, valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
 
-                // calculo EOQ
-                double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
-                long qOptEnt = (long)Math.Ceiling(qOpt);
+            // calculo EOQ
+            double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
+            long qOptEnt = (long)Math.Ceiling(qOpt);
 
-                // stock de seguridad
-                double stockSeguridad = Z * valSigma;
-                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+            // stock de seguridad
+            double stockSeguridad = Z * valSigma;
+            long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
 
-                // punto de pedido
-                double puntoPedido = stockSeguridad + (dProm * tiempoEntrega);
-                long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
+            // punto de pedido
+            double puntoPedido = stockSeguridad + (dProm * tiempoEntrega);
+            long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
 
-                stock.stockSeguridad = stockSeguridadEnt;
-                stock.puntoPedido = puntoPedidoEnt;
-                articulo.qOptimo = qOptEnt;
-                double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
-                articulo.cgi = cgi;
+            stock.stockSeguridad = stockSeguridadEnt;
+            stock.puntoPedido = puntoPedidoEnt;
+            articulo.qOptimo = qOptEnt;
+            double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
+            articulo.cgi = cgi;
 
-                await _stockArticuloRepository.UpdateAsync(stock);
-                await _articuloRepository.UpdateAsync(articulo);
-            }
+            await _stockArticuloRepository.UpdateAsync(stock);
+            await _articuloRepository.UpdateAsync(articulo);
+        }
         #endregion
 
         #region Calculo PeriodoFijo_P
-            public async Task CalculoPeriodoFijoP(Articulo articulo, StockArticulos stock)
-            {
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                if (!proveedoresArticulo.Any()) return;
+        public async Task CalculoPeriodoFijoP(Articulo articulo, StockArticulos stock)
+        {
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+            if (!proveedoresArticulo.Any()) return;
 
-                // proveedor predeterminado 
-                var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
-                if (proveedorArt == null) return;
+            // proveedor predeterminado 
+            var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
+            if (proveedorArt == null) return;
 
-                // calcular la cantidad a pedir
-                long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
-                if (cantidadAPedir == 0) return;
+            // calcular la cantidad a pedir
+            long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+            if (cantidadAPedir == 0) return;
 
-                // parametros de calculo del CGI
-                double demandaAnual = articulo.demandaDiaria * 365;
-                double costoUnidad = proveedorArt.precioUnitario;
-                double costoPedido = proveedorArt.costoPedido;
-                double costoAlmacen = articulo.costoAlmacen;
+            // parametros de calculo del CGI
+            double demandaAnual = articulo.demandaDiaria * 365;
+            double costoUnidad = proveedorArt.precioUnitario;
+            double costoPedido = proveedorArt.costoPedido;
+            double costoAlmacen = articulo.costoAlmacen;
 
-                double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
-                articulo.cgi = cgi;
-                await _articuloRepository.UpdateAsync(articulo);
-            }
+            double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
+            articulo.cgi = cgi;
+            await _articuloRepository.UpdateAsync(articulo);
+        }
 
         public async Task ControlStockPeriodico(CancellationToken cancellationToken)
         {
