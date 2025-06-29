@@ -378,8 +378,10 @@ namespace Proyect_InvOperativa.Services
                         idArticulo = det_OC.articulo.idArticulo,
                         nombreArticulo = det_OC.articulo.nombreArticulo,
                         cantidad = det_OC.cantidadArticulos,
-                         precioUnitario = det_OC.precioSubTotal / det_OC.cantidadArticulos,
-                         subTotal = det_OC.precioSubTotal
+                         precioUnitario = det_OC.cantidadArticulos > 0 
+            ? det_OC.precioSubTotal / det_OC.cantidadArticulos 
+            : 0,
+                         subTotal = det_OC.precioSubTotal,
                         }).ToList();
 }
 
@@ -395,7 +397,9 @@ namespace Proyect_InvOperativa.Services
             {
                 nDetalleOrdenCompra = detalle.nDetalleOrdenCompra,
                 cantidadArticulos = detalle.cantidadArticulos,
-                precioSubTotal = detalle.precioSubTotal,
+               precioSubTotal = (decimal)(double.IsInfinity(detalle.precioSubTotal) || double.IsNaN(detalle.precioSubTotal)
+    ? 0.0
+    : detalle.precioSubTotal),
                 idArticulo = detalle.articulo?.idArticulo,
                 nombreArticulo = detalle.articulo?.nombreArticulo,
             });

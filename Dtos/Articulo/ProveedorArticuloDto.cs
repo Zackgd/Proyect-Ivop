@@ -10,5 +10,6 @@
         public Boolean predeterminado { get; set; } = false;
         public DateTime? fechaFinProveedorArticulo { get; set; }
         public double costoPedido { get; set; }
+        public long qOptimo { get; set; }
     }
 }

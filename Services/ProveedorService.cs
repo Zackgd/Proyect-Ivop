@@ -287,7 +287,8 @@ namespace Proyect_InvOperativa.Services
                         tiempoEntregaDias = provArt.tiempoEntregaDias,
                         predeterminado = provArt.predeterminado,
                         fechaFinProveedorArticulo = provArt.fechaFinProveedorArticulo,
-                        costoPedido = provArt.costoPedido
+                        costoPedido = provArt.costoPedido,
+                        qOptimo = articulo.qOptimo
                     });
                 }
                 return listaProvArt;

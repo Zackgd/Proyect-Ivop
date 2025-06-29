@@ -9,5 +9,6 @@ namespace Proyect_InvOperativa.Dtos.OrdenCompra
         public long cantidad { get; set; }
         public double precioUnitario { get; set; }
         public double subTotal { get; set; }
+        
     }
 }
