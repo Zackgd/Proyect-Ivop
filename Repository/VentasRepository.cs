@@ -11,11 +11,11 @@ namespace Proyect_InvOperativa.Repository
 
         }
 
-        public async Task<List<VentaDetalle>> GetVentasDetallePorArticulo(long idArticulo)
+        public async Task<List<DetalleVentas>> GetVentasDetallePorArticulo(long idArticulo)
         {
            using var session = _sessionFactory.OpenSession();
 
-           return await session.Query<VentaDetalle>()
+           return await session.Query<DetalleVentas>()
             .Where(vdet => vdet.articulo.idArticulo == idArticulo)
             .Fetch(vdet => vdet.venta)
             .ToListAsync();

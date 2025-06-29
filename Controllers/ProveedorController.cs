@@ -34,9 +34,13 @@ namespace Proyect_InvOperativa.Controllers
         [HttpPut("suspender/{idProveedor}")]
         public async Task<IActionResult> SuspenderProveedor(long idProveedor)
         {
-            await _proveedorService.SuspenderProveedor(idProveedor);
-            return NoContent();
-        }
+            try
+            {
+                await _proveedorService.SuspenderProveedor(idProveedor);
+                return NoContent();
+            }
+            catch (Exception ex){return BadRequest(new { error = ex.Message }); }
+}
 
         [HttpPut("restaurar/{idProveedor}")]
         public async Task<IActionResult> RestaurarProveedor(long idProveedor)
@@ -48,8 +52,11 @@ namespace Proyect_InvOperativa.Controllers
         [HttpDelete("eliminar/{idProveedor}")]
         public async Task<IActionResult> DeleteProveedor(long idProveedor)
         {
+            try {
             await _proveedorService.DeleteProveedor(idProveedor);
-            return NoContent();
+            return NoContent(); 
+            }
+            catch (Exception ex){return BadRequest(new { error = ex.Message }); }
         }
 
         [HttpGet("{idProveedor}")]
@@ -64,6 +71,13 @@ namespace Proyect_InvOperativa.Controllers
         {
             var result = await _proveedorService.GetAllProveedores();
             return Ok(result);
+        }
+
+        [HttpGet("proveedores-sist")]
+        public async Task<ActionResult<List<ProveedorDto>>> GetProveedoresConDto()
+        {
+            var listaProvSist = await _proveedorService.GetProveedoresConDto();
+            return Ok(listaProvSist);
         }
 
         [HttpGet("activos")]
@@ -105,5 +119,15 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(estadosP);
         }
 
+            [HttpGet("articulo/prov-pred/{idArticulo}")]
+            public async Task<IActionResult> GetProveedorPredeterminado(long idArticulo)
+            {
+            try {
+             var idProveedorP = await _proveedorService.GetProvPredeterminadoArt(idArticulo);
+             return Ok(idProveedorP);
+            } 
+            catch (Exception exc) {return BadRequest(new { error = exc.Message}); }
+
+            }
     }
 }

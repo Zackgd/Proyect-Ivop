@@ -4,6 +4,6 @@
     {
         public long cantidadArticulo { get; set; }
         public long idArticulo { get; set; }
-
+        public double? subtotalVenta { get; set; }
     }
 }

@@ -170,6 +170,13 @@ namespace Proyect_InvOperativa.Services
 
             stockAsociado.fechaStockFin = DateTime.UtcNow;
             await _stockArticuloRepository.UpdateAsync(stockAsociado);
+
+                var relacionesProvArt = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+                foreach (var relacionArtProv in relacionesProvArt)
+                {
+                    relacionArtProv.fechaFinProveedorArticulo = DateTime.UtcNow;
+                    await _proveedorArticuloRepository.UpdateAsync(relacionArtProv);
+                }
         }
 
         public async Task<IEnumerable<Articulo>> GetAllArticulos()

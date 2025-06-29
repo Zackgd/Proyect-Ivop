@@ -97,7 +97,6 @@ namespace Proyect_InvOperativa.Services
             // validar que no tenga ordenes de compra pendientes o en proceso
             var ordenesProveedor = await _ordenCompraRepository.GetAllByProveedorIdAsync(idProveedor);
             var estadosInvalidos = new[] { "Pendiente", "En proceso" };
-
             if (ordenesProveedor.Any(ordComp => ordComp.ordenEstado != null && estadosInvalidos.Contains(ordComp.ordenEstado.nombreEstadoOrden, StringComparer.OrdinalIgnoreCase))) throw new Exception("el proveedor tiene ordenes de compra pendientes o en proceso, no se puede dar de baja ");
 
             // obtener estado 'eliminado' 
@@ -141,6 +140,15 @@ namespace Proyect_InvOperativa.Services
 
             // verificar que no este previamente suspendido
             if (estadoActual.proveedorEstado?.idEstadoProveedor == 2) throw new Exception("el proveedor ya se encuentra suspendido ");
+
+            // validar que no sea proveedor predeterminado de ningun articulo
+            var aProvArt = await _proveedorArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
+            if (aProvArt.Any(pPred => pPred.predeterminado)) throw new Exception("no se puede suspender el proveedor porque es predeterminado de uno o más artículos ");
+
+            // validar que no tenga ordenes de compra pendientes o en proceso
+            var ordenesProveedor = await _ordenCompraRepository.GetAllByProveedorIdAsync(idProveedor);
+            var estadosInvalidos = new[] { "Pendiente", "En proceso" };
+            if (ordenesProveedor.Any(ordComp => ordComp.ordenEstado != null && estadosInvalidos.Contains(ordComp.ordenEstado.nombreEstadoOrden, StringComparer.OrdinalIgnoreCase))) throw new Exception("el proveedor tiene ordenes de compra pendientes o en proceso, no se puede ser suspendido ");
 
             // obtener estado 'Suspendido'
             var estadoSuspendido = await _proveedorEstadoRepository.GetByIdAsync(2);
@@ -301,7 +309,7 @@ namespace Proyect_InvOperativa.Services
                 {
                     var articulo = provArt.articulo;
                     if (articulo == null) continue;
-
+                    if (provArt.fechaFinProveedorArticulo != null) continue;
                     var stock = await _stockArtRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                     if (stock == null || stock.fechaStockFin != null) continue; 
 
@@ -398,6 +406,37 @@ namespace Proyect_InvOperativa.Services
             }
             #endregion
 
+        #region listar proveedores + dto
+            public async Task<List<ProveedorDto>> GetProveedoresConDto()
+            {
+                var proveedores = await _proveedoresRepository.GetAllProveedores();
+                var proveedoresEnSist = new List<ProveedorDto>();
+
+                foreach (var proveedor in proveedores)
+                {
+                        proveedoresEnSist.Add(new ProveedorDto
+                        {
+                            idProveedor = proveedor.idProveedor,
+                            nombreProveedor = proveedor.nombreProveedor ?? "",
+                            direccion = proveedor.direccion ?? "",
+                            mail = proveedor.mail ?? "",
+                            telefono = proveedor.telefono ?? "",
+                        });
+                }
+                return proveedoresEnSist;
+            }
+        #endregion
+
+        #region buscar proveedor predeterminado de articulo
+            public async Task<long> GetProvPredeterminadoArt(long idArticulo)
+            {
+                var proveedoresRelacionados = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+                var proveedorPredeterminado = proveedoresRelacionados.FirstOrDefault(pred => pred.predeterminado);
+    
+                if (proveedorPredeterminado == null) throw new Exception("Este artículo no posee proveedor predeterminado.");
+                return proveedorPredeterminado.proveedor!.idProveedor;
+            }
+        #endregion
     }
     #endregion
 }

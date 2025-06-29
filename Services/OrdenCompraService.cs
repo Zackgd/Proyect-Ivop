@@ -109,7 +109,7 @@ namespace Proyect_InvOperativa.Services
                     };
                     detallesOrden.Add(detalle);
                 }
-                if (!detallesOrden.Any()) throw new Exception($"no se pudo generar ningun detalle para la orden de compra ");;
+                if (!detallesOrden.Any()) throw new Exception($"no se pudo asociar ningun articulo a la orden de compra  ");;
 
                 // crear orden
                 var orden = new OrdenCompra
@@ -178,9 +178,12 @@ namespace Proyect_InvOperativa.Services
                     total += subTotal;
 
                     var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
-                    if (ordenesVigentesArt.Any())
+                    var ordenesRelacionadasExceptoActual = ordenesVigentesArt
+                    .Where(o => o.nOrdenCompra != ordCModDto.nOrdenCompra)
+                    .ToList();
+                    if (ordenesRelacionadasExceptoActual.Any())
                     {
-                        avisosOC.Add($" existe al menos una orden de compra Pendiente o Enviada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");
+                        avisosOC.Add($"existe al menos una orden de compra Pendiente o Enviada (distinta de la actual) para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo})");
                     }
 
                     if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
@@ -201,7 +204,7 @@ namespace Proyect_InvOperativa.Services
                         ordenCompra = orden
                     });
                 }
-                if (!nDetalles.Any()) throw new Exception("no se pudo asociar ningun articulo a la orden ");
+                if (!nDetalles.Any()) throw new Exception("no se pudo asociar ningun articulo a la orden de compra");
 
                 // actualiza proveedor y precio total
                 orden.proveedor = proveedor;
@@ -339,33 +342,183 @@ namespace Proyect_InvOperativa.Services
             public async Task<List<OrdenCompraMostrarDto>> GetOrdenesCompraLista()
             {
                 var ordenes = await _ordenCompraRepository.GetOrdenesConEstadoYProveedor();
-                return ordenes.Select(oCompra => new OrdenCompraMostrarDto
+                var listaDto = new List<OrdenCompraMostrarDto>();
+
+                foreach (var oCompra in ordenes)
                 {
-                 nOrdenCompra = oCompra.nOrdenCompra,
-                    proveedor = oCompra.proveedor?.nombreProveedor ?? "Desconocido",
-                    estado = oCompra.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
-                    fechaOrden = oCompra.fechaOrden,
-                    totalPagar = oCompra.totalPagar
-                    }).ToList();
+                    bool ppAdvertencia = false;
+                    var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(oCompra.nOrdenCompra);
+
+                    foreach (var detalle in detalles)
+                    {
+                        var advertencia = await VerificarDetalleOrdenCompraAsync(detalle);
+                        if (!string.IsNullOrEmpty(advertencia))
+                        {
+                            ppAdvertencia = true;
+                            break; 
+                        }
+                    }
+
+                    var dto = new OrdenCompraMostrarDto
+                    {
+                        nOrdenCompra = oCompra.nOrdenCompra,
+                        idProveedor = oCompra.proveedor?.idProveedor,
+                        proveedor = oCompra.proveedor?.nombreProveedor ?? "Desconocido",
+                        estado = oCompra.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
+                        fechaOrden = oCompra.fechaOrden,
+                        totalPagar = oCompra.totalPagar,
+                        advertencia = ppAdvertencia 
+                    };
+                    listaDto.Add(dto);
+                }
+                return listaDto;
             }
              #endregion
 
             #region listar detalles OrdenCompra
-                public async Task<List<OrdenCompraDetalleDto>> GetDetallesByOrdenId(long nOrdenCompra)
-                {
-                    var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+            public async Task<List<OrdenCompraDetalleDto>> GetDetallesByOrdenId(long nOrdenCompra)
+            {
+                var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+                var listaDto = new List<OrdenCompraDetalleDto>();
 
-                    return detalles.Select(det_OC => new OrdenCompraDetalleDto
+                foreach (var det_OC in detalles)
+                {
+                    var ppAdvertencia = await VerificarDetalleOrdenCompraAsync(det_OC);
+                    var dto = new OrdenCompraDetalleDto
                     {
                         idArticulo = det_OC.articulo.idArticulo,
                         nombreArticulo = det_OC.articulo.nombreArticulo,
                         cantidad = det_OC.cantidadArticulos,
-                         precioUnitario = det_OC.precioSubTotal / det_OC.cantidadArticulos,
-                         subTotal = det_OC.precioSubTotal
-                        }).ToList();
-}
-
+                        precioUnitario = det_OC.precioSubTotal / det_OC.cantidadArticulos,
+                        subTotal = det_OC.precioSubTotal,
+                        advertencia = ppAdvertencia 
+                    };
+                    listaDto.Add(dto);
+                }
+                return listaDto;
+            }   
             #endregion
 
+            #region revisar orden compra
+                private async Task<string?> VerificarDetalleOrdenCompraAsync(DetalleOrdenCompra detalle)
+                {
+                    var articulo = detalle.articulo;
+                    if (articulo.modeloInv != ModeloInv.LoteFijo_Q) return null;
+                    var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stock == null) return $"no se encuentra stock para el articulo '{articulo.nombreArticulo}'";
+                    var cantidadEsperada = stock.stockActual + detalle.cantidadArticulos;
+                    if (cantidadEsperada < stock.puntoPedido){return $"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente";}
+
+                    return null;
+                }
+            #endregion
+
+                #region  lista de articulos de Proveedor no incluidos en una ordenCompra
+                public async Task<List<ArticuloDto>> GetArticulosFaltantesEnOrden(long nOrdenCompra, long idProveedor)
+                {
+                    var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+                    var idsArticulosEnOrden = detalles.Select(d => d.articulo.idArticulo).ToHashSet();
+
+                    var articulosProveedor = await _proveedorArtRepository.GetAllByProveedorIdAsync(idProveedor);
+                    if (!articulosProveedor.Any()) return new List<ArticuloDto>();
+
+                var articulosFaltantes = articulosProveedor
+                .Where(pArt => !idsArticulosEnOrden.Contains(pArt.articulo.idArticulo))
+                .Select(pArt => new ArticuloDto
+                {
+                    idArticulo = pArt.articulo.idArticulo,
+                    nombreArticulo = pArt.articulo.nombreArticulo
+                    })
+                    .ToList();
+                    return articulosFaltantes;
+                }
+            #endregion
+
+            #region listar ordenes por articulo
+            public async Task<List<OrdenCompraDto>> GetOrdenesPorArticulo(long idArticulo)
+            {
+                var detalles = await _detalleOrdenCompraRepository.GetDetallesByArticuloId(idArticulo);
+                if (!detalles.Any()) return new List<OrdenCompraDto>();
+
+                var ordenes = detalles
+                .Where(d => d.ordenCompra != null)
+                .Select(d => d.ordenCompra!)
+                .Distinct()
+                .ToList();
+
+            return ordenes.Select(oc => new OrdenCompraDto
+            {
+                nOrdenCompra = oc.nOrdenCompra,
+                fechaOrden = oc.fechaOrden,
+                proveedor = oc.proveedor?.nombreProveedor ?? "Desconocido",
+                ordenEstado = oc.ordenEstado?.nombreEstadoOrden ?? "Sin estado",
+                totalPagar = oc.totalPagar
+                }).ToList();
+            }
+            #endregion
+
+            #region obtener detalleOrdenCompra por idArticulo y nOrdenCompra
+            public async Task<OrdenCompraDetalleDto> GetDetalleByOrdenYArticulo(long nOrdenCompra, long idArticulo)
+            {
+            var detalle = await _detalleOrdenCompraRepository.GetDetalleByOrdenYArticulo(nOrdenCompra, idArticulo);
+            if (detalle == null)throw new Exception($"No se encontró detalle para la orden {nOrdenCompra} y artículo {idArticulo}");
+                var advertencia = await VerificarDetalleOrdenCompraAsync(detalle);
+
+                return new OrdenCompraDetalleDto
+                {
+                    idArticulo = detalle.articulo.idArticulo,
+                    nombreArticulo = detalle.articulo.nombreArticulo,
+                    cantidad = detalle.cantidadArticulos,
+                    precioUnitario = detalle.precioSubTotal / detalle.cantidadArticulos,
+                    subTotal = detalle.precioSubTotal,
+                    advertencia = advertencia
+                };
+            }
+            #endregion
+
+            #region cambiar proveedor de ordenCompra
+            public async Task CambiarProveedor(long nOrdenCompra, long idProveedor)
+            {
+                var orden = await _ordenCompraRepository.GetOrdenCompraConEstado(nOrdenCompra);
+                if (orden == null) throw new Exception($"orden de compra con numero {nOrdenCompra} no encontrada ");
+
+                var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+                var articulosNoAsociados = new List<long>();
+                if (detalles.Any()) {
+                    foreach (var detalle in detalles)
+                    {
+                        var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(detalle.articulo.idArticulo, idProveedor);
+                        if (proveedorArt == null)
+                        {
+                            articulosNoAsociados.Add(detalle.articulo.idArticulo);
+                        }
+                    }
+                }
+
+                if (articulosNoAsociados.Any())
+                {
+                    var articulosTexto = string.Join(", ", articulosNoAsociados);
+                    throw new Exception($"el proveedor seleccionado no esta asociado a los articulos con Id: {articulosTexto} ");
+                }
+                var proveedor = await _proveedorRepository.GetByIdAsync(idProveedor);
+                if (proveedor == null) throw new Exception($"proveedor con Id {idProveedor} no encontrado ");
+                orden.proveedor = proveedor;
+                await _ordenCompraRepository.UpdateAsync(orden);
+
+                double nuevoTotal = 0;
+                foreach (var detalle in detalles)
+                {
+                    var proveedorArt = await _proveedorArtRepository.GetProvArtByIdsAsync(detalle.articulo.idArticulo, idProveedor);
+                    double nuevoPrecioUnitario = proveedorArt.precioUnitario;
+                    double nuevoSubtotal = nuevoPrecioUnitario * detalle.cantidadArticulos;
+                    detalle.precioSubTotal = nuevoSubtotal;
+                    nuevoTotal += nuevoSubtotal;
+
+                    await _detalleOrdenCompraRepository.UpdateAsync(detalle);
+               }
+                orden.totalPagar = nuevoTotal;
+                await _ordenCompraRepository.UpdateAsync(orden);
+            }
+            #endregion
     }
 }

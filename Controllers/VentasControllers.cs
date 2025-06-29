@@ -40,5 +40,15 @@ namespace Proyect_InvOperativa.Controllers
              var listaArtVentas = await _ventasService.GetVentasPorArticulo(idArticulo);
              return Ok(listaArtVentas);
         }
+
+            [HttpPost("visualizar-venta")]
+            public async Task<ActionResult<VentasDto>> MostrarDetallesDeVentaARegistrar([FromBody] VentasDto ventaDto)
+            {
+                try
+                {
+                    var resultado = await _ventasService.MostrarDetallesDeVentaARegistrar(ventaDto);
+                    return Ok(resultado);
+                }catch (Exception ex){return BadRequest(new { mensaje = ex.Message }); }
+           }
     }
 }

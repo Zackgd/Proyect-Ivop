@@ -17,6 +17,28 @@ namespace Proyect_InvOperativa.Repository
             .Fetch(detOC => detOC.articulo) 
             .ToListAsync();
     }
+
+            public async Task<List<DetalleOrdenCompra>> GetDetallesByArticuloId(long idArticulo)
+            {
+                using var session = _sessionFactory.OpenSession();
+
+                return await session.Query<DetalleOrdenCompra>()
+                .Where(det => det.articulo.idArticulo == idArticulo)
+                .Fetch(det => det.ordenCompra)
+                .ThenFetch(oc => oc.proveedor)
+                .Fetch(det => det.ordenCompra)
+                .ThenFetch(oc => oc.ordenEstado)
+                .ToListAsync();
+            }
+
+            public async Task<DetalleOrdenCompra?> GetDetalleByOrdenYArticulo(long nOrdenCompra, long idArticulo)
+            {
+                using var session = _sessionFactory.OpenSession();
+                return await session.Query<DetalleOrdenCompra>()
+                .Where(d => d.ordenCompra.nOrdenCompra == nOrdenCompra && d.articulo.idArticulo == idArticulo)
+                .Fetch(d => d.articulo)
+                .SingleOrDefaultAsync();
+            }
     }
 
     

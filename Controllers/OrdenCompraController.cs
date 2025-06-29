@@ -87,5 +87,37 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(detallesDto);
             }catch (Exception ex){return BadRequest(new { error = ex.Message });}
             }
+
+            [HttpGet("proveedor/{nOrdenCompra}/articulos-no-inc/{idProveedor}")]
+            public async Task<IActionResult> GetArticulosFaltantesEnOrden(long nOrdenCompra, long idProveedor)
+            {
+                var articulos = await _ordenCompraService.GetArticulosFaltantesEnOrden(nOrdenCompra, idProveedor);
+                return Ok(articulos);
+            }
+
+            [HttpGet("articulo/ordenes/{idArticulo}")]
+            public async Task<IActionResult> GetOrdenesPorArticulo(long idArticulo)
+            {
+                var ordenes = await _ordenCompraService.GetOrdenesPorArticulo(idArticulo);
+                return Ok(ordenes);
+            }
+
+            [HttpGet("ordenCompra/{nOrdenCompra}/articulo/{idArticulo}")]
+            public async Task<IActionResult> GetDetalleOrdenArticulo(long nOrdenCompra, long idArticulo)
+            {   
+                    var detalleDto = await _ordenCompraService.GetDetalleByOrdenYArticulo(nOrdenCompra, idArticulo);
+                    return Ok(detalleDto);
+            }
+
+            [HttpPut("ordenCompra/{nOrdenCompra}/cambiar-proveedor/{idProveedor}")]
+            public async Task<IActionResult> CambiarProveedorOrdenCompra(long nOrdenCompra, long idProveedor)
+            {
+            
+            try {
+             await _ordenCompraService.CambiarProveedor(nOrdenCompra, idProveedor);
+             return Ok(new { mensaje = "proveedor actualizado correctamente para la orden de compra " });
+            } catch (Exception ex){return BadRequest(new { error = ex.Message });}
+            
+            }
     }
 }

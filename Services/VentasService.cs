@@ -105,39 +105,40 @@ namespace Proyect_InvOperativa.Services
                         var venta = new Ventas
                         {
                             descripcionVenta = ventasDto.descripcionVenta,
-                            totalVenta = 0
+                            //totalVenta = 0
+                            totalVenta = ventasDto.totalVenta ?? 0 
                         };
 
-                        await _ventasRepository.AddAsync(venta); // o usar _session.SaveAsync(venta);
-                        double total = 0;
+                        await _ventasRepository.AddAsync(venta); 
+                        //double total = 0;
 
                         foreach (var detalle in ventasDto.detalles)
                         {
                             var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
                             if (articulo is null) throw new Exception($"no se encuentra el articulo con Id: {detalle.idArticulo} ");
 
-                            var proveedoresRelacionados = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                            var proveedorPredeterminado = proveedoresRelacionados.FirstOrDefault(pArt => pArt.predeterminado);
-                            if (proveedorPredeterminado == null) throw new Exception($"no hay proveedor predeterminado para el articulo {articulo.nombreArticulo}");
+                            //var proveedoresRelacionados = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                            //var proveedorPredeterminado = proveedoresRelacionados.FirstOrDefault(pArt => pArt.predeterminado);
+                            //if (proveedorPredeterminado == null) throw new Exception($"no hay proveedor predeterminado para el articulo {articulo.nombreArticulo}");
 
-                           var precioCompra = proveedorPredeterminado.precioUnitario;
-                            var subtotal = detalle.cantidadArticulo * precioCompra*1.15;;
+                           //var precioCompra = proveedorPredeterminado.precioUnitario;
+                            //var subtotal = detalle.cantidadArticulo * precioCompra*1.15;
 
                             var newDetalle = new DetalleVentas
                             {
                                 cantidad = detalle.cantidadArticulo,
-                                subTotalVenta = subtotal, 
+                                subTotalVenta = detalle.subtotalVenta ?? 0, 
                                 articulo = articulo,
                                 venta = venta
                             };
-                            total += subtotal;
+                            //total += subtotal;
 
                             var aviso_stock = await ActualizarStockVenta(articulo, newDetalle);
                             if (!string.IsNullOrEmpty(aviso_stock)) advertencias_Stock.Add(aviso_stock);
                             await _detalleVentasRepository.AddAsync(newDetalle); 
                         }
 
-                        venta.totalVenta = total;
+                        //venta.totalVenta = total;
                         await _ventasRepository.UpdateAsync(venta);
                         await tx.CommitAsync();
                         resultadoVenta.venta = venta;
@@ -171,6 +172,43 @@ namespace Proyect_InvOperativa.Services
                     cantidadVendida = vdet.cantidad,
                     subtotal = vdet.subTotalVenta
                 }).ToList();
+            }
+        #endregion
+        
+        #region mostrar detalles de venta a registrar
+            public async Task<VentasDto> MostrarDetallesDeVentaARegistrar(VentasDto ventaDto)
+            {
+                double totalVenta = 0;
+                var articulosSinStock = new List<long>();
+
+                foreach (var detalle in ventaDto.detalles)
+                {
+                    var articulo = await _articuloRepository.GetByIdAsync(detalle.idArticulo);
+                    if (articulo == null) throw new Exception($"articulo con Id {detalle.idArticulo} no encontrado.");
+
+                    var proveedoresRelacionados = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                    var proveedorPredeterminado = proveedoresRelacionados.FirstOrDefault(pArt => pArt.predeterminado);
+                    if (proveedorPredeterminado == null) throw new Exception($"no hay proveedor predeterminado para el articulo {articulo.nombreArticulo}");
+
+                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                    if (stock == null || detalle.cantidadArticulo > stock.stockActual)
+                    {
+                        articulosSinStock.Add(articulo.idArticulo);
+                        continue;
+                    }
+                    double precioCompra = proveedorPredeterminado.precioUnitario;
+                    double subtotal = detalle.cantidadArticulo * precioCompra * 1.15;
+                    detalle.subtotalVenta = Math.Round(subtotal, 3);
+                    totalVenta += subtotal;
+                }
+
+                if (articulosSinStock.Any())
+                {
+                    string ids = string.Join(", ", articulosSinStock);
+                    throw new Exception($"Las cantidades solicitadas para el/los artículo/s {ids} superan el stock actual.");
+                }
+                ventaDto.totalVenta = Math.Round(totalVenta, 3);
+                return ventaDto;
             }
         #endregion
     }
