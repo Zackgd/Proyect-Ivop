@@ -34,7 +34,7 @@ namespace Proyect_InvOperativa.Services
         private readonly ProveedorArticuloRepository _proveedorArticuloRepository;
         private readonly ProveedorArticuloService _proveedorArtService;
 
-        public MaestroArticulosService(ArticuloRepository articuloRepository,EstadoProveedoresRepository estProveedorRepository, ProveedoresRepository proveedorRepository, OrdenCompraRepository ordenCompraRepository, OrdenCompraService ordenCompraService, OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository, StockArticuloRepository stockRepo, ProveedorArticuloRepository PARepository, ProveedorArticuloService proveedorArticuloService)
+        public MaestroArticulosService(ArticuloRepository articuloRepository, EstadoProveedoresRepository estProveedorRepository, ProveedoresRepository proveedorRepository, OrdenCompraRepository ordenCompraRepository, OrdenCompraService ordenCompraService, OrdenCompraEstadoRepository ordenCompraEstadoRepository, MaestroArticulosRepository maestroArticulosRepository, StockArticuloRepository stockRepo, ProveedorArticuloRepository PARepository, ProveedorArticuloService proveedorArticuloService)
         {
             _articuloRepository = articuloRepository;
             _proveedorRepository = proveedorRepository;
@@ -111,8 +111,6 @@ namespace Proyect_InvOperativa.Services
 
             return newArticulo;
         }
-
-
         public async Task UpdateArticulo(ArticuloDto ArticuloDto)
         {
             var articuloModificado = await _articuloRepository.GetArticuloById(ArticuloDto.idArticulo);
@@ -136,7 +134,6 @@ namespace Proyect_InvOperativa.Services
             //await _stockArticuloRepository.UpdateAsync(stockAsociadoArticulo!);
 
         }
-
         public async Task DeleteArticulo(long idArticulo)
         {
 
@@ -160,7 +157,7 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception($"no se encuentra stock asociado al IdArticulo: {idArticulo} ");
             }
 
-            if (stockAsociado.stockActual>0)
+            if (stockAsociado.stockActual > 0)
             {
                 throw new Exception($"no se puede eliminar el articulo con Id: {idArticulo} porque aun tiene unidades en stock ");
 
@@ -202,163 +199,163 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region Calculo mod. de inventario
-            public async Task<List<ArticuloInvDto>> CalculoModInv()
+        public async Task<List<ArticuloInvDto>> CalculoModInv()
+        {
+            var articulos = await _articuloRepository.GetAllArticulos();
+            var listaArt = new List<ArticuloInvDto>();
+            foreach (var articulo in articulos)
             {
-                var articulos = await _articuloRepository.GetAllArticulos();
-                var listaArt = new List<ArticuloInvDto>();
-                foreach (var articulo in articulos)
+                // obtener stock asociado
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null || stock.fechaStockFin != null)
                 {
-                    // obtener stock asociado
-                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null || stock.fechaStockFin != null)
-                    {
-                        continue; // articulo dado de baja
-                    }
-
-                    // verificar modelo de inventario 
-                    switch (articulo.modeloInv)
-                    {
-                        case ModeloInv.LoteFijo_Q:
-                            await CalculoLoteFijoQ(articulo, stock);
-                            break;
-                        case ModeloInv.PeriodoFijo_P:
-                            await CalculoPeriodoFijoP(articulo, stock);
-                            break;
-                        default:
-                            // no hace nada si no hay modelo asociado
-                        continue;
-                    }
-                            // buscar proveedor predeterminado
-                        var proveedoresArt = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                        if (!proveedoresArt.Any()) continue;
-
-                        var proveedorPred = proveedoresArt.FirstOrDefault(pred => pred.predeterminado)?.proveedor?.nombreProveedor ?? "";
-
-                    listaArt.Add(new ArticuloInvDto
-                    {
-                        idArticulo = articulo.idArticulo,
-                        nombreArticulo = articulo.nombreArticulo,
-                        descripcion = articulo.descripcion,
-                        modeloInv = articulo.modeloInv.ToString(),
-                        categoriaArt = articulo.categoriaArt.ToString(),
-                        demandaDiaria = articulo.demandaDiaria,
-                        tiempoRevision = articulo.tiempoRevision,
-                        costoAlmacen = articulo.costoAlmacen,
-                        proveedor = proveedorPred,
-                        stockActual = stock.stockActual,
-                        stockSeguridad = stock.stockSeguridad,
-                        puntoPedido = stock.puntoPedido,
-                        cgi = Math.Round(articulo.cgi,4)
-                    });
+                    continue; // articulo dado de baja
                 }
-                return listaArt;
+
+                // verificar modelo de inventario 
+                switch (articulo.modeloInv)
+                {
+                    case ModeloInv.LoteFijo_Q:
+                        await CalculoLoteFijoQ(articulo, stock);
+                        break;
+                    case ModeloInv.PeriodoFijo_P:
+                        await CalculoPeriodoFijoP(articulo, stock);
+                        break;
+                    default:
+                        // no hace nada si no hay modelo asociado
+                        continue;
+                }
+                // buscar proveedor predeterminado
+                var proveedoresArt = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                if (!proveedoresArt.Any()) continue;
+
+                var proveedorPred = proveedoresArt.FirstOrDefault(pred => pred.predeterminado)?.proveedor?.nombreProveedor ?? "";
+
+                listaArt.Add(new ArticuloInvDto
+                {
+                    idArticulo = articulo.idArticulo,
+                    nombreArticulo = articulo.nombreArticulo,
+                    descripcion = articulo.descripcion,
+                    modeloInv = articulo.modeloInv.ToString(),
+                    categoriaArt = articulo.categoriaArt.ToString(),
+                    demandaDiaria = articulo.demandaDiaria,
+                    tiempoRevision = articulo.tiempoRevision,
+                    costoAlmacen = articulo.costoAlmacen,
+                    proveedor = proveedorPred,
+                    stockActual = stock.stockActual,
+                    stockSeguridad = stock.stockSeguridad,
+                    puntoPedido = stock.puntoPedido,
+                    cgi = Math.Round(articulo.cgi, 4)
+                });
             }
+            return listaArt;
+        }
         #endregion
 
         #region Lista Articulos y datos
-            public async Task<List<ArticuloInvDto>> ListarArticulosYDatos()
+        public async Task<List<ArticuloInvDto>> ListarArticulosYDatos()
+        {
+            var articulos = await _articuloRepository.GetAllArticulos();
+            var listaArtD = new List<ArticuloInvDto>();
+            foreach (var articulo in articulos)
             {
-                var articulos = await _articuloRepository.GetAllArticulos();
-                var listaArtD = new List<ArticuloInvDto>();
-                foreach (var articulo in articulos)
+                // obtener stock asociado
+                var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null || stock.fechaStockFin != null) { continue; }
+
+                // buscar proveedor predeterminado
+                var proveedoresArt = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+                // if (!proveedoresArt.Any()) continue;
+
+                var proveedorPred = proveedoresArt.FirstOrDefault(pred => pred.predeterminado)?.proveedor?.nombreProveedor ?? "";
+
+                listaArtD.Add(new ArticuloInvDto
                 {
-                    // obtener stock asociado
-                    var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null || stock.fechaStockFin != null) {continue; }
-
-                            // buscar proveedor predeterminado
-                        var proveedoresArt = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                        // if (!proveedoresArt.Any()) continue;
-
-                        var proveedorPred = proveedoresArt.FirstOrDefault(pred => pred.predeterminado)?.proveedor?.nombreProveedor ?? "";
-
-                    listaArtD.Add(new ArticuloInvDto
-                    {
-                        idArticulo = articulo.idArticulo,
-                        nombreArticulo = articulo.nombreArticulo,
-                        descripcion = articulo.descripcion,
-                        modeloInv = articulo.modeloInv.ToString(),
-                        categoriaArt = articulo.categoriaArt.ToString(),
-                        demandaDiaria = articulo.demandaDiaria,
-                        costoAlmacen = articulo.costoAlmacen,
-                        tiempoRevision = articulo.tiempoRevision,
-                        proveedor = proveedorPred,
-                        stockActual = stock.stockActual,
-                        stockSeguridad = stock.stockSeguridad,
-                        puntoPedido = stock.puntoPedido,
-                        cgi = Math.Round(articulo.cgi,4)
-                    });
-                }
-                return listaArtD;
+                    idArticulo = articulo.idArticulo,
+                    nombreArticulo = articulo.nombreArticulo,
+                    descripcion = articulo.descripcion,
+                    modeloInv = articulo.modeloInv.ToString(),
+                    categoriaArt = articulo.categoriaArt.ToString(),
+                    demandaDiaria = articulo.demandaDiaria,
+                    costoAlmacen = articulo.costoAlmacen,
+                    tiempoRevision = articulo.tiempoRevision,
+                    proveedor = proveedorPred,
+                    stockActual = stock.stockActual,
+                    stockSeguridad = stock.stockSeguridad,
+                    puntoPedido = stock.puntoPedido,
+                    cgi = Math.Round(articulo.cgi, 4)
+                });
             }
+            return listaArtD;
+        }
         #endregion
 
         #region Calculo LoteFijo_Q
-            public async Task CalculoLoteFijoQ(Articulo articulo, StockArticulos stock)
-            {
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                if (!proveedoresArticulo.Any()) return;
+        public async Task CalculoLoteFijoQ(Articulo articulo, StockArticulos stock)
+        {
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+            if (!proveedoresArticulo.Any()) return;
 
-                var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
-                if (proveedorArt == null) return;
+            var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
+            if (proveedorArt == null) return;
 
-                // parametros de calculo
-                double dProm = articulo.demandaDiaria;
-                double demandaAnual = dProm * 365;
-                double tiempoEntrega = proveedorArt.tiempoEntregaDias;
-                double costoPedido = proveedorArt.costoPedido;
-                double costoAlmacen = articulo.costoAlmacen;
+            // parametros de calculo
+            double dProm = articulo.demandaDiaria;
+            double demandaAnual = dProm * 365;
+            double tiempoEntrega = proveedorArt.tiempoEntregaDias;
+            double costoPedido = proveedorArt.costoPedido;
+            double costoAlmacen = articulo.costoAlmacen;
 
-                // obtener Z y sigma segun categoria y tiempo
-                var (Z, valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
+            // obtener Z y sigma segun categoria y tiempo
+            var (Z, valSigma) = ModInventarioUtils.ObtenerZySigma(articulo.categoriaArt, tiempoEntrega);
 
-                // calculo EOQ
-                double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
-                long qOptEnt = (long)Math.Ceiling(qOpt);
+            // calculo EOQ
+            double qOpt = Math.Sqrt((2 * demandaAnual * costoPedido) / costoAlmacen);
+            long qOptEnt = (long)Math.Ceiling(qOpt);
 
-                // stock de seguridad
-                double stockSeguridad = Z * valSigma;
-                long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
+            // stock de seguridad
+            double stockSeguridad = Z * valSigma;
+            long stockSeguridadEnt = (long)Math.Ceiling(stockSeguridad);
 
-                // punto de pedido
-                double puntoPedido = stockSeguridad + (dProm * tiempoEntrega);
-                long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
+            // punto de pedido
+            double puntoPedido = stockSeguridad + (dProm * tiempoEntrega);
+            long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
 
-                stock.stockSeguridad = stockSeguridadEnt;
-                stock.puntoPedido = puntoPedidoEnt;
-                articulo.qOptimo = qOptEnt;
-                double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
-                articulo.cgi = cgi;
+            stock.stockSeguridad = stockSeguridadEnt;
+            stock.puntoPedido = puntoPedidoEnt;
+            articulo.qOptimo = qOptEnt;
+            double cgi = CalcularCGI(demandaAnual, proveedorArt.precioUnitario, qOptEnt, costoPedido, costoAlmacen);
+            articulo.cgi = cgi;
 
-                await _stockArticuloRepository.UpdateAsync(stock);
-                await _articuloRepository.UpdateAsync(articulo);
-            }
+            await _stockArticuloRepository.UpdateAsync(stock);
+            await _articuloRepository.UpdateAsync(articulo);
+        }
         #endregion
 
         #region Calculo PeriodoFijo_P
-            public async Task CalculoPeriodoFijoP(Articulo articulo, StockArticulos stock)
-            {
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
-                if (!proveedoresArticulo.Any()) return;
+        public async Task CalculoPeriodoFijoP(Articulo articulo, StockArticulos stock)
+        {
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
+            if (!proveedoresArticulo.Any()) return;
 
-                // proveedor predeterminado 
-                var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
-                if (proveedorArt == null) return;
+            // proveedor predeterminado 
+            var proveedorArt = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado && pPred.fechaFinProveedorArticulo == null);
+            if (proveedorArt == null) return;
 
-                // calcular la cantidad a pedir
-                long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
-                if (cantidadAPedir == 0) return;
+            // calcular la cantidad a pedir
+            long cantidadAPedir = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorArt);
+            if (cantidadAPedir == 0) return;
 
-                // parametros de calculo del CGI
-                double demandaAnual = articulo.demandaDiaria * 365;
-                double costoUnidad = proveedorArt.precioUnitario;
-                double costoPedido = proveedorArt.costoPedido;
-                double costoAlmacen = articulo.costoAlmacen;
+            // parametros de calculo del CGI
+            double demandaAnual = articulo.demandaDiaria * 365;
+            double costoUnidad = proveedorArt.precioUnitario;
+            double costoPedido = proveedorArt.costoPedido;
+            double costoAlmacen = articulo.costoAlmacen;
 
-                double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
-                articulo.cgi = cgi;
-                await _articuloRepository.UpdateAsync(articulo);
-            }
+            double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
+            articulo.cgi = cgi;
+            await _articuloRepository.UpdateAsync(articulo);
+        }
 
         public async Task ControlStockPeriodico(CancellationToken cancellationToken)
         {
@@ -370,7 +367,7 @@ namespace Proyect_InvOperativa.Services
                 if (articulo.modeloInv != ModeloInv.PeriodoFijo_P) continue;
 
                 var stockArticulo = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                if (stockArticulo == null || stockArticulo.fechaStockFin != null) {continue; }
+                if (stockArticulo == null || stockArticulo.fechaStockFin != null) { continue; }
 
                 var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(articulo.idArticulo);
                 if (!proveedoresArticulo.Any()) continue;
@@ -387,10 +384,11 @@ namespace Proyect_InvOperativa.Services
                     DateTime proximaRevision = articulo.fechaRevisionP.Value.Add(tiempo);
                     if (DateTime.Now < proximaRevision) continue;
                 }
-                var articuloDto = new ArticuloDto {
+                var articuloDto = new ArticuloDto
+                {
                     idArticulo = articulo.idArticulo
-                    };
-                await _ordenCompraService.GenerarOrdenCompra(new List<ArticuloDto> {articuloDto}, idProv);
+                };
+                await _ordenCompraService.GenerarOrdenCompra(new List<ArticuloDto> { articuloDto }, idProv);
 
                 // actualizar fecha de revisión
                 articulo.fechaRevisionP = DateTime.Now;
@@ -413,42 +411,42 @@ namespace Proyect_InvOperativa.Services
 
         #region Proveedor Predeterminado
         public async Task<string> EstablecerProveedorPredeterminadoAsync(long idArticulo, long idProveedor)
+        {
+            // obtener proveedores del articulo
+            var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
+            if (proveedoresArticulo == null || !proveedoresArticulo.Any()) return $"el articulo con Id {idArticulo} no tiene proveedores asignados ";
+
+            var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct =>
+                pAct.proveedor != null &&
+                pAct.proveedor.idProveedor == idProveedor &&
+                pAct.fechaFinProveedorArticulo == null);
+
+            if (proveedorActual == null) return $"el proveedor con Id {idProveedor} no esta asociado actualmente al articulo con Id {idArticulo} ";
+
+            // cargar estados del proveedor
+            var estados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            var estadoActual = estados.FirstOrDefault(estP => estP.fechaFEstadoProveedor == null);
+
+            if (estadoActual == null || estadoActual.proveedorEstado == null || estadoActual.proveedorEstado.idEstadoProveedor != 1)
             {
-                // obtener proveedores del articulo
-                var proveedoresArticulo = await _proveedorArticuloRepository.GetAllArticuloProveedorByIdAsync(idArticulo);
-                if (proveedoresArticulo == null || !proveedoresArticulo.Any()) return $"el articulo con Id {idArticulo} no tiene proveedores asignados ";
-
-                var proveedorActual = proveedoresArticulo.FirstOrDefault(pAct =>
-                    pAct.proveedor != null &&
-                    pAct.proveedor.idProveedor == idProveedor &&
-                    pAct.fechaFinProveedorArticulo == null);
-
-                if (proveedorActual == null) return $"el proveedor con Id {idProveedor} no esta asociado actualmente al articulo con Id {idArticulo} ";
-
-                // cargar estados del proveedor
-                var estados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
-                var estadoActual = estados.FirstOrDefault(estP => estP.fechaFEstadoProveedor == null);
-
-                if (estadoActual == null || estadoActual.proveedorEstado == null || estadoActual.proveedorEstado.idEstadoProveedor != 1)
-                {
-                 return "el proveedor no se encuentra en estado 'Activo', no puede ser asignado como predeterminado ";
-                }
-
-                // salir si el proveedor ya es predeterminado
-                if (proveedorActual.predeterminado) return "este proveedor ya está definido como predeterminado para el articulo ";
-
-                // buscar el proveedor predeterminado actual
-                var provPredActual = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
-                if (provPredActual != null)
-                {
-                    provPredActual.predeterminado = false;
-                    await _proveedorArticuloRepository.UpdateAsync(provPredActual);
-                }
-                // establecer el nuevo proveedor predeterminado
-                proveedorActual.predeterminado = true;
-                await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
-                return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo}";
+                return "el proveedor no se encuentra en estado 'Activo', no puede ser asignado como predeterminado ";
             }
+
+            // salir si el proveedor ya es predeterminado
+            if (proveedorActual.predeterminado) return "este proveedor ya está definido como predeterminado para el articulo ";
+
+            // buscar el proveedor predeterminado actual
+            var provPredActual = proveedoresArticulo.FirstOrDefault(pPred => pPred.predeterminado);
+            if (provPredActual != null)
+            {
+                provPredActual.predeterminado = false;
+                await _proveedorArticuloRepository.UpdateAsync(provPredActual);
+            }
+            // establecer el nuevo proveedor predeterminado
+            proveedorActual.predeterminado = true;
+            await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
+            return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo}";
+        }
         #endregion
 
         #region Lista productos a reponer
@@ -463,7 +461,7 @@ namespace Proyect_InvOperativa.Services
                 if (articulo.modeloInv != ModeloInv.LoteFijo_Q) continue;
 
                 var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                if (stock == null || stock.fechaStockFin != null) {continue; }
+                if (stock == null || stock.fechaStockFin != null) { continue; }
 
                 // verifica si el stock actual está por debajo del punto de pedido
                 if (stock.stockActual > stock.puntoPedido) continue;
@@ -496,7 +494,7 @@ namespace Proyect_InvOperativa.Services
             foreach (var articulo in articulos)
             {
                 var stock = await _stockArticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                if (stock == null || stock.fechaStockFin != null) {continue; }
+                if (stock == null || stock.fechaStockFin != null) { continue; }
 
                 // verifica si el stock actual esta por debajo del stock de seguridad
                 if (stock.stockActual < stock.stockSeguridad)
@@ -522,7 +520,7 @@ namespace Proyect_InvOperativa.Services
 
             foreach (var proveedorArt in proveedoresArticulo)
             {
-                if (proveedorArt.fechaFinProveedorArticulo != null) continue; 
+                if (proveedorArt.fechaFinProveedorArticulo != null) continue;
                 var proveedor = proveedorArt.proveedor;
                 if (proveedor == null) continue;
 

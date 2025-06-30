@@ -19,7 +19,7 @@ builder.Services.AddSingleton<ISessionFactory>(provider =>
     Console.WriteLine("Conectando a bd");
     return Fluently.Configure()
         .Database(
-            
+
                 MySQLConfiguration.Standard
                 .ConnectionString(connectionString)
                 .Dialect<MySQL8Dialect>()
@@ -61,7 +61,7 @@ builder.Services.AddHostedService<ControlStockPeriodoFijoService>();
 
 var apiBaseRoute = builder.Configuration.GetValue<string>("ApiBaseRoute");
 
-builder.Services.AddControllers(); 
+builder.Services.AddControllers();
 
 // raro pero parece funcionar
 builder.Services.AddCors(options =>
@@ -69,40 +69,40 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins("http://localhost:3000", "http://192.168.40.51:3000")
                   .AllowAnyHeader()
-                  .AllowAnyMethod(); 
+                  .AllowAnyMethod();
         });
 });
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
-    {
+{
     try
-        {
+    {
         var session = scope.ServiceProvider.GetRequiredService<NHibernate.ISession>();
         var result = session.CreateSQLQuery("SELECT 1").UniqueResult();
         Console.WriteLine("✅ Conexión a MySQL exitosa");
-        }
+    }
     catch (Exception ex)
-        {   
+    {
         Console.WriteLine("❌ Error de conexión: " + ex.Message);
         Exception inner = ex.InnerException!;
         while (inner != null)
-            {
+        {
             Console.WriteLine("Inner Exception: " + inner.Message);
             inner = inner.InnerException!;
-            }
         }
     }
+}
 
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Error");
-            app.UseHsts();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 
-        }
+}
 
 app.UseCors("AllowFrontend");
 

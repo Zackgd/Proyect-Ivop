@@ -3,44 +3,47 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Proyect_InvOperativa.Repository;
-using Proyect_InvOperativa.Models;
+using Microsoft.Extensions.DependencyInjection; // importante
 
 namespace Proyect_InvOperativa.Services
 {
     public class ControlStockPeriodoFijoService : BackgroundService
     {
         private readonly ILogger<ControlStockPeriodoFijoService> _logger;
-        private readonly MaestroArticulosService _maestroArticuloService;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly TimeSpan _intervalo;
 
         public ControlStockPeriodoFijoService(
             ILogger<ControlStockPeriodoFijoService> logger,
-            MaestroArticulosService maestroArticuloService)
+            IServiceScopeFactory scopeFactory)
         {
             _logger = logger;
-            _maestroArticuloService = maestroArticuloService;
-            _intervalo = TimeSpan.FromMinutes(30); // cada 12 horas, se puede cambiar
+            _scopeFactory = scopeFactory;
+            _intervalo = TimeSpan.FromMinutes(30); // cambiá esto si querés
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("ControlStockPeriodoFijoService iniciado ");
+            _logger.LogInformation("ControlStockPeriodoFijoService iniciado");
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    await _maestroArticuloService.ControlStockPeriodico(stoppingToken);
+                    using var scope = _scopeFactory.CreateScope();
+                    var maestroArticuloService = scope.ServiceProvider.GetRequiredService<MaestroArticulosService>();
+
+                    await maestroArticuloService.ControlStockPeriodico(stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "error al ejecutar ControlStock periodico ");
+                    _logger.LogError(ex, "Error al ejecutar ControlStock periódicamente");
                 }
 
                 await Task.Delay(_intervalo, stoppingToken);
             }
-            _logger.LogInformation("controlStockPeriodoFijoService detenido ");
+
+            _logger.LogInformation("ControlStockPeriodoFijoService detenido");
         }
     }
 }

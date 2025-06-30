@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Proyect_InvOperativa.Dtos.OrdenCompra;
 using Proyect_InvOperativa.Services;
-using System;
 namespace Proyect_InvOperativa.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class OrdenCompraEstadoController: ControllerBase
+    public class OrdenCompraEstadoController : ControllerBase
     {
 
 
@@ -17,7 +15,7 @@ namespace Proyect_InvOperativa.Controllers
             _ordenCompraEstadoService = ordenCompraEstadoService;
         }
 
-        [HttpPost]
+        [HttpPost("create-Estado")]
         public async Task<IActionResult> CreateOrdenCompraEstados([FromBody] OrdenCompraEstadosDto ordenCompraEstadoDto)
         {
             var result = await _ordenCompraEstadoService.CreateOrdenCompraEstado(ordenCompraEstadoDto);
@@ -31,6 +29,7 @@ namespace Proyect_InvOperativa.Controllers
             return NoContent();
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetAllOrdenCompraEstado()
         {
@@ -38,5 +37,5 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(estados);
         }
 
-    } 
+    }
 }

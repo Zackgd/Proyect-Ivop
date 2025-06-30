@@ -1,4 +1,4 @@
-﻿﻿using Proyect_InvOperativa.Dtos.Articulo;
+﻿using Proyect_InvOperativa.Dtos.Articulo;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Models;
 using Proyect_InvOperativa.Repository;
@@ -16,7 +16,7 @@ namespace Proyect_InvOperativa.Services
         private readonly OrdenCompraRepository _ordenCompraRepository;
         private readonly ProveedorEstadoRepository _proveedorEstadoRepository;
 
-        public ProveedorService(ProveedorEstadoRepository proveedorEstadoRepository,StockArticuloRepository stockArticuloRepository, OrdenCompraRepository ordenCompraRepository, EstadoProveedoresRepository estProveedorRepository, ArticuloRepository articuloRepository, ProveedoresRepository proveedoresRepository, ProveedorArticuloRepository proveedorArticulo, MaestroArticulosRepository maestroArticulosRepository)
+        public ProveedorService(ProveedorEstadoRepository proveedorEstadoRepository, StockArticuloRepository stockArticuloRepository, OrdenCompraRepository ordenCompraRepository, EstadoProveedoresRepository estProveedorRepository, ArticuloRepository articuloRepository, ProveedoresRepository proveedoresRepository, ProveedorArticuloRepository proveedorArticulo, MaestroArticulosRepository maestroArticulosRepository)
         {
             _proveedorEstadoRepository = proveedorEstadoRepository;
             _articuloRepository = articuloRepository;
@@ -104,7 +104,7 @@ namespace Proyect_InvOperativa.Services
             var estadoEliminado = await _proveedorEstadoRepository.GetByIdAsync(3);
             if (estadoEliminado == null) throw new Exception("no se encontro el estado 'eliminado' ");
 
-           // cerrar estado actual
+            // cerrar estado actual
             estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
             await _estProveedorRepository.UpdateAsync(estadoActual);
 
@@ -193,7 +193,7 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception("no se encontro el estado 'Activo' ");
             }
 
-         // cerrar estado actual
+            // cerrar estado actual
             estadoActual.fechaFEstadoProveedor = DateTime.UtcNow;
             await _estProveedorRepository.UpdateAsync(estadoActual);
 
@@ -229,69 +229,69 @@ namespace Proyect_InvOperativa.Services
         #endregion
 
         #region listar proveedores activos
-            public async Task<List<ProveedorDto>> GetProveedoresActivos()
+        public async Task<List<ProveedorDto>> GetProveedoresActivos()
+        {
+            var proveedores = await _proveedoresRepository.GetAllProveedores();
+            var proveedoresActivos = new List<ProveedorDto>();
+
+            foreach (var proveedor in proveedores)
             {
-                var proveedores = await _proveedoresRepository.GetAllProveedores();
-                var proveedoresActivos = new List<ProveedorDto>();
+                var historicoEst = await _estProveedorRepository.GetHistorialByProveedorId(proveedor.idProveedor);
+                var estadoActual = historicoEst.FirstOrDefault(est => est.fechaFEstadoProveedor == null);
 
-                foreach (var proveedor in proveedores)
+                if (estadoActual != null && estadoActual.proveedorEstado?.idEstadoProveedor == 1)
                 {
-                    var historicoEst = await _estProveedorRepository.GetHistorialByProveedorId(proveedor.idProveedor);
-                    var estadoActual = historicoEst.FirstOrDefault(est => est.fechaFEstadoProveedor == null);
-
-                    if (estadoActual != null && estadoActual.proveedorEstado?.idEstadoProveedor == 1) 
+                    proveedoresActivos.Add(new ProveedorDto
                     {
-                        proveedoresActivos.Add(new ProveedorDto
-                        {
-                            idProveedor = proveedor.idProveedor,
-                            nombreProveedor = proveedor.nombreProveedor ?? "",
-                            direccion = proveedor.direccion ?? "",
-                            mail = proveedor.mail ?? "",
-                            telefono = proveedor.telefono ?? "",
-                        });
-                    }
+                        idProveedor = proveedor.idProveedor,
+                        nombreProveedor = proveedor.nombreProveedor ?? "",
+                        direccion = proveedor.direccion ?? "",
+                        mail = proveedor.mail ?? "",
+                        telefono = proveedor.telefono ?? "",
+                    });
                 }
-                return proveedoresActivos;
             }
+            return proveedoresActivos;
+        }
         #endregion
 
         #region lista articulos por Proveedor
-            public async Task<List<ProveedorArticuloDto>> GetArticulosPorProveedor(long idProveedor)
+        public async Task<List<ProveedorArticuloDto>> GetArticulosPorProveedor(long idProveedor)
+        {
+            var historial = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            var estadoActual = historial.FirstOrDefault(e => e.fechaFEstadoProveedor == null);
+
+            if (estadoActual == null || estadoActual.proveedorEstado?.idEstadoProveedor != 1)
             {
-                var historial = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
-                var estadoActual = historial.FirstOrDefault(e => e.fechaFEstadoProveedor == null);
-
-                if (estadoActual == null || estadoActual.proveedorEstado?.idEstadoProveedor != 1)
-                {
-                    return new List<ProveedorArticuloDto>(); 
-                }
-
-                // relaciones proveedor-articulo
-                var provArt_n = await _proveedorArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
-                var listaProvArt = new List<ProveedorArticuloDto>();
-
-                foreach (var provArt in provArt_n)
-                {
-                    var articulo = provArt.articulo;
-                    if (articulo == null) continue;
-
-                    var stock = await _stockArtRepository.getstockActualbyIdArticulo(articulo.idArticulo);
-                    if (stock == null || stock.fechaStockFin != null) continue; 
-
-                    listaProvArt.Add(new ProveedorArticuloDto
-                    {
-                        idProveedor = idProveedor,
-                        idArticulo = articulo.idArticulo,
-                        nombreArticulo = articulo.nombreArticulo,
-                        precioUnitario = provArt.precioUnitario,
-                        tiempoEntregaDias = provArt.tiempoEntregaDias,
-                        predeterminado = provArt.predeterminado,
-                        fechaFinProveedorArticulo = provArt.fechaFinProveedorArticulo,
-                        costoPedido = provArt.costoPedido
-                    });
-                }
-                return listaProvArt;
+                return new List<ProveedorArticuloDto>();
             }
+
+            // relaciones proveedor-articulo
+            var provArt_n = await _proveedorArticuloRepository.GetAllByProveedorIdAsync(idProveedor);
+            var listaProvArt = new List<ProveedorArticuloDto>();
+
+            foreach (var provArt in provArt_n)
+            {
+                var articulo = provArt.articulo;
+                if (articulo == null) continue;
+
+                var stock = await _stockArtRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                if (stock == null || stock.fechaStockFin != null) continue;
+
+                listaProvArt.Add(new ProveedorArticuloDto
+                {
+                    idProveedor = idProveedor,
+                    idArticulo = articulo.idArticulo,
+                    nombreArticulo = articulo.nombreArticulo,
+                    precioUnitario = provArt.precioUnitario,
+                    tiempoEntregaDias = provArt.tiempoEntregaDias,
+                    predeterminado = provArt.predeterminado,
+                    fechaFinProveedorArticulo = provArt.fechaFinProveedorArticulo,
+                    costoPedido = provArt.costoPedido
+                });
+            }
+            return listaProvArt;
+        }
         #endregion
 
         #region ALTA PROVEEDOR CON ARTICULOS
@@ -302,7 +302,7 @@ namespace Proyect_InvOperativa.Services
             // valida que no haya articulos duplicados
             var idDuplicado = ProvArtDto.articulos
             .GroupBy(art => art.idArticulo)
-            .Where(idDup => idDup.Count()>1)
+            .Where(idDup => idDup.Count() > 1)
             .Select(idDup => idDup.Key)
             .ToList();
 
@@ -312,7 +312,7 @@ namespace Proyect_InvOperativa.Services
                 throw new Exception($"articulos duplicados -> {idsArtDup}");
             }
 
-            var estadoAlta = await _proveedorEstadoRepository.GetByIdAsync(1); 
+            var estadoAlta = await _proveedorEstadoRepository.GetByIdAsync(1);
             var maestro = await _maestroArticuloRepository.GetByIdAsync(1);
             var nuevoProveedor = new Proveedor
             {
@@ -328,7 +328,7 @@ namespace Proyect_InvOperativa.Services
             foreach (var artDto in ProvArtDto.articulos)
             {
                 var articulo = await _articuloRepository.GetArticuloById(artDto.idArticulo);
-                if (articulo == null)  throw new Exception($"articulo con Id {artDto.idArticulo} no encontrado ");
+                if (articulo == null) throw new Exception($"articulo con Id {artDto.idArticulo} no encontrado ");
 
                 var proveedorArticulo = new ProveedorArticulo
                 {
@@ -340,36 +340,36 @@ namespace Proyect_InvOperativa.Services
                     fechaFinProveedorArticulo = artDto.fechaFinProveedorArticulo
                 };
 
-            await _proveedorArticuloRepository.AddAsync(proveedorArticulo);
+                await _proveedorArticuloRepository.AddAsync(proveedorArticulo);
             }
-                var estadoProv = new EstadoProveedores
+            var estadoProv = new EstadoProveedores
             {
                 proveedor = proveedorGuardado,
                 proveedorEstado = estadoAlta,
                 fechaIEstadoProveedor = DateTime.UtcNow
             };
-                await _estProveedorRepository.AddAsync(estadoProv);
-                return "proveedor guardado correctamente ";
+            await _estProveedorRepository.AddAsync(estadoProv);
+            return "proveedor guardado correctamente ";
         }
         #endregion
 
         #region Historial estados proveedor
-            public async Task<IEnumerable<ProveedorHistoricoEstadosDto>> GetHistoricoEstadosProveedor(long idProveedor)
+        public async Task<IEnumerable<ProveedorHistoricoEstadosDto>> GetHistoricoEstadosProveedor(long idProveedor)
+        {
+            var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
+            if (proveedor is null) throw new Exception($"proveedor con Id: {idProveedor} no encontrado.");
+
+            var historicoEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
+            if (!historicoEstados.Any()) throw new Exception($"el proveedor con Id: {idProveedor} no tiene historial de estados ");
+
+            return historicoEstados.Select(estP => new ProveedorHistoricoEstadosDto
             {
-                var proveedor = await _proveedoresRepository.GetProveedorById(idProveedor);
-                if (proveedor is null) throw new Exception($"proveedor con Id: {idProveedor} no encontrado.");
-
-                var historicoEstados = await _estProveedorRepository.GetHistorialByProveedorId(idProveedor);
-                if (!historicoEstados.Any()) throw new Exception($"el proveedor con Id: {idProveedor} no tiene historial de estados ");
-
-                return historicoEstados.Select(estP => new ProveedorHistoricoEstadosDto
-                {
-                nombreEstado = estP.proveedorEstado.nombreEstadoProveedor,
+                nombreEstado = estP.proveedorEstado!.nombreEstadoProveedor,
                 fechaIEstadoProveedor = estP.fechaIEstadoProveedor,
                 fechaFEstadoProveedor = estP.fechaFEstadoProveedor
-                }).ToList();
-            }
-            #endregion
+            }).ToList();
+        }
+        #endregion
 
     }
     #endregion

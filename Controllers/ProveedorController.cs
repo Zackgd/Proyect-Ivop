@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Proyect_InvOperativa.Dtos.Articulo;
 using Proyect_InvOperativa.Dtos.Proveedor;
 using Proyect_InvOperativa.Services;
@@ -59,7 +58,7 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(result);
         }
 
-        [HttpGet()]
+        [HttpGet("activo")]
         public async Task<IActionResult> GetAllProveedores()
         {
             var result = await _proveedorService.GetAllProveedores();
@@ -76,9 +75,9 @@ namespace Proyect_InvOperativa.Controllers
         [HttpGet("articulos-proveedor/{idProveedor}")]
         public async Task<ActionResult<List<ProveedorArticuloDto>>> ListarArticulosProveedor(long idProveedor)
         {
-                var articulosP = await _proveedorService.GetArticulosPorProveedor(idProveedor);
-                return Ok(articulosP);
-        }           
+            var articulosP = await _proveedorService.GetArticulosPorProveedor(idProveedor);
+            return Ok(articulosP);
+        }
 
         [HttpPost("crea-prov-art")]
         public async Task<IActionResult> AltaProveedorConArticulos([FromBody] ProvConArticulosDto ProvArtDto)
@@ -88,7 +87,7 @@ namespace Proyect_InvOperativa.Controllers
                 var result = await _proveedorService.AltaProveedorConArticulos(ProvArtDto);
                 return Ok(new { mensaje = result });
             }
-            catch (Exception exc) {return BadRequest(new { error = exc.Message}); }
+            catch (Exception exc) { return BadRequest(new { error = exc.Message }); }
         }
 
         [HttpGet("{idProveedor}/historial")]

@@ -24,24 +24,24 @@ namespace Proyect_InvOperativa.Controllers
 
         [HttpPatch("baja-prov-art")]
         public async Task<IActionResult> BajaProvArt([FromBody] ProveedorArticuloDto provArtDto)
+        {
+            try
             {
-                try
-               {
                 await _proveedorArticuloService.DeleteProveedorArticulo(provArtDto);
-                return NoContent(); 
-               }
-                catch (Exception ex){return BadRequest(new {error = ex.Message});}
+                return NoContent();
             }
+            catch (Exception ex) { return BadRequest(new { error = ex.Message }); }
+        }
 
-                [HttpPut("mod-prov-art")]
-                public async Task<IActionResult> UpdateProveedorArticulo([FromBody] ProveedorArticuloDto paDto)
-                {
-                    try
-                    {
-                        await _proveedorArticuloService.UpdateProveedorArticulo(paDto);
-                        return NoContent(); 
-                    }
-                    catch (Exception ex){return BadRequest(new {error = ex.Message});}
-                }
+        [HttpPut("mod-prov-art")]
+        public async Task<IActionResult> UpdateProveedorArticulo([FromBody] ProveedorArticuloDto paDto)
+        {
+            try
+            {
+                await _proveedorArticuloService.UpdateProveedorArticulo(paDto);
+                return NoContent();
+            }
+            catch (Exception ex) { return BadRequest(new { error = ex.Message }); }
+        }
     }
 }
