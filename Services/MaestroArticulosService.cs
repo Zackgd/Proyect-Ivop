@@ -110,8 +110,6 @@ namespace Proyect_InvOperativa.Services
 
             var newArticuloStock = await _stockArticuloRepository.AddAsync(articuloStock);
 
-            await CalculoModInv();
-
             return newArticulo;
         }
 
@@ -332,7 +330,7 @@ namespace Proyect_InvOperativa.Services
             long puntoPedidoEnt = (long)Math.Ceiling(puntoPedido);
 
             // stock máximo
-            var stockMax = articulo.qOptimo + stock.stockSeguridad;
+            var stockMax = qOptEnt + stockSeguridadEnt;
 
             articulo.stockMax = stockMax;
             stock.stockSeguridad = stockSeguridadEnt;
@@ -369,8 +367,8 @@ namespace Proyect_InvOperativa.Services
             double cgi = CalcularCGI(demandaAnual, costoUnidad, cantidadAPedir, costoPedido, costoAlmacen);
 
             // stock máximo
-            var stockMax = articulo.qOptimo + stock.stockSeguridad;
-            
+            var stockMax = (articulo.tiempoRevision + proveedorArt.tiempoEntregaDias) * articulo.demandaDiaria + stock.stockSeguridad;
+
             articulo.cgi = cgi;
             articulo.stockMax = stockMax;
             await _articuloRepository.UpdateAsync(articulo);
@@ -463,6 +461,9 @@ namespace Proyect_InvOperativa.Services
                 // establecer el nuevo proveedor predeterminado
                 proveedorActual.predeterminado = true;
                 await _proveedorArticuloRepository.UpdateAsync(proveedorActual);
+
+            await CalculoModInv();
+
                 return $"el proveedor con ID {idProveedor} fue establecido como predeterminado para el articulo con ID {idArticulo}";
             }
         #endregion
