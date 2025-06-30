@@ -555,5 +555,42 @@ namespace Proyect_InvOperativa.Services
         }
         #endregion
 
+            public async Task<ResultadoCantidadDto> CalcularCantidadYSubtotal(long idArticulo)
+            {
+                var articulo = await _articuloRepository.GetByIdAsync(idArticulo);
+                if (articulo == null) throw new Exception($"Artículo con ID {idArticulo} no encontrado.");
+
+                var proveedorPredeterminado = (await _proveedorArticuloRepository
+                .GetAllArticuloProveedorByIdAsync(idArticulo))
+                .FirstOrDefault(p => p.predeterminado);
+                if (proveedorPredeterminado == null) throw new Exception($"el articulo '{articulo.nombreArticulo}' no tiene proveedor predeterminado ");
+
+                double precioUnitario = proveedorPredeterminado.precioUnitario;
+                long cantidad = 0;
+                string? aviso = null;
+
+                if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                {
+                    cantidad = articulo.qOptimo;
+                }
+                else if (articulo.modeloInv == ModeloInv.PeriodoFijo_P)
+                {
+                    var cantidadCalculada = await _proveedorArtService.CalcCantidadAPedirP(articulo, proveedorPredeterminado);
+                    if (cantidadCalculada == 0)
+                    {
+                        aviso = $"el calculo automatico de cantidad a pedir para el articulo '{articulo.nombreArticulo}' (Id {articulo.idArticulo}) resulta en valores fuera de rango, debe ingresar la cantidad manualmente.";
+                        cantidad = 1;
+                    } else {cantidad = cantidadCalculada;}
+                } else { throw new Exception($"modelo de inventario no reconocido "); }
+
+                double subtotal = Math.Round(cantidad * precioUnitario, 2);
+                return new ResultadoCantidadDto
+                {
+                    cantidad = cantidad,
+                    subtotal = subtotal,
+                    aviso = aviso
+                };
+            }
+
     }
 }

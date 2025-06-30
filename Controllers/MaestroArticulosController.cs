@@ -155,6 +155,16 @@ namespace Proyect_InvOperativa.Controllers
                 return Ok(listaArtD ?? new List<ArticuloInvDto>());
             }
 
+                [HttpGet("calcular-cantidad-subtotal/{idArticulo}")]
+                public async Task<ActionResult<ResultadoCantidadDto>> CalcularCantidadYSubtotal(long idArticulo)
+                {
+                    try
+                    {
+                        var resultado = await _maestroArticulosService.CalcularCantidadYSubtotal(idArticulo);
+                        return Ok(resultado);
+                    } catch (Exception ex){return BadRequest(new { error = ex.Message }); }
+                }
+
         #endregion
 
 

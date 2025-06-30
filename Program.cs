@@ -55,6 +55,7 @@ builder.Services.AddScoped<OrdenCompraService>();
 builder.Services.AddScoped<VentasService>();
 builder.Services.AddScoped<ProveedorArticuloService>();
 builder.Services.AddScoped<OrdenCompraEstadoService>();
+builder.Services.AddScoped<DetalleOrdenCompraService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProveedorEstadoService>();
 builder.Services.AddHostedService<ControlStockPeriodoFijoService>();
@@ -69,7 +70,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:8008")
+            policy.WithOrigins("http://localhost:8003")
                   .AllowAnyHeader()
                   .AllowAnyMethod(); 
         });

@@ -109,6 +109,17 @@ namespace Proyect_InvOperativa.Controllers
                     return Ok(detalleDto);
             }
 
+            [HttpGet("validar-detalles/{nOrdenCompra}")]
+            public async Task<ActionResult<OrdenCompraAvisoDto>> ValidarDetallesOrdenCompra(long nOrdenCompra)
+            {
+                try
+                {
+                    var resultado = await _ordenCompraService.ValidarOrdenCompraExistente(nOrdenCompra);
+                    return Ok(resultado);
+                }catch (Exception ex){return BadRequest(new { error = ex.Message });}
+            }
+
+
             [HttpPut("ordenCompra/{nOrdenCompra}/cambiar-proveedor/{idProveedor}")]
             public async Task<IActionResult> CambiarProveedorOrdenCompra(long nOrdenCompra, long idProveedor)
             {

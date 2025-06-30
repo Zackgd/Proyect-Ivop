@@ -98,7 +98,7 @@ namespace Proyect_InvOperativa.Services
                         continue;
                     }
 
-                    if ((cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} ");}
+                    if ((cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");}
 
                     totalPagar += subTotal;
                     var detalle = new DetalleOrdenCompra
@@ -194,7 +194,7 @@ namespace Proyect_InvOperativa.Services
                         }
                     }
 
-                    if ((artDto.cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id {articulo.idArticulo} ");}
+                    if ((artDto.cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");}
 
                     nDetalles.Add(new DetalleOrdenCompra
                     {
@@ -461,7 +461,7 @@ namespace Proyect_InvOperativa.Services
             public async Task<OrdenCompraDetalleDto> GetDetalleByOrdenYArticulo(long nOrdenCompra, long idArticulo)
             {
             var detalle = await _detalleOrdenCompraRepository.GetDetalleByOrdenYArticulo(nOrdenCompra, idArticulo);
-            if (detalle == null)throw new Exception($"No se encontró detalle para la orden {nOrdenCompra} y artículo {idArticulo}");
+            if (detalle == null)throw new Exception($"no se encuentra detalle para la orden {nOrdenCompra} y articulo {idArticulo}");
                 var advertencia = await VerificarDetalleOrdenCompraAsync(detalle);
 
                 return new OrdenCompraDetalleDto
@@ -518,6 +518,53 @@ namespace Proyect_InvOperativa.Services
                }
                 orden.totalPagar = nuevoTotal;
                 await _ordenCompraRepository.UpdateAsync(orden);
+            }
+            #endregion
+
+            #region verificar orden de compra
+            public async Task<OrdenCompraAvisoDto> ValidarOrdenCompraExistente(long nOrdenCompra)
+            {
+                var orden = await _ordenCompraRepository.GetOrdenCompraConEstado(nOrdenCompra);
+                if (orden == null) throw new Exception($"orden de compra con nro. {nOrdenCompra} no encontrada");
+                var detalles = await _detalleOrdenCompraRepository.GetDetallesByOrdenId(nOrdenCompra);
+                if (detalles == null || !detalles.Any()) throw new Exception("la orden no contiene detalles para validar");
+                var avisosOC = new List<string>();
+                var avisosPP = new List<string>();
+
+                foreach (var detalle in detalles)
+                {
+                    var articulo = detalle.articulo;
+                    if (articulo == null) continue;
+
+                    var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
+                     if (stock == null) continue;
+
+                    var ordenesVigentesArt = await _ordenCompraRepository.GetOrdenesVigentesArt(articulo.idArticulo, new[] { "Pendiente", "Enviada" });
+                    var ordenesRelacionadasExceptoActual = ordenesVigentesArt
+                    .Where(oc => oc.nOrdenCompra != nOrdenCompra)
+                    .ToList();
+
+                    if (ordenesRelacionadasExceptoActual.Any())
+                    {
+                        avisosOC.Add($"existe al menos una orden de compra Pendiente o Enviada (distinta de la actual) para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo})");
+                    }
+
+                    if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
+                    {
+                        if ((detalle.cantidadArticulos + stock.stockActual) < stock.puntoPedido)
+                        {
+                            avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido");
+                        }
+                    }
+                    if ((detalle.cantidadArticulos + stock.stockActual) > articulo.stockMax){throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el artículo con ID '{articulo.nombreArticulo}' (ID {articulo.idArticulo})");}
+                }
+
+                return new OrdenCompraAvisoDto
+                {
+                    mensajeOC = "validación completada",
+                    advertenciasOC_oc = avisosOC,
+                    advertenciasOC_pp = avisosPP
+                };
             }
             #endregion
     }
