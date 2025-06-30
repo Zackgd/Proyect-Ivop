@@ -23,22 +23,30 @@ namespace Proyect_InvOperativa.Controllers
             return Ok(disponible);
         }
 
-            [HttpPost("crear-venta")]
-            public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
+        [HttpPost("crear-venta")]
+        public async Task<IActionResult> CreateVentas([FromBody] VentasDto ventasDto)
+        {
+            var result = await _ventasService.CreateVentas(ventasDto);
+            return Ok(new
             {
-                var result = await _ventasService.CreateVentas(ventasDto);
-                return Ok(new {
-                    mensaje = "venta generada correctamente",
-                    venta = result.venta,
-                    advertencias = result.advertencias
-                });
-}
+                mensaje = "venta generada correctamente",
+                venta = result.venta,
+                advertencias = result.advertencias
+            });
+        }
 
         [HttpGet("art-vent/{idArticulo}")]
         public async Task<ActionResult<List<ArtVentasDto>>> GetVentasPorArticulo(long idArticulo)
         {
-             var listaArtVentas = await _ventasService.GetVentasPorArticulo(idArticulo);
-             return Ok(listaArtVentas);
+            var listaArtVentas = await _ventasService.GetVentasPorArticulo(idArticulo);
+            return Ok(listaArtVentas);
+        }
+
+        [HttpGet("AllVentas")]
+        public async Task<IActionResult> GetAllVentas()
+        {
+            var listaVentas = await _ventasService.getAllVentas();
+            return Ok(listaVentas);
         }
     }
 }
