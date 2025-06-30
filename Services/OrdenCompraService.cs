@@ -188,12 +188,14 @@ namespace Proyect_InvOperativa.Services
 
                     if (articulo.modeloInv == ModeloInv.LoteFijo_Q)
                     {
-                       if ((artDto.cantidad+stock.stockActual) < stock.puntoPedido)
-                        {
-                        avisosPP.Add($"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente ");
-                        }
+                       if ((artDto.cantidad+stock.stockActual) < stock.puntoPedido){
+                            if (artDto.cantidad == articulo.qOptimo){
+                                avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido (cantidad actual = qOptimo)");
+                            }else{
+                                avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido");
+                            }
+                       }
                     }
-
                     if ((artDto.cantidad+stock.stockActual) > articulo.stockMax) {throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el articulo con Id '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) ");}
 
                     nDetalles.Add(new DetalleOrdenCompra
@@ -407,8 +409,13 @@ namespace Proyect_InvOperativa.Services
                     var stock = await _stockarticuloRepository.getstockActualbyIdArticulo(articulo.idArticulo);
                     if (stock == null) return $"no se encuentra stock para el articulo '{articulo.nombreArticulo}'";
                     var cantidadEsperada = stock.stockActual + detalle.cantidadArticulos;
-                    if (cantidadEsperada < stock.puntoPedido){return $"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente";}
-
+                    if (cantidadEsperada < stock.puntoPedido){
+                            if (detalle.cantidadArticulos == articulo.qOptimo){
+                                return $"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente (cantidad actual = qOptimo)";
+                            }else{
+                                return $"la cantidad ordenada para el articulo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido correspondiente";
+                            }
+                        }
                     return null;
                 }
             #endregion
@@ -553,7 +560,11 @@ namespace Proyect_InvOperativa.Services
                     {
                         if ((detalle.cantidadArticulos + stock.stockActual) < stock.puntoPedido)
                         {
-                            avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido");
+                            if (detalle.cantidadArticulos == articulo.qOptimo){
+                                avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido (cantidad actual = qOptimo)");
+                            }else{
+                                avisosPP.Add($"la cantidad ordenada para el artículo '{articulo.nombreArticulo}' (ID {articulo.idArticulo}) actualizará el inventario por debajo del punto de pedido");
+                            }
                         }
                     }
                     if ((detalle.cantidadArticulos + stock.stockActual) > articulo.stockMax){throw new Exception($"la cantidad solicitada actualizará el stock por encima del máximo permitido para el artículo con ID '{articulo.nombreArticulo}' (ID {articulo.idArticulo})");}
